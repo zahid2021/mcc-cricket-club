@@ -279,8 +279,23 @@
     });
 
     const grid = document.getElementById('players-grid');
-    const placeholder =
-      'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#0d3d18" width="100" height="100"/><text x="50" y="56" text-anchor="middle" fill="#F5C518" font-size="22" font-family="sans-serif">MCC</text></svg>');
+    const matchesGrid = document.getElementById('matches-grid');
+    let activeCategory = '';
+    let lastPlayersKey = '';
+    let lastMatchesKey = '';
+    let playersLoadedOnce = false;
+    let matchesLoadedOnce = false;
+
+    function fetchLive(url) {
+      return fetch(url, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
+      });
+    }
+
+    function fingerprint(data) {
+      try { return JSON.stringify(data); } catch (e) { return String(Date.now()); }
+    }
 
     function renderPlayers(list) {
       if (!list.length) {
@@ -316,61 +331,103 @@
       }).join('');
     }
 
-    async function loadPlayers(category) {
-      grid.innerHTML = '<p class="muted" style="grid-column:1/-1">Loading players…</p>';
-      const q = category ? ('?category=' + encodeURIComponent(category)) : '';
-      try {
-        const r = await fetch('/api/players/public' + q);
-        const data = await r.json();
-        renderPlayers(Array.isArray(data) ? data : []);
-      } catch (e) {
-        grid.innerHTML = '<p class="muted" style="grid-column:1/-1">Could not load players.</p>';
+    async function loadPlayers(category, opts) {
+      const silent = opts && opts.silent;
+      const cat = category == null ? activeCategory : category;
+      activeCategory = cat || '';
+      if (!silent && !playersLoadedOnce) {
+        grid.innerHTML = '<p class="muted" style="grid-column:1/-1">Loading players…</p>';
       }
+      const q = activeCategory ? ('?category=' + encodeURIComponent(activeCategory)) : '';
+      try {
+        const r = await fetchLive('/api/players/public' + q + (q ? '&' : '?') + '_=' + Date.now());
+        const data = await r.json();
+        const list = Array.isArray(data) ? data : [];
+        const key = fingerprint(list.map((p) => ({
+          id: p.id, n: p.full_name, pic: p.profile_picture ? 1 : 0,
+          role: p.playing_role, lead: p.leadership_label, cat: p.category,
+          dt: p.discipline_type, dr: p.discipline_reason, st: p.status,
+        })));
+        if (key !== lastPlayersKey) {
+          lastPlayersKey = key;
+          renderPlayers(list);
+        }
+        playersLoadedOnce = true;
+      } catch (e) {
+        if (!silent) {
+          grid.innerHTML = '<p class="muted" style="grid-column:1/-1">Could not load players.</p>';
+        }
+      }
+    }
+
+    function renderMatches(list) {
+      if (!Array.isArray(list) || !list.length) {
+        matchesGrid.innerHTML = '<p class="muted" style="grid-column:1/-1">Abhi koi upcoming match publish nahi. Admin portal se select karein.</p>';
+        return;
+      }
+      matchesGrid.innerHTML = list.map((m) => {
+        const session = (m.session || 'day').toUpperCase();
+        const cat = (m.category || '').toUpperCase();
+        const boys = (m.squad || []).map((s) => {
+          const bits = [s.full_name];
+          if (s.jersey_number != null) bits[0] += ' #' + s.jersey_number;
+          if (s.leadership_label) bits.push(s.leadership_label);
+          if (s.playing_role) bits.push(s.playing_role);
+          return `<li style="margin:.25rem 0;font-size:.85rem">${bits.join(' · ')}</li>`;
+        }).join('') || '<li class="muted">Squad TBD</li>';
+        return `<article class="card">
+          <small>${cat} · ${session}</small>
+          <span class="pill">${m.status || 'UPCOMING'}</span>
+          <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">${m.title}</p>
+          <p class="muted" style="margin-top:.5rem;font-size:.85rem">${m.match_date}${m.match_time ? ' · ' + m.match_time : ''}${m.venue ? ' · ' + m.venue : ''}</p>
+          <p style="margin-top:.85rem;font-family:Oswald,sans-serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)">Playing boys</p>
+          <ul style="margin-top:.35rem;padding-left:1.1rem;color:rgba(255,255,255,.8)">${boys}</ul>
+        </article>`;
+      }).join('');
+    }
+
+    async function loadMatches(opts) {
+      if (!matchesGrid) return;
+      const silent = opts && opts.silent;
+      try {
+        const r = await fetchLive('/api/matches/public?_=' + Date.now());
+        const list = await r.json();
+        const key = fingerprint(list);
+        if (key !== lastMatchesKey) {
+          lastMatchesKey = key;
+          renderMatches(Array.isArray(list) ? list : []);
+        }
+        matchesLoadedOnce = true;
+      } catch (e) {
+        if (!silent && !matchesLoadedOnce) {
+          matchesGrid.innerHTML = '<p class="muted" style="grid-column:1/-1">Could not load matches.</p>';
+        }
+      }
+    }
+
+    async function refreshHome(silent) {
+      await Promise.all([
+        loadPlayers(activeCategory, { silent: !!silent }),
+        loadMatches({ silent: !!silent }),
+      ]);
     }
 
     document.querySelectorAll('.filters button').forEach((btn) => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filters button').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        loadPlayers(btn.dataset.cat || '');
+        lastPlayersKey = '';
+        loadPlayers(btn.dataset.cat || '', { silent: false });
       });
     });
-    loadPlayers('');
 
-    const matchesGrid = document.getElementById('matches-grid');
-    async function loadMatches() {
-      if (!matchesGrid) return;
-      try {
-        const r = await fetch('/api/matches/public');
-        const list = await r.json();
-        if (!Array.isArray(list) || !list.length) {
-          matchesGrid.innerHTML = '<p class="muted" style="grid-column:1/-1">Abhi koi upcoming match publish nahi. Admin portal se select karein.</p>';
-          return;
-        }
-        matchesGrid.innerHTML = list.map((m) => {
-          const session = (m.session || 'day').toUpperCase();
-          const cat = (m.category || '').toUpperCase();
-          const boys = (m.squad || []).map((s) => {
-            const bits = [s.full_name];
-            if (s.jersey_number != null) bits[0] += ' #' + s.jersey_number;
-            if (s.leadership_label) bits.push(s.leadership_label);
-            if (s.playing_role) bits.push(s.playing_role);
-            return `<li style="margin:.25rem 0;font-size:.85rem">${bits.join(' · ')}</li>`;
-          }).join('') || '<li class="muted">Squad TBD</li>';
-          return `<article class="card">
-            <small>${cat} · ${session}</small>
-            <span class="pill">${m.status || 'UPCOMING'}</span>
-            <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">${m.title}</p>
-            <p class="muted" style="margin-top:.5rem;font-size:.85rem">${m.match_date}${m.match_time ? ' · ' + m.match_time : ''}${m.venue ? ' · ' + m.venue : ''}</p>
-            <p style="margin-top:.85rem;font-family:Oswald,sans-serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)">Playing boys</p>
-            <ul style="margin-top:.35rem;padding-left:1.1rem;color:rgba(255,255,255,.8)">${boys}</ul>
-          </article>`;
-        }).join('');
-      } catch (e) {
-        matchesGrid.innerHTML = '<p class="muted" style="grid-column:1/-1">Could not load matches.</p>';
-      }
-    }
-    loadMatches();
+    refreshHome(false);
+    // Live updates — no manual refresh needed
+    setInterval(() => refreshHome(true), 4000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') refreshHome(true);
+    });
+    window.addEventListener('focus', () => refreshHome(true));
   </script>
 </body>
 </html>

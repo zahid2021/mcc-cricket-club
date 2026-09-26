@@ -30,6 +30,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def no_store_dynamic(request, call_next):
+    """HTML pages + API must not be cached so homepage updates without hard refresh."""
+    response = await call_next(request)
+    path = request.url.path or ""
+    if (
+        path.startswith("/api/")
+        or path in ("/", "/health")
+        or path.startswith("/portal")
+        or path in ("/login", "/signup", "/policy")
+        or path.endswith(".html")
+    ):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 app.include_router(api_router, prefix="/api")
 
 if STATIC_DIR.exists():
