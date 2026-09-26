@@ -11,66 +11,101 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <title>Mustafa Cricket Club | MCC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
+    :root {
+      --gold: #F5C518;
+      --lime: #9BE15D;
+      --dark: #041008;
+      --night: #07150c;
+      --ink: #e8f5e9;
+      --muted: rgba(232, 245, 233, .62);
+      --line: rgba(245, 197, 24, .28);
+      --glass: rgba(4, 16, 8, .72);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff;
-      overflow-x: hidden; -webkit-text-size-adjust: 100%;
+      font-family: "DM Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--dark);
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
     }
-    img, video { max-width: 100%; height: auto; }
+    img { max-width: 100%; height: auto; display: block; }
+
+    /* Atmospheric page wash using club photo */
+    .page-bg {
+      position: fixed; inset: 0; z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(4,16,8,.55), rgba(4,16,8,.88) 40%, rgba(4,16,8,.96)),
+        url("/static/images/mcc-hero.png") center / cover no-repeat;
+      background-attachment: scroll;
+      filter: saturate(1.05) contrast(1.05);
+    }
+    @media (min-width: 900px) {
+      .page-bg { background-attachment: fixed; }
+    }
+    .page-grain {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .07;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
     .header {
       position: fixed; inset: 0 0 auto 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between; gap: .5rem;
-      padding: 0 .75rem; height: 3.5rem;
-      background: rgba(6,20,10,.92); backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 0 .85rem; height: 3.6rem;
+      background: linear-gradient(180deg, rgba(4,16,8,.92), rgba(4,16,8,.55));
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    @media (min-width: 640px) { .header { height: 3.75rem; padding: 0 1rem; } }
-    .logo { display: flex; align-items: center; gap: .65rem; text-decoration: none; color: inherit; min-width: 0; }
+    @media (min-width: 640px) { .header { height: 4rem; padding: 0 1.25rem; } }
+    .logo { display: flex; align-items: center; gap: .7rem; text-decoration: none; color: inherit; }
     .badge {
-      width: 2.35rem; height: 2.35rem; border-radius: 999px; flex-shrink: 0;
+      width: 2.4rem; height: 2.4rem; border-radius: 999px; flex-shrink: 0;
       display: grid; place-items: center;
-      background: linear-gradient(135deg, var(--gold), #E8A317);
-      color: var(--dark); font-family: "Bebas Neue", sans-serif; font-size: 1rem;
-      box-shadow: 0 0 20px rgba(245,197,24,.35);
+      background: radial-gradient(circle at 30% 25%, #ffe566, var(--gold) 55%, #c4920f);
+      color: var(--dark); font-family: "Bebas Neue", sans-serif; font-size: 1.05rem;
+      box-shadow: 0 0 0 1px rgba(245,197,24,.35), 0 8px 28px rgba(245,197,24,.25);
     }
-    @media (min-width: 640px) { .badge { width: 2.5rem; height: 2.5rem; font-size: 1.1rem; } }
-    .logo-text { display: none; flex-direction: column; line-height: 1.1; }
+    .logo-text { display: none; flex-direction: column; line-height: 1.05; }
     @media (min-width: 480px) { .logo-text { display: flex; } }
-    .logo-text span:first-child { font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
-    .logo-text span:last-child { font-family: Oswald, sans-serif; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.75); }
-    .nav {
-      display: none; gap: .15rem; align-items: center;
+    .logo-text span:first-child {
+      font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--gold);
     }
+    .logo-text span:last-child {
+      font-family: Oswald, sans-serif; font-size: .62rem; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.7);
+    }
+    .nav { display: none; gap: .1rem; }
     @media (min-width: 1024px) { .nav { display: flex; } }
     .nav a {
-      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
-      color: rgba(255,255,255,.7); text-decoration: none; padding: .45rem .6rem; border-radius: 2px; white-space: nowrap;
+      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.72); text-decoration: none; padding: .5rem .7rem; border-radius: 2px;
     }
-    .nav a:hover { color: var(--neon); background: rgba(255,255,255,.05); }
+    .nav a:hover { color: var(--gold); }
     .btn {
-      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
-      text-decoration: none; padding: .5rem .75rem; border-radius: 2px; background: var(--gold); color: var(--dark);
-      display: inline-block; border: 1px solid transparent; white-space: nowrap;
+      font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      text-decoration: none; padding: .62rem 1rem; border-radius: 2px;
+      background: linear-gradient(135deg, #ffe066, var(--gold));
+      color: var(--dark); display: inline-block; border: 1px solid transparent;
+      transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+      box-shadow: 0 8px 24px rgba(245,197,24,.2);
     }
-    @media (min-width: 640px) { .btn { font-size: .75rem; padding: .55rem .9rem; } }
-    .btn:hover { background: var(--neon); }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(245,197,24,.32); }
     .btn-outline {
-      background: transparent; color: var(--gold); border: 1px solid var(--gold);
+      background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35);
+      box-shadow: none;
     }
-    .btn-outline:hover { background: rgba(245,197,24,.15); color: #fff; }
-    .header-actions { display: flex; gap: .35rem; align-items: center; flex-shrink: 0; }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.08); }
+    .header-actions { display: flex; gap: .4rem; align-items: center; }
     .menu-btn {
-      display: inline-flex; align-items: center; justify-content: center;
       width: 2.5rem; height: 2.5rem; border-radius: 3px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.04); color: #fff;
+      border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.04);
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    .menu-btn span {
-      display: block; width: 1.1rem; height: 2px; background: var(--gold); position: relative;
-    }
+    .menu-btn span { width: 1.1rem; height: 2px; background: var(--gold); position: relative; display: block; }
     .menu-btn span::before, .menu-btn span::after {
       content: ""; position: absolute; left: 0; width: 100%; height: 2px; background: var(--gold);
     }
@@ -78,111 +113,184 @@
     .menu-btn span::after { top: 5px; }
     @media (min-width: 1024px) { .menu-btn { display: none; } }
     .mobile-nav {
-      display: none; position: fixed; top: 3.5rem; left: 0; right: 0; z-index: 49;
-      background: rgba(6,20,10,.97); border-bottom: 1px solid rgba(245,197,24,.35);
-      padding: .75rem 1rem 1rem; flex-direction: column; gap: .25rem;
+      display: none; position: fixed; top: 3.6rem; left: 0; right: 0; z-index: 49;
+      background: rgba(4,16,8,.97); border-bottom: 1px solid var(--line);
+      padding: .75rem 1rem 1rem; flex-direction: column;
     }
-    @media (min-width: 640px) { .mobile-nav { top: 3.75rem; } }
+    @media (min-width: 640px) { .mobile-nav { top: 4rem; } }
     .mobile-nav.open { display: flex; }
     .mobile-nav a {
-      font-family: Oswald, sans-serif; font-size: .85rem; letter-spacing: .12em; text-transform: uppercase;
-      color: rgba(255,255,255,.85); text-decoration: none; padding: .75rem .5rem;
+      font-family: Oswald, sans-serif; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.88); text-decoration: none; padding: .8rem .4rem;
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .mobile-nav a:hover { color: var(--gold); }
+
+    /* HERO — one composition, full-bleed image */
     .hero {
       position: relative; min-height: 100svh; width: 100%; overflow: hidden;
+      display: grid; place-items: end start;
     }
-    .hero img {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; object-position: center 20%;
+    .hero-media {
+      position: absolute; inset: 0; overflow: hidden;
     }
-    @media (min-width: 640px) { .hero img { object-position: center; } }
+    .hero-media img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center 18%;
+      transform: scale(1.08);
+      animation: heroZoom 22s ease-out forwards;
+    }
+    @media (min-width: 640px) { .hero-media img { object-position: center 30%; } }
+    @keyframes heroZoom {
+      from { transform: scale(1.12); }
+      to { transform: scale(1.02); }
+    }
     .hero-shade {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, var(--dark), rgba(6,20,10,.35) 45%, rgba(6,20,10,.2));
+      background:
+        linear-gradient(90deg, rgba(4,16,8,.88) 0%, rgba(4,16,8,.45) 48%, rgba(4,16,8,.25) 100%),
+        linear-gradient(180deg, rgba(4,16,8,.35) 0%, rgba(4,16,8,.15) 35%, rgba(4,16,8,.92) 100%);
     }
+    .hero-frame {
+      position: absolute; inset: 1rem; border: 1px solid rgba(245,197,24,.18);
+      pointer-events: none; opacity: .7;
+    }
+    @media (min-width: 768px) { .hero-frame { inset: 1.5rem; } }
     .hero-content {
-      position: relative; z-index: 2; min-height: 100svh;
-      display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 5.5rem .9rem 3rem; max-width: 80rem; margin: 0 auto; width: 100%;
+      position: relative; z-index: 2; width: min(42rem, 100%);
+      padding: 6rem 1.1rem 3.25rem;
+      animation: heroIn 1.1s ease-out both;
     }
-    @media (min-width: 640px) {
-      .hero-content { justify-content: center; padding: 5rem 1.25rem 3rem; }
+    @media (min-width: 768px) {
+      .hero { place-items: center start; }
+      .hero-content { padding: 0 2rem 0 3rem; }
     }
-    .eyebrow { font-family: Oswald, sans-serif; font-size: clamp(.55rem, 2.2vw, .65rem); letter-spacing: .28em; text-transform: uppercase; color: var(--gold); }
-    h1 {
-      margin-top: .75rem; font-family: "Bebas Neue", sans-serif;
-      font-size: clamp(2.4rem, 11vw, 5.5rem); line-height: .9; letter-spacing: .02em;
-      text-shadow: 0 4px 24px rgba(0,0,0,.85);
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    h1 .gold { color: var(--gold); }
-    .tag { margin-top: .85rem; font-family: Oswald, sans-serif; font-size: clamp(.7rem, 2.5vw, .85rem); letter-spacing: .2em; text-transform: uppercase; color: var(--neon); }
-    .lead { margin-top: 1rem; max-width: 28rem; color: rgba(255,255,255,.8); font-size: clamp(.88rem, 2.8vw, .95rem); line-height: 1.55; }
-    .cta { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: .65rem; }
-    .section { padding: 2.5rem .9rem; max-width: 80rem; margin: 0 auto; }
-    @media (min-width: 640px) { .section { padding: 3.5rem 1.25rem; } }
-    .section h2 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 6vw, 2.4rem); letter-spacing: .04em; }
-    .muted { color: rgba(255,255,255,.55); margin-top: .5rem; font-size: clamp(.85rem, 2.5vw, .95rem); }
+    .brand-mark {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(4.2rem, 16vw, 8.5rem);
+      line-height: .82; letter-spacing: .02em;
+      color: #fff;
+      text-shadow: 0 10px 40px rgba(0,0,0,.55);
+    }
+    .brand-mark em {
+      font-style: normal; color: var(--gold);
+      display: block;
+    }
+    .hero-line {
+      margin-top: 1.1rem; max-width: 24rem;
+      color: rgba(255,255,255,.82);
+      font-size: clamp(.95rem, 2.4vw, 1.08rem);
+      line-height: 1.55;
+    }
+    .cta { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: .7rem; }
+    .scroll-hint {
+      position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+      z-index: 3; font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .28em;
+      text-transform: uppercase; color: rgba(255,255,255,.45);
+      animation: bob 2.4s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%, 100% { transform: translate(-50%, 0); opacity: .45; }
+      50% { transform: translate(-50%, 6px); opacity: .9; }
+    }
+
+    /* Sections */
+    .band {
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .band::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(180deg, rgba(4,16,8,.55), rgba(4,16,8,.82));
+    }
+    .section {
+      position: relative; z-index: 1;
+      padding: 3.25rem .95rem; max-width: 80rem; margin: 0 auto;
+    }
+    @media (min-width: 640px) { .section { padding: 4.5rem 1.5rem; } }
+    .section-head { max-width: 36rem; margin-bottom: 1.5rem; }
+    .section-kicker {
+      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .28em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: .45rem;
+    }
+    .section h2 {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(2.1rem, 6vw, 3.2rem);
+      letter-spacing: .03em; line-height: .95;
+    }
+    .muted { color: var(--muted); margin-top: .55rem; font-size: .95rem; line-height: 1.5; }
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
     .grid { display: grid; gap: 1rem; margin-top: 1.5rem; grid-template-columns: 1fr; }
     @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 960px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
     .card {
-      border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
-      padding: 1.1rem; border-radius: 2px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      padding: 1.2rem; border-radius: 4px;
+      backdrop-filter: blur(8px);
+      transition: border-color .25s ease, transform .25s ease;
     }
-    .card small { font-family: Oswald, sans-serif; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.45); font-size: .65rem; }
-    .pill { display: inline-block; margin-top: .5rem; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
-      padding: .2rem .5rem; border-radius: 2px; background: rgba(245,197,24,.15); color: var(--gold); border: 1px solid rgba(245,197,24,.35); }
-    .footer {
-      border-top: 1px solid rgba(255,255,255,.1); background: var(--night);
-      padding: 1.75rem .9rem; color: rgba(255,255,255,.4); font-size: .8rem;
+    .card:hover { border-color: rgba(245,197,24,.35); transform: translateY(-2px); }
+    .card small {
+      font-family: Oswald, sans-serif; letter-spacing: .16em; text-transform: uppercase;
+      color: rgba(255,255,255,.45); font-size: .65rem;
     }
-    .footer-inner {
-      max-width: 72rem; margin: 0 auto;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 1rem 1.5rem; text-align: left;
+    .pill {
+      display: inline-block; margin-top: .5rem; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: .22rem .55rem; border-radius: 2px;
+      background: rgba(245,197,24,.14); color: var(--gold); border: 1px solid rgba(245,197,24,.35);
     }
-    .footer-brand { flex: 1 1 14rem; }
-    .footer-brand .logo-mcc {
-      font-family: Bebas Neue, sans-serif; font-size: 1.8rem; color: var(--gold);
+
+    .filters { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.1rem; }
+    .filters button {
+      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: .5rem .8rem; border-radius: 2px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.25); color: rgba(255,255,255,.7);
     }
-    .footer .motto { font-style: italic; color: rgba(255,255,255,.55); margin-top: .5rem; }
-    .footer-credit {
-      flex: 0 1 auto; text-align: right; color: rgba(255,255,255,.5); font-size: .78rem; line-height: 1.45;
+    .filters button.active, .filters button:hover {
+      border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.1);
     }
-    .footer-credit strong { color: #F5C518; font-weight: 600; }
-    @media (max-width: 640px) {
-      .footer-inner { flex-direction: column; text-align: center; }
-      .footer-credit { text-align: center; }
-    }
-    .api { margin-top: 1rem; font-size: .75rem; color: rgba(124,255,58,.7); }
+
     .players-grid {
-      display: grid; gap: 1rem; margin-top: 1.5rem;
-      grid-template-columns: 1fr;
+      display: grid; gap: 1.1rem; margin-top: 1.5rem; grid-template-columns: 1fr;
     }
     .player-card {
-      border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
-      border-radius: 3px; overflow: hidden; text-align: center; padding: 0 0 1.25rem;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.28);
+      border-radius: 4px; overflow: hidden; text-align: center; padding: 0 0 1.2rem;
+      transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+    .player-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,197,24,.4);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
     }
     .player-card img, .player-card .ph {
-      width: 100%; height: min(14rem, 55vw); border-radius: 0; object-fit: cover;
-      border: none; margin: 0; display: block; background: #0d3d18;
-      border-bottom: 3px solid var(--gold);
+      width: 100%; height: min(15rem, 58vw); object-fit: cover; background: #0d3d18;
+      border-bottom: 2px solid rgba(245,197,24,.55);
     }
     .player-card .ph {
       display: grid; place-items: center; font-family: "Bebas Neue", sans-serif;
-      color: var(--gold); font-size: 2.4rem;
+      color: var(--gold); font-size: 2.5rem;
     }
     .player-card h3 {
-      margin-top: 1rem; padding: 0 .75rem; font-family: Oswald, sans-serif; font-size: clamp(1.05rem, 3.5vw, 1.25rem); color: #fff;
+      margin-top: 1rem; padding: 0 .75rem; font-family: Oswald, sans-serif;
+      font-size: clamp(1.05rem, 3.5vw, 1.25rem); color: #fff;
     }
     .player-card .role {
-      color: var(--gold); font-size: clamp(.9rem, 3vw, 1rem); margin-top: .35rem; padding: 0 .75rem;
+      color: var(--gold); font-size: .95rem; margin-top: .35rem; padding: 0 .75rem;
       font-family: Oswald, sans-serif; letter-spacing: .06em;
     }
     .player-card .team-tag {
-      margin-top: .5rem; padding: 0 .75rem; color: rgba(255,255,255,.65); font-size: .85rem;
+      margin-top: .45rem; padding: 0 .75rem; color: rgba(255,255,255,.6); font-size: .8rem;
       font-family: Oswald, sans-serif; letter-spacing: .14em; text-transform: uppercase;
     }
     .player-card .discipline {
@@ -193,40 +301,91 @@
       display: block; font-family: Oswald, sans-serif; letter-spacing: .1em;
       text-transform: uppercase; font-size: .72rem; margin-bottom: .25rem;
     }
-    .player-card .discipline.warn {
-      background: rgba(245,197,24,.12); border: 1px solid rgba(245,197,24,.45); color: #fde68a;
-    }
+    .player-card .discipline.warn { background: rgba(245,197,24,.12); border: 1px solid rgba(245,197,24,.45); color: #fde68a; }
     .player-card .discipline.ban,
-    .player-card .discipline.suspend {
-      background: rgba(239,68,68,.15); border: 1px solid rgba(252,165,165,.45); color: #fecaca;
-    }
-    .player-card .discipline.unban {
-      background: rgba(124,255,58,.1); border: 1px solid rgba(124,255,58,.35); color: #bbf7d0;
-    }
+    .player-card .discipline.suspend { background: rgba(239,68,68,.15); border: 1px solid rgba(252,165,165,.45); color: #fecaca; }
+    .player-card .discipline.unban { background: rgba(124,255,58,.1); border: 1px solid rgba(124,255,58,.35); color: #bbf7d0; }
     @media (min-width: 640px) {
-      .players-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
-      .player-card img, .player-card .ph { height: 16rem; }
+      .players-grid { grid-template-columns: repeat(2, 1fr); }
+      .player-card img, .player-card .ph { height: 16.5rem; }
     }
     @media (min-width: 960px) {
       .players-grid { grid-template-columns: repeat(3, 1fr); }
       .player-card img, .player-card .ph { height: 18rem; }
     }
-    @media (min-width: 1280px) {
-      .players-grid { grid-template-columns: repeat(4, 1fr); }
+    @media (min-width: 1280px) { .players-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    /* Teams split */
+    .teams-split {
+      display: grid; gap: 1rem; margin-top: 1.5rem;
+      grid-template-columns: 1fr;
     }
-    .filters { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1rem; }
-    .filters button {
-      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
-      padding: .45rem .7rem; border-radius: 2px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,.2); background: transparent; color: rgba(255,255,255,.7);
+    @media (min-width: 720px) { .teams-split { grid-template-columns: 1fr 1fr; } }
+    .team-panel {
+      position: relative; min-height: 14rem; overflow: hidden; border-radius: 4px;
+      border: 1px solid rgba(245,197,24,.25);
+      background:
+        linear-gradient(160deg, rgba(4,16,8,.55), rgba(4,16,8,.82)),
+        url("/static/images/mcc-hero.png") center / cover no-repeat;
+      padding: 1.5rem;
+      display: flex; flex-direction: column; justify-content: flex-end;
     }
-    .filters button.active, .filters button:hover {
-      border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.1);
+    .team-panel.junior {
+      background:
+        linear-gradient(200deg, rgba(10,40,18,.5), rgba(4,16,8,.88)),
+        url("/static/images/mcc-hero.png") 60% 40% / cover no-repeat;
     }
-    #policy img { width: 100%; height: auto; display: block; }
+    .team-panel small {
+      font-family: Oswald, sans-serif; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--gold); font-size: .7rem;
+    }
+    .team-panel p {
+      margin-top: .55rem; font-family: Oswald, sans-serif; font-size: 1.2rem; color: #fff;
+    }
+    .admin-cta { margin-top: 1.35rem; }
+
+    #policy {
+      position: relative; width: 100%;
+      border-top: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(4,16,8,.75), rgba(4,16,8,.95));
+    }
+    .policy-inner { max-width: 72rem; margin: 0 auto; padding: 2.5rem 1rem 2.75rem; }
+    .policy-inner h2 {
+      font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 5vw, 2.4rem);
+      color: var(--gold); letter-spacing: .05em;
+    }
+    .policy-frame {
+      display: block; margin-top: 1rem; border: 1px solid rgba(245,197,24,.3);
+      border-radius: 4px; overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+
+    .footer {
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: #020805;
+      padding: 2rem 1rem; color: rgba(255,255,255,.42); font-size: .8rem;
+    }
+    .footer-inner {
+      max-width: 72rem; margin: 0 auto;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 1rem 1.5rem;
+    }
+    .footer-brand .logo-mcc {
+      font-family: Bebas Neue, sans-serif; font-size: 1.9rem; color: var(--gold);
+    }
+    .footer .motto { font-style: italic; color: rgba(255,255,255,.55); margin-top: .45rem; }
+    .footer-credit { text-align: right; color: rgba(255,255,255,.5); line-height: 1.45; }
+    .footer-credit strong { color: var(--gold); }
+    @media (max-width: 640px) {
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-credit { text-align: center; }
+    }
   </style>
 </head>
 <body>
+  <div class="page-bg" aria-hidden="true"></div>
+  <div class="page-grain" aria-hidden="true"></div>
+
   <header class="header">
     <a class="logo" href="/">
       <span class="badge">MCC</span>
@@ -242,9 +401,7 @@
     </nav>
     <div class="header-actions">
       <a class="btn" href="/portal">Portal</a>
-      <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">
-        <span></span>
-      </button>
+      <button type="button" class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false"><span></span></button>
     </div>
   </header>
   <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
@@ -258,68 +415,90 @@
   </nav>
 
   <section class="hero">
-    <img src="/static/images/mcc-hero.png" alt="Mustafa Cricket Club" />
+    <div class="hero-media">
+      <img src="/static/images/mcc-hero.png" alt="Mustafa Cricket Club players" />
+    </div>
     <div class="hero-shade"></div>
+    <div class="hero-frame" aria-hidden="true"></div>
     <div class="hero-content">
-      <p class="eyebrow">Play Hard · Stay Humble · Win Together</p>
-      <h1><span class="gold">MUSTAFA</span><br />CRICKET CLUB</h1>
-      <p class="tag">One Team. One Dream.</p>
-      <p class="lead">Senior &amp; junior cricket under one badge — fixtures, selection, live scoring, and full club operations.</p>
+      <h1 class="brand-mark"><em>MUSTAFA</em>CRICKET CLUB</h1>
+      <p class="hero-line">One badge. Senior &amp; junior cricket — fixtures, selection, and club pride on one pitch.</p>
       <div class="cta">
-        <a class="btn" href="#matches">View Fixtures</a>
+        <a class="btn" href="#players">Meet the Squad</a>
         <a class="btn btn-outline" href="/portal">Player Portal</a>
       </div>
     </div>
+    <div class="scroll-hint">Scroll</div>
   </section>
 
-  <section class="section" id="matches">
-    <h2>MATCHES · PLAYING XI</h2>
-    <p class="muted">Admin-selected boys — Senior / Junior · Day / Night</p>
-    <div class="grid" id="matches-grid">
-      <p class="muted" style="grid-column:1/-1">Loading matches…</p>
-    </div>
-  </section>
+  <div class="band">
+    <section class="section reveal" id="matches">
+      <div class="section-head">
+        <p class="section-kicker">Fixtures</p>
+        <h2>MATCHES · PLAYING XI</h2>
+        <p class="muted">Day &amp; night selections — Senior / Junior boys named by admin.</p>
+      </div>
+      <div class="grid" id="matches-grid">
+        <p class="muted" style="grid-column:1/-1">Loading matches…</p>
+      </div>
+    </section>
+  </div>
 
-  <section class="section" id="players">
-    <h2>OUR PLAYERS</h2>
-    <p class="muted">Name · Role · Senior / Junior · Warning / Ban reason (if any)</p>
-    <div class="filters">
-      <button type="button" class="active" data-cat="">All</button>
-      <button type="button" data-cat="senior">Senior</button>
-      <button type="button" data-cat="junior">Junior</button>
-    </div>
-    <div class="players-grid" id="players-grid">
-      <p class="muted" style="grid-column:1/-1">Loading players…</p>
-    </div>
-  </section>
+  <div class="band">
+    <section class="section reveal" id="players">
+      <div class="section-head">
+        <p class="section-kicker">The badge</p>
+        <h2>OUR PLAYERS</h2>
+        <p class="muted">Name · Role · Senior / Junior · Discipline note if any</p>
+      </div>
+      <div class="filters">
+        <button type="button" class="active" data-cat="">All</button>
+        <button type="button" data-cat="senior">Senior</button>
+        <button type="button" data-cat="junior">Junior</button>
+      </div>
+      <div class="players-grid" id="players-grid">
+        <p class="muted" style="grid-column:1/-1">Loading players…</p>
+      </div>
+    </section>
+  </div>
 
-  <section class="section" id="teams">
-    <h2>SENIOR &amp; JUNIOR</h2>
-    <p class="muted">Passion · Discipline · Respect · Unity</p>
-    <p style="margin-top:1rem">
-      <a class="btn" href="/login?next=/portal/admin" style="display:inline-block">Open Admin Dashboard</a>
-    </p>
-    <div class="grid" style="margin-top:1.5rem">
-      <article class="card"><small>Senior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">1st XI · 2nd XI · Development</p></article>
-      <article class="card"><small>Junior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">U19 · U16 · U14 · U12</p></article>
-    </div>
-  </section>
+  <div class="band">
+    <section class="section reveal" id="teams">
+      <div class="section-head">
+        <p class="section-kicker">Pathways</p>
+        <h2>SENIOR &amp; JUNIOR</h2>
+        <p class="muted">Passion · Discipline · Respect · Unity</p>
+      </div>
+      <div class="teams-split">
+        <div class="team-panel">
+          <small>Senior</small>
+          <p>1st XI · 2nd XI · Development</p>
+        </div>
+        <div class="team-panel junior">
+          <small>Junior</small>
+          <p>U19 · U16 · U14 · U12</p>
+        </div>
+      </div>
+      <p class="admin-cta">
+        <a class="btn" href="/login?next=/portal/admin">Open Admin Dashboard</a>
+      </p>
+    </section>
+  </div>
 
-  <!-- Tournament policy (above footer) -->
-  <section id="policy" style="width:100%;background:#06140a;border-top:1px solid rgba(245,197,24,.35);padding:0;margin:0">
-    <div style="max-width:72rem;margin:0 auto;padding:1.5rem 1rem 2rem">
-      <h2 style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:#F5C518;letter-spacing:.06em;margin:0 0 .35rem">TOURNAMENT POLICY</h2>
-      <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin:0 0 1rem">ٹورنامنٹ میں شرکت کی پالیسی — English &amp; اردو</p>
-      <a href="/policy" style="display:block;border:1px solid rgba(245,197,24,.35);border-radius:4px;overflow:hidden">
-        <img src="/static/images/mcc-tournament-policy-v2.jpg?v=3" alt="MCC Tournament Process Flow Chart" width="1024" height="935" style="width:100%;height:auto;display:block;vertical-align:bottom" />
+  <section id="policy" class="reveal">
+    <div class="policy-inner">
+      <p class="section-kicker">Club rules</p>
+      <h2>TOURNAMENT POLICY</h2>
+      <p class="muted" style="margin-bottom:0">ٹورنامنٹ میں شرکت کی پالیسی — English &amp; اردو</p>
+      <a class="policy-frame" href="/policy">
+        <img src="/static/images/mcc-tournament-policy-v2.jpg?v=4" alt="MCC Tournament Process Flow Chart" width="1024" height="935" />
       </a>
-      <p style="margin-top:1rem">
-        <a class="btn" href="/policy">Read Full Policy (English + اردو)</a>
+      <p style="margin-top:1.1rem">
+        <a class="btn" href="/policy">Read Full Policy</a>
       </p>
     </div>
   </section>
 
-  <!-- Absolute bottom of homepage -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand">
@@ -350,18 +529,26 @@
       }
       btn.addEventListener('click', toggleMenu);
       nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
-      window.addEventListener('resize', () => {
-        if (window.innerWidth >= 1024) closeMenu();
-      });
+      window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeMenu(); });
     })();
 
-    fetch('/health').then(r => r.json()).then(j => {
-      const el = document.getElementById('api-status');
-      if (el) el.textContent = 'API OK · ' + j.club;
-    }).catch(() => {
-      const el = document.getElementById('api-status');
-      if (el) el.textContent = 'API offline';
-    });
+    // Scroll reveal
+    (function () {
+      const nodes = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        nodes.forEach((n) => n.classList.add('in'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      nodes.forEach((n) => io.observe(n));
+    })();
 
     const grid = document.getElementById('players-grid');
     const matchesGrid = document.getElementById('matches-grid');
@@ -507,7 +694,6 @@
     });
 
     refreshHome(false);
-    // Live updates — no manual refresh needed
     setInterval(() => refreshHome(true), 4000);
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') refreshHome(true);
