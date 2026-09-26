@@ -38,7 +38,7 @@ Site: http://localhost:3000
 
 | User | Password | Role |
 |------|----------|------|
-| `admin` | `Admin@MCC2026` | Super Admin |
+| `admin` | `admin` | Super Admin |
 | `mali` | `Player@MCC2026` | Player (Muhammad Ali) |
 | `captain` | `Captain@MCC2026` | Captain |
 

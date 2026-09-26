@@ -14,7 +14,7 @@ def test_health():
 def test_login_admin():
     r = client.post(
         "/api/auth/login",
-        json={"identifier": "admin", "password": "Admin@MCC2026", "remember_me": True},
+        json={"identifier": "admin", "password": "admin", "remember_me": True},
     )
     assert r.status_code == 200
     data = r.json()

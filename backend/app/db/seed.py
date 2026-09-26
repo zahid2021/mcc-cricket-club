@@ -76,7 +76,7 @@ def seed_if_empty() -> None:
             email="admin@mustafacc.club",
             full_name="Club Administrator",
             phone="+10000000000",
-            password_hash=hash_password("Admin@MCC2026"),
+            password_hash=hash_password("admin"),
         )
         admin.roles = [role_by_code["super_admin"]]
         db.add(admin)

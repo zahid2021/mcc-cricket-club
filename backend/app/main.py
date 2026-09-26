@@ -88,6 +88,21 @@ def on_startup() -> None:
     try:
         restore_into_db(db)
         restore_avatars_only(db)
+
+        # Keep admin password simple as requested: admin / admin
+        # (run after restore so GitHub backup cannot re-apply old hash)
+        from app.models import User
+        from app.core.security import hash_password, verify_password
+
+        admin_user = (
+            db.query(User)
+            .filter((User.username == "admin") | (User.email == "admin@mustafacc.club"))
+            .first()
+        )
+        if admin_user and not verify_password("admin", admin_user.password_hash):
+            admin_user.password_hash = hash_password("admin")
+            db.commit()
+            print("admin password reset to: admin")
     finally:
         db.close()
 
