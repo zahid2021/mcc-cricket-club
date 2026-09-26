@@ -41,10 +41,23 @@
       text-decoration: none; padding: .55rem .9rem; border-radius: 2px; background: var(--gold); color: var(--dark);
     }
     .btn:hover { background: var(--neon); }
-    .btn-outline {
-      border: 1px solid rgba(124,255,58,.6); background: rgba(6,20,10,.5); color: var(--neon);
+    .header-actions { display: flex; gap: .4rem; align-items: center; flex-shrink: 0; }
+    .btn-admin {
+      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; padding: .5rem .75rem; border-radius: 2px;
+      background: #F5C518; color: #06140a; white-space: nowrap; font-weight: 600;
     }
-    .btn-outline:hover { background: rgba(124,255,58,.1); }
+    .btn-admin:hover { background: #7CFF3A; }
+    .admin-strip {
+      background: linear-gradient(90deg, rgba(245,197,24,.2), rgba(124,255,58,.08));
+      border-block: 1px solid rgba(245,197,24,.45);
+      padding: 1.25rem 1rem; text-align: center;
+    }
+    .admin-strip h2 {
+      font-family: "Bebas Neue", sans-serif; font-size: 1.8rem; color: var(--gold); letter-spacing: .06em;
+    }
+    .admin-strip p { color: rgba(255,255,255,.65); margin: .4rem 0 1rem; font-size: .9rem; }
+    .admin-strip .btn-admin { display: inline-block; padding: .75rem 1.4rem; font-size: .85rem; }
     .hero {
       position: relative; min-height: 100svh; width: 100%; overflow: hidden;
     }
@@ -142,11 +155,10 @@
       <a href="#teams">Teams</a>
       <a href="/login">Login</a>
       <a href="/signup">Sign up</a>
-      <a href="/login?next=/portal/admin" style="color:#F5C518">Admin</a>
     </nav>
-    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-      <a class="btn btn-outline" href="/login?next=/portal/admin">Admin Dashboard</a>
-      <a class="btn" href="/portal">Player Portal</a>
+    <div class="header-actions">
+      <a class="btn-admin" href="/portal/admin">Admin</a>
+      <a class="btn" href="/portal">Portal</a>
     </div>
   </header>
 
@@ -161,9 +173,15 @@
       <div class="cta">
         <a class="btn" href="#matches">View Fixtures</a>
         <a class="btn btn-outline" href="/portal">Player Portal</a>
-        <a class="btn btn-outline" href="/login?next=/portal/admin">Admin Dashboard</a>
       </div>
     </div>
+  </section>
+
+  <section class="admin-strip" id="admin">
+    <h2>ADMIN DASHBOARD</h2>
+    <p>Match select · Day / Night · Playing boys · Team add/remove · Captains</p>
+    <a class="btn-admin" href="/portal/admin">Open Admin Dashboard</a>
+    <p style="margin-top:.75rem;font-size:.8rem;color:rgba(255,255,255,.45)">Login: <b style="color:#F5C518">admin</b> / <b style="color:#F5C518">admin</b></p>
   </section>
 
   <section class="section" id="matches">
