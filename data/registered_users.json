@@ -47,5 +47,21 @@
     "playing_role": "batsman",
     "jersey_number": 3,
     "user_id": "f87ca381-73bc-4872-901f-ab8af8a648d9"
+  },
+  {
+    "user_id": "94ad7722-527f-4696-808c-cfa495cb1c48",
+    "username": "mali",
+    "email": "mali@mustafacc.club",
+    "full_name": "Muhammed Ali",
+    "phone": "03001234567",
+    "address": "Lahore",
+    "emergency_contact": "03009999999",
+    "date_of_birth": "1995-01-15",
+    "batting_style": "Right-hand bat",
+    "bowling_style": "Right-arm medium",
+    "jersey_number": 7,
+    "playing_role": "batsman",
+    "player_code": "MCC-P-0001",
+    "team_slug": "senior-1st-xi"
   }
 ]
