@@ -14,5 +14,18 @@
     "phone": "301-7941843",
     "password_hash": "$2b$12$K/drMbWONzW7J9zdr7dI5Ovk8Cvrgw7w8rnJBlFfcjnxpgXoxCiyS",
     "player_code": "MCC-P-0003"
+  },
+  {
+    "username": "raees",
+    "email": "raees@gmail.com",
+    "full_name": "zz",
+    "phone": "301-7941843",
+    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
+    "password_hash": "$2b$12$0TrZ/.KeIy/56NE4ROlZRudKdIJt/0Yiuvl85BBwqeFPevgywpQL.",
+    "player_code": "MCC-P-0004",
+    "category": "senior",
+    "team_slug": "senior-1st-xi",
+    "playing_role": "batsman",
+    "jersey_number": null
   }
 ]
