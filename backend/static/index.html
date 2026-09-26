@@ -16,12 +16,10 @@
     :root {
       --gold: #F5C518;
       --lime: #9BE15D;
-      --dark: #041008;
-      --night: #07150c;
+      --dark: #030a06;
       --ink: #e8f5e9;
-      --muted: rgba(232, 245, 233, .62);
-      --line: rgba(245, 197, 24, .28);
-      --glass: rgba(4, 16, 8, .72);
+      --muted: rgba(232, 245, 233, .68);
+      --line: rgba(245, 197, 24, .32);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -34,20 +32,22 @@
     }
     img { max-width: 100%; height: auto; display: block; }
 
-    /* Atmospheric page wash using club photo */
     .page-bg {
-      position: fixed; inset: 0; z-index: -2;
+      position: fixed; inset: 0; z-index: -3;
       background:
-        linear-gradient(180deg, rgba(4,16,8,.55), rgba(4,16,8,.88) 40%, rgba(4,16,8,.96)),
-        url("/static/images/mcc-hero.png") center / cover no-repeat;
+        linear-gradient(180deg, rgba(3,10,6,.72), rgba(3,10,6,.92) 55%, #030a06),
+        url("/static/images/mcc-bg-stadium.png") center / cover no-repeat;
       background-attachment: scroll;
-      filter: saturate(1.05) contrast(1.05);
     }
     @media (min-width: 900px) {
       .page-bg { background-attachment: fixed; }
     }
+    .page-glow {
+      position: fixed; inset: auto -20% -10% -20%; height: 40vh; z-index: -2; pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(245,197,24,.12), transparent 70%);
+    }
     .page-grain {
-      position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .07;
+      position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .05;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
@@ -55,8 +55,8 @@
       position: fixed; inset: 0 0 auto 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between; gap: .5rem;
       padding: 0 .85rem; height: 3.6rem;
-      background: linear-gradient(180deg, rgba(4,16,8,.92), rgba(4,16,8,.55));
-      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(3,10,6,.95), rgba(3,10,6,.55));
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
     @media (min-width: 640px) { .header { height: 4rem; padding: 0 1.25rem; } }
@@ -90,12 +90,12 @@
       text-decoration: none; padding: .62rem 1rem; border-radius: 2px;
       background: linear-gradient(135deg, #ffe066, var(--gold));
       color: var(--dark); display: inline-block; border: 1px solid transparent;
-      transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
-      box-shadow: 0 8px 24px rgba(245,197,24,.2);
+      transition: transform .25s ease, box-shadow .25s ease;
+      box-shadow: 0 8px 24px rgba(245,197,24,.22);
     }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(245,197,24,.32); }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(245,197,24,.35); }
     .btn-outline {
-      background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35);
+      background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.4);
       box-shadow: none;
     }
     .btn-outline:hover { border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.08); }
@@ -114,7 +114,7 @@
     @media (min-width: 1024px) { .menu-btn { display: none; } }
     .mobile-nav {
       display: none; position: fixed; top: 3.6rem; left: 0; right: 0; z-index: 49;
-      background: rgba(4,16,8,.97); border-bottom: 1px solid var(--line);
+      background: rgba(3,10,6,.98); border-bottom: 1px solid var(--line);
       padding: .75rem 1rem 1rem; flex-direction: column;
     }
     @media (min-width: 640px) { .mobile-nav { top: 4rem; } }
@@ -125,91 +125,147 @@
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
 
-    /* HERO — one composition, full-bleed image */
+    /* HERO */
     .hero {
       position: relative; min-height: 100svh; width: 100%; overflow: hidden;
       display: grid; place-items: end start;
     }
-    .hero-media {
-      position: absolute; inset: 0; overflow: hidden;
+    .hero-stack { position: absolute; inset: 0; }
+    .hero-slide {
+      position: absolute; inset: 0; opacity: 0;
+      animation: slideFade 18s infinite;
     }
-    .hero-media img {
-      width: 100%; height: 100%; object-fit: cover; object-position: center 18%;
+    .hero-slide:nth-child(1) { animation-delay: 0s; }
+    .hero-slide:nth-child(2) { animation-delay: 6s; }
+    .hero-slide:nth-child(3) { animation-delay: 12s; }
+    .hero-slide img {
+      width: 100%; height: 100%; object-fit: cover;
       transform: scale(1.08);
-      animation: heroZoom 22s ease-out forwards;
+      animation: heroZoom 18s ease-out infinite;
     }
-    @media (min-width: 640px) { .hero-media img { object-position: center 30%; } }
+    @keyframes slideFade {
+      0% { opacity: 0; }
+      8% { opacity: 1; }
+      30% { opacity: 1; }
+      38% { opacity: 0; }
+      100% { opacity: 0; }
+    }
     @keyframes heroZoom {
-      from { transform: scale(1.12); }
-      to { transform: scale(1.02); }
+      0% { transform: scale(1.12); }
+      100% { transform: scale(1.02); }
     }
     .hero-shade {
       position: absolute; inset: 0;
       background:
-        linear-gradient(90deg, rgba(4,16,8,.88) 0%, rgba(4,16,8,.45) 48%, rgba(4,16,8,.25) 100%),
-        linear-gradient(180deg, rgba(4,16,8,.35) 0%, rgba(4,16,8,.15) 35%, rgba(4,16,8,.92) 100%);
+        linear-gradient(90deg, rgba(3,10,6,.92) 0%, rgba(3,10,6,.55) 42%, rgba(3,10,6,.2) 100%),
+        linear-gradient(180deg, rgba(3,10,6,.45) 0%, transparent 40%, rgba(3,10,6,.95) 100%);
     }
     .hero-frame {
-      position: absolute; inset: 1rem; border: 1px solid rgba(245,197,24,.18);
-      pointer-events: none; opacity: .7;
+      position: absolute; inset: .85rem; border: 1px solid rgba(245,197,24,.2);
+      pointer-events: none;
     }
-    @media (min-width: 768px) { .hero-frame { inset: 1.5rem; } }
+    @media (min-width: 768px) { .hero-frame { inset: 1.35rem; } }
     .hero-content {
-      position: relative; z-index: 2; width: min(42rem, 100%);
-      padding: 6rem 1.1rem 3.25rem;
-      animation: heroIn 1.1s ease-out both;
+      position: relative; z-index: 2; width: min(44rem, 100%);
+      padding: 6rem 1.1rem 3.5rem;
+      animation: heroIn 1.15s ease-out both;
     }
     @media (min-width: 768px) {
       .hero { place-items: center start; }
       .hero-content { padding: 0 2rem 0 3rem; }
     }
     @keyframes heroIn {
-      from { opacity: 0; transform: translateY(28px); }
+      from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
     .brand-mark {
       font-family: "Bebas Neue", sans-serif;
-      font-size: clamp(4.2rem, 16vw, 8.5rem);
-      line-height: .82; letter-spacing: .02em;
+      font-size: clamp(4.4rem, 17vw, 9rem);
+      line-height: .8; letter-spacing: .02em;
       color: #fff;
-      text-shadow: 0 10px 40px rgba(0,0,0,.55);
+      text-shadow: 0 12px 50px rgba(0,0,0,.6);
     }
     .brand-mark em {
       font-style: normal; color: var(--gold);
       display: block;
+      text-shadow: 0 0 40px rgba(245,197,24,.25);
     }
     .hero-line {
-      margin-top: 1.1rem; max-width: 24rem;
-      color: rgba(255,255,255,.82);
-      font-size: clamp(.95rem, 2.4vw, 1.08rem);
+      margin-top: 1.15rem; max-width: 26rem;
+      color: rgba(255,255,255,.88);
+      font-size: clamp(.98rem, 2.4vw, 1.12rem);
       line-height: 1.55;
     }
-    .cta { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: .7rem; }
+    .cta { margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: .7rem; }
     .scroll-hint {
-      position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+      position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
       z-index: 3; font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .28em;
-      text-transform: uppercase; color: rgba(255,255,255,.45);
+      text-transform: uppercase; color: rgba(255,255,255,.5);
       animation: bob 2.4s ease-in-out infinite;
     }
     @keyframes bob {
       0%, 100% { transform: translate(-50%, 0); opacity: .45; }
-      50% { transform: translate(-50%, 6px); opacity: .9; }
+      50% { transform: translate(-50%, 6px); opacity: .95; }
     }
 
-    /* Sections */
+    /* IMAGE SHOWCASE */
+    .showcase {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .4rem;
+      padding: .4rem;
+      background: #030a06;
+    }
+    @media (min-width: 768px) {
+      .showcase { grid-template-columns: repeat(4, 1fr); gap: .5rem; padding: .5rem; }
+    }
+    .shot {
+      position: relative; overflow: hidden; aspect-ratio: 16/11;
+      border: 1px solid rgba(245,197,24,.15);
+    }
+    .shot img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .7s ease;
+    }
+    .shot:hover img { transform: scale(1.08); }
+    .shot span {
+      position: absolute; left: .65rem; bottom: .55rem;
+      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .16em;
+      text-transform: uppercase; color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,.8);
+    }
+    .shot::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.65));
+      pointer-events: none;
+    }
+
+    /* Sections with photo backgrounds */
     .band {
       position: relative;
       border-top: 1px solid rgba(255,255,255,.06);
+      overflow: hidden;
     }
-    .band::before {
-      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-      background: linear-gradient(180deg, rgba(4,16,8,.55), rgba(4,16,8,.82));
+    .band-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      transform: scale(1.04);
+      filter: saturate(1.05);
     }
+    .band-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(3,10,6,.78), rgba(3,10,6,.9));
+    }
+    .band.matches .band-bg { background-image: url("/static/images/mcc-bg-action.png"); }
+    .band.players .band-bg { background-image: url("/static/images/mcc-bg-stadium.png"); }
+    .band.teams .band-bg { background-image: url("/static/images/mcc-hero.png"); }
+
     .section {
       position: relative; z-index: 1;
-      padding: 3.25rem .95rem; max-width: 80rem; margin: 0 auto;
+      padding: 3.4rem .95rem; max-width: 80rem; margin: 0 auto;
     }
-    @media (min-width: 640px) { .section { padding: 4.5rem 1.5rem; } }
+    @media (min-width: 640px) { .section { padding: 4.75rem 1.5rem; } }
     .section-head { max-width: 36rem; margin-bottom: 1.5rem; }
     .section-kicker {
       font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .28em;
@@ -217,13 +273,13 @@
     }
     .section h2 {
       font-family: "Bebas Neue", sans-serif;
-      font-size: clamp(2.1rem, 6vw, 3.2rem);
+      font-size: clamp(2.2rem, 6.5vw, 3.4rem);
       letter-spacing: .03em; line-height: .95;
     }
     .muted { color: var(--muted); margin-top: .55rem; font-size: .95rem; line-height: 1.5; }
     .reveal {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity .7s ease, transform .7s ease;
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .75s ease, transform .75s ease;
     }
     .reveal.in { opacity: 1; transform: none; }
 
@@ -232,16 +288,16 @@
     @media (min-width: 960px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
     .card {
-      border: 1px solid rgba(255,255,255,.1);
-      background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(0,0,0,.35));
       padding: 1.2rem; border-radius: 4px;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
       transition: border-color .25s ease, transform .25s ease;
     }
-    .card:hover { border-color: rgba(245,197,24,.35); transform: translateY(-2px); }
+    .card:hover { border-color: rgba(245,197,24,.4); transform: translateY(-3px); }
     .card small {
       font-family: Oswald, sans-serif; letter-spacing: .16em; text-transform: uppercase;
-      color: rgba(255,255,255,.45); font-size: .65rem;
+      color: rgba(255,255,255,.5); font-size: .65rem;
     }
     .pill {
       display: inline-block; margin-top: .5rem; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
@@ -253,25 +309,26 @@
     .filters button {
       font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
       padding: .5rem .8rem; border-radius: 2px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.25); color: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.35); color: rgba(255,255,255,.75);
     }
     .filters button.active, .filters button:hover {
-      border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.1);
+      border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.12);
     }
 
     .players-grid {
       display: grid; gap: 1.1rem; margin-top: 1.5rem; grid-template-columns: 1fr;
     }
     .player-card {
-      border: 1px solid rgba(255,255,255,.1);
-      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.4);
       border-radius: 4px; overflow: hidden; text-align: center; padding: 0 0 1.2rem;
+      backdrop-filter: blur(6px);
       transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
     }
     .player-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(245,197,24,.4);
-      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      transform: translateY(-5px);
+      border-color: rgba(245,197,24,.45);
+      box-shadow: 0 22px 48px rgba(0,0,0,.45);
     }
     .player-card img, .player-card .ph {
       width: 100%; height: min(15rem, 58vw); object-fit: cover; background: #0d3d18;
@@ -315,41 +372,56 @@
     }
     @media (min-width: 1280px) { .players-grid { grid-template-columns: repeat(4, 1fr); } }
 
-    /* Teams split */
     .teams-split {
       display: grid; gap: 1rem; margin-top: 1.5rem;
       grid-template-columns: 1fr;
     }
     @media (min-width: 720px) { .teams-split { grid-template-columns: 1fr 1fr; } }
     .team-panel {
-      position: relative; min-height: 14rem; overflow: hidden; border-radius: 4px;
-      border: 1px solid rgba(245,197,24,.25);
-      background:
-        linear-gradient(160deg, rgba(4,16,8,.55), rgba(4,16,8,.82)),
-        url("/static/images/mcc-hero.png") center / cover no-repeat;
-      padding: 1.5rem;
+      position: relative; min-height: 18rem; overflow: hidden; border-radius: 4px;
+      border: 1px solid rgba(245,197,24,.28);
+      padding: 1.6rem;
       display: flex; flex-direction: column; justify-content: flex-end;
     }
-    .team-panel.junior {
-      background:
-        linear-gradient(200deg, rgba(10,40,18,.5), rgba(4,16,8,.88)),
-        url("/static/images/mcc-hero.png") 60% 40% / cover no-repeat;
+    .team-panel::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      transition: transform .6s ease;
     }
+    .team-panel:hover::before { transform: scale(1.06); }
+    .team-panel.senior::before {
+      background-image:
+        linear-gradient(160deg, rgba(3,10,6,.35), rgba(3,10,6,.88)),
+        url("/static/images/mcc-bg-senior.png");
+    }
+    .team-panel.junior::before {
+      background-image:
+        linear-gradient(200deg, rgba(3,10,6,.3), rgba(3,10,6,.88)),
+        url("/static/images/mcc-bg-junior.png");
+    }
+    .team-panel > * { position: relative; z-index: 1; }
     .team-panel small {
       font-family: Oswald, sans-serif; letter-spacing: .2em; text-transform: uppercase;
-      color: var(--gold); font-size: .7rem;
+      color: var(--gold); font-size: .72rem;
     }
     .team-panel p {
-      margin-top: .55rem; font-family: Oswald, sans-serif; font-size: 1.2rem; color: #fff;
+      margin-top: .55rem; font-family: Oswald, sans-serif; font-size: 1.35rem; color: #fff;
+      text-shadow: 0 4px 18px rgba(0,0,0,.5);
     }
-    .admin-cta { margin-top: 1.35rem; }
+    .admin-cta { margin-top: 1.4rem; }
 
     #policy {
       position: relative; width: 100%;
       border-top: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(4,16,8,.75), rgba(4,16,8,.95));
+      overflow: hidden;
     }
-    .policy-inner { max-width: 72rem; margin: 0 auto; padding: 2.5rem 1rem 2.75rem; }
+    .policy-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(3,10,6,.85), rgba(3,10,6,.96)),
+        url("/static/images/mcc-bg-action.png") center / cover no-repeat;
+    }
+    .policy-inner { position: relative; z-index: 1; max-width: 72rem; margin: 0 auto; padding: 2.5rem 1rem 2.75rem; }
     .policy-inner h2 {
       font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 5vw, 2.4rem);
       color: var(--gold); letter-spacing: .05em;
@@ -357,12 +429,12 @@
     .policy-frame {
       display: block; margin-top: 1rem; border: 1px solid rgba(245,197,24,.3);
       border-radius: 4px; overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      box-shadow: 0 20px 50px rgba(0,0,0,.4);
     }
 
     .footer {
       border-top: 1px solid rgba(255,255,255,.08);
-      background: #020805;
+      background: #010503;
       padding: 2rem 1rem; color: rgba(255,255,255,.42); font-size: .8rem;
     }
     .footer-inner {
@@ -380,10 +452,17 @@
       .footer-inner { flex-direction: column; text-align: center; }
       .footer-credit { text-align: center; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-slide, .hero-slide img { animation: none; opacity: 1; transform: none; }
+      .hero-slide:not(:first-child) { display: none; }
+      .scroll-hint { animation: none; }
+    }
   </style>
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
+  <div class="page-glow" aria-hidden="true"></div>
   <div class="page-grain" aria-hidden="true"></div>
 
   <header class="header">
@@ -415,8 +494,10 @@
   </nav>
 
   <section class="hero">
-    <div class="hero-media">
-      <img src="/static/images/mcc-hero.png" alt="Mustafa Cricket Club players" />
+    <div class="hero-stack" aria-hidden="true">
+      <div class="hero-slide"><img src="/static/images/mcc-hero.png" alt="" /></div>
+      <div class="hero-slide"><img src="/static/images/mcc-bg-stadium.png" alt="" /></div>
+      <div class="hero-slide"><img src="/static/images/mcc-bg-action.png" alt="" /></div>
     </div>
     <div class="hero-shade"></div>
     <div class="hero-frame" aria-hidden="true"></div>
@@ -431,7 +512,27 @@
     <div class="scroll-hint">Scroll</div>
   </section>
 
-  <div class="band">
+  <section class="showcase reveal" aria-label="Club atmosphere">
+    <figure class="shot">
+      <img src="/static/images/mcc-bg-stadium.png" alt="Floodlit cricket stadium" />
+      <span>The Ground</span>
+    </figure>
+    <figure class="shot">
+      <img src="/static/images/mcc-bg-action.png" alt="Cricket batting action" />
+      <span>Match Day</span>
+    </figure>
+    <figure class="shot">
+      <img src="/static/images/mcc-bg-senior.png" alt="Senior team huddle" />
+      <span>Senior XI</span>
+    </figure>
+    <figure class="shot">
+      <img src="/static/images/mcc-bg-junior.png" alt="Junior players training" />
+      <span>Junior Pathway</span>
+    </figure>
+  </section>
+
+  <div class="band matches">
+    <div class="band-bg" aria-hidden="true"></div>
     <section class="section reveal" id="matches">
       <div class="section-head">
         <p class="section-kicker">Fixtures</p>
@@ -444,7 +545,8 @@
     </section>
   </div>
 
-  <div class="band">
+  <div class="band players">
+    <div class="band-bg" aria-hidden="true"></div>
     <section class="section reveal" id="players">
       <div class="section-head">
         <p class="section-kicker">The badge</p>
@@ -462,7 +564,8 @@
     </section>
   </div>
 
-  <div class="band">
+  <div class="band teams">
+    <div class="band-bg" aria-hidden="true"></div>
     <section class="section reveal" id="teams">
       <div class="section-head">
         <p class="section-kicker">Pathways</p>
@@ -470,7 +573,7 @@
         <p class="muted">Passion · Discipline · Respect · Unity</p>
       </div>
       <div class="teams-split">
-        <div class="team-panel">
+        <div class="team-panel senior">
           <small>Senior</small>
           <p>1st XI · 2nd XI · Development</p>
         </div>
@@ -486,6 +589,7 @@
   </div>
 
   <section id="policy" class="reveal">
+    <div class="policy-bg" aria-hidden="true"></div>
     <div class="policy-inner">
       <p class="section-kicker">Club rules</p>
       <h2>TOURNAMENT POLICY</h2>
@@ -532,7 +636,6 @@
       window.addEventListener('resize', () => { if (window.innerWidth >= 1024) closeMenu(); });
     })();
 
-    // Scroll reveal
     (function () {
       const nodes = document.querySelectorAll('.reveal');
       if (!('IntersectionObserver' in window)) {
