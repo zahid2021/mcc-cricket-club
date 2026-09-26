@@ -13,12 +13,18 @@ router = APIRouter(prefix="/players", tags=["players"])
 class PlayerCard(BaseModel):
     id: str
     full_name: str
+    email: str | None = None
+    username: str | None = None
     profile_picture: str | None = None
     playing_role: str | None = None
     phone: str | None = None
+    address: str | None = None
     category: str | None = None
     team: str | None = None
     jersey_number: int | None = None
+    batting_style: str | None = None
+    bowling_style: str | None = None
+    date_of_birth: str | None = None
     status: str
     player_code: str | None = None
 
@@ -59,12 +65,18 @@ def list_public_players(
             PlayerCard(
                 id=user.id,
                 full_name=user.full_name,
+                email=user.email,
+                username=user.username,
                 profile_picture=user.profile_picture,
                 playing_role=_role_label(pp.playing_role),
                 phone=user.phone,
+                address=pp.address,
                 category=cat,
                 team=pp.team.name if pp.team else None,
                 jersey_number=pp.jersey_number,
+                batting_style=pp.batting_style,
+                bowling_style=pp.bowling_style,
+                date_of_birth=pp.date_of_birth,
                 status=pp.status.value.upper(),
                 player_code=pp.player_code,
             )
