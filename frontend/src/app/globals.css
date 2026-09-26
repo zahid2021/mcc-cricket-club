@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --mcc-green: #1a7a2e;
+  --mcc-lime: #39ff14;
+  --mcc-neon: #7cff3a;
+  --mcc-gold: #f5c518;
+  --mcc-dark: #06140a;
+  --mcc-night: #0a1f10;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-mcc-dark text-white font-body antialiased;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Status badges */
+.badge {
+  @apply inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold tracking-wide uppercase;
+}
+.badge-active {
+  @apply bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/40;
+}
+.badge-suspended {
+  @apply bg-amber-500/20 text-amber-300 ring-1 ring-amber-400/40;
+}
+.badge-banned {
+  @apply bg-red-500/20 text-red-300 ring-1 ring-red-400/40;
+}
+.badge-injured {
+  @apply bg-orange-500/20 text-orange-300 ring-1 ring-orange-400/40;
+}
+.badge-selected {
+  @apply bg-mcc-gold/20 text-mcc-gold ring-1 ring-mcc-gold/40;
+}
+.badge-live {
+  @apply bg-red-600 text-white animate-pulse;
+}

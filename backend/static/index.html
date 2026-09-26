@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mustafa Cricket Club | MCC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; }
+    .header {
+      position: fixed; inset: 0 0 auto 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1rem; height: 3.75rem;
+      background: rgba(6,20,10,.85); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    .logo { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: inherit; }
+    .badge {
+      width: 2.5rem; height: 2.5rem; border-radius: 999px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--gold), #E8A317);
+      color: var(--dark); font-family: "Bebas Neue", sans-serif; font-size: 1.1rem;
+      box-shadow: 0 0 20px rgba(245,197,24,.35);
+    }
+    .logo-text { display: none; flex-direction: column; line-height: 1.1; }
+    @media (min-width: 640px) { .logo-text { display: flex; } }
+    .logo-text span:first-child { font-family: Oswald, sans-serif; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+    .logo-text span:last-child { font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.75); }
+    .nav { display: none; gap: .25rem; }
+    @media (min-width: 1100px) { .nav { display: flex; } }
+    .nav a {
+      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.7); text-decoration: none; padding: .5rem .75rem; border-radius: 2px;
+    }
+    .nav a:hover { color: var(--neon); background: rgba(255,255,255,.05); }
+    .btn {
+      font-family: Oswald, sans-serif; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+      text-decoration: none; padding: .55rem .9rem; border-radius: 2px; background: var(--gold); color: var(--dark);
+    }
+    .btn:hover { background: var(--neon); }
+    .btn-outline {
+      border: 1px solid rgba(124,255,58,.6); background: rgba(6,20,10,.5); color: var(--neon);
+    }
+    .btn-outline:hover { background: rgba(124,255,58,.1); }
+    .hero {
+      position: relative; min-height: 100svh; width: 100%; overflow: hidden;
+    }
+    .hero img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center 20%;
+    }
+    @media (min-width: 640px) { .hero img { object-position: center; } }
+    .hero-shade {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--dark), rgba(6,20,10,.35) 45%, rgba(6,20,10,.2));
+    }
+    .hero-content {
+      position: relative; z-index: 2; min-height: 100svh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 6rem 1rem 4rem; max-width: 80rem; margin: 0 auto; width: 100%;
+    }
+    @media (min-width: 640px) {
+      .hero-content { justify-content: center; padding-bottom: 0; padding-top: 5rem; }
+    }
+    .eyebrow { font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .35em; text-transform: uppercase; color: var(--gold); }
+    h1 {
+      margin-top: .75rem; font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: .9; letter-spacing: .02em;
+      text-shadow: 0 4px 24px rgba(0,0,0,.85);
+    }
+    h1 .gold { color: var(--gold); }
+    .tag { margin-top: 1rem; font-family: Oswald, sans-serif; font-size: .85rem; letter-spacing: .25em; text-transform: uppercase; color: var(--neon); }
+    .lead { margin-top: 1.25rem; max-width: 28rem; color: rgba(255,255,255,.8); font-size: .95rem; line-height: 1.55; }
+    .cta { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: .75rem; }
+    .section { padding: 3.5rem 1rem; max-width: 80rem; margin: 0 auto; }
+    .section h2 { font-family: "Bebas Neue", sans-serif; font-size: 2.4rem; letter-spacing: .04em; }
+    .muted { color: rgba(255,255,255,.55); margin-top: .5rem; }
+    .grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+    @media (min-width: 768px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    .card {
+      border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
+      padding: 1.25rem; border-radius: 2px;
+    }
+    .card small { font-family: Oswald, sans-serif; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.45); font-size: .65rem; }
+    .pill { display: inline-block; margin-top: .5rem; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      padding: .2rem .5rem; border-radius: 2px; background: rgba(245,197,24,.15); color: var(--gold); border: 1px solid rgba(245,197,24,.35); }
+    .footer {
+      border-top: 1px solid rgba(255,255,255,.1); background: var(--night);
+      padding: 2.5rem 1rem; text-align: center; color: rgba(255,255,255,.4); font-size: .8rem;
+    }
+    .footer .motto { font-style: italic; color: rgba(255,255,255,.55); margin-top: .5rem; }
+    .api { margin-top: 1rem; font-size: .75rem; color: rgba(124,255,58,.7); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a class="logo" href="/">
+      <span class="badge">MCC</span>
+      <span class="logo-text"><span>Mustafa</span><span>Cricket Club</span></span>
+    </a>
+    <nav class="nav">
+      <a href="#matches">Matches</a>
+      <a href="#teams">Teams</a>
+      <a href="/docs">API Docs</a>
+    </nav>
+    <a class="btn" href="/docs">Member API</a>
+  </header>
+
+  <section class="hero">
+    <img src="/static/images/mcc-hero.png" alt="Mustafa Cricket Club" />
+    <div class="hero-shade"></div>
+    <div class="hero-content">
+      <p class="eyebrow">Play Hard · Stay Humble · Win Together</p>
+      <h1><span class="gold">MUSTAFA</span><br />CRICKET CLUB</h1>
+      <p class="tag">One Team. One Dream.</p>
+      <p class="lead">Senior &amp; junior cricket under one badge — fixtures, selection, live scoring, and full club operations.</p>
+      <div class="cta">
+        <a class="btn" href="#matches">View Fixtures</a>
+        <a class="btn btn-outline" href="/docs">Open API / Login</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="matches">
+    <h2>MATCHES</h2>
+    <p class="muted">Live data from MCC operations API</p>
+    <div class="grid">
+      <article class="card">
+        <small>Upcoming</small>
+        <span class="pill">Upcoming</span>
+        <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">MCC 1st XI vs City United CC</p>
+        <p class="muted" style="margin-top:.5rem;font-size:.85rem">Sat · 2:00 PM · Central Ground</p>
+      </article>
+      <article class="card">
+        <small>Latest Result</small>
+        <span class="pill" style="background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(52,211,153,.4)">Completed</span>
+        <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">MCC 1st XI vs Riverside XI</p>
+        <p style="margin-top:.5rem;color:var(--neon);font-size:.9rem">MCC 168/7 · Riverside 159/9</p>
+      </article>
+      <article class="card">
+        <small>Junior</small>
+        <span class="pill">Upcoming</span>
+        <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">MCC U16 vs Academy Stars</p>
+        <p class="muted" style="margin-top:.5rem;font-size:.85rem">Sun · 9:00 AM · Academy Pitch</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="teams">
+    <h2>SENIOR &amp; JUNIOR</h2>
+    <p class="muted">Passion · Discipline · Respect · Unity</p>
+    <div class="grid" style="margin-top:1.5rem">
+      <article class="card"><small>Senior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">1st XI · 2nd XI · Development</p></article>
+      <article class="card"><small>Junior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">U19 · U16 · U14 · U12</p></article>
+      <article class="card"><small>API</small><p class="api" id="api-status">Checking /health…</p></article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:var(--gold)">MCC</div>
+    <div>Mustafa Cricket Club · © 2026</div>
+    <div class="motto">We Play for the Badge, Not for the Applause.</div>
+  </footer>
+
+  <script>
+    fetch('/health').then(r => r.json()).then(j => {
+      document.getElementById('api-status').textContent = 'API OK · ' + j.club;
+    }).catch(() => {
+      document.getElementById('api-status').textContent = 'API offline';
+    });
+  </script>
+</body>
+</html>

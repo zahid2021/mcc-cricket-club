@@ -1,0 +1,31 @@
+# Databases (free Postgres expires after 30 days on free plan)
+databases:
+  - name: mcc-db
+    plan: free
+    databaseName: mcc
+    user: mcc
+
+services:
+  # Public club site + API — https://mcc-cricket-club.onrender.com
+  - type: web
+    name: mcc-cricket-club
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mcc-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: PYTHON_VERSION
+        value: "3.12.0"

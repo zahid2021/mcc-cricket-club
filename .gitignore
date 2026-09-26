@@ -1,0 +1,27 @@
+# Dependencies / build
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+backend/.venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Secrets & local DB
+.env
+.env.*
+!.env.example
+backend/.env
+*.db
+mcc.db
+backend/mcc.db
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.log
