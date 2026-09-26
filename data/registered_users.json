@@ -47,5 +47,19 @@
     "team_slug": "senior-1st-xi",
     "playing_role": "bowler",
     "jersey_number": 10
+  },
+  {
+    "user_id": "64786075-eb56-4575-b072-abd4e0096af4",
+    "username": "userdd",
+    "email": "dd@gmail.com",
+    "full_name": "rr",
+    "phone": "301-7941843",
+    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
+    "password_hash": "$2b$12$6gA.jCR1GVcVaNWKVuYTGusdWuUSN5n97XSNCkOxBy2tPcS/673f6",
+    "player_code": "MCC-P-0006",
+    "category": "senior",
+    "team_slug": "senior-1st-xi",
+    "playing_role": "batsman",
+    "jersey_number": null
   }
 ]
