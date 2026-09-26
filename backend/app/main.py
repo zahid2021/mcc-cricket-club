@@ -66,6 +66,11 @@ def login_page():
     return _page("login.html")
 
 
+@app.get("/signup")
+def signup_page():
+    return _page("signup.html")
+
+
 @app.get("/portal/player")
 def player_portal_page():
     return _page("portal-player.html")

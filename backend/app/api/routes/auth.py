@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
+import re
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, primary_role_code, user_permission_codes
@@ -9,12 +10,28 @@ from app.core.config import settings
 from app.core.security import (
     create_access_token,
     create_refresh_token,
+    hash_password,
     safe_decode,
     verify_password,
 )
 from app.db.session import get_db
-from app.models import AuditLog, User, AccountStatus
-from app.schemas.auth import LoginRequest, RefreshRequest, TokenResponse, UserPublic, MessageOut
+from app.models import (
+    AuditLog,
+    User,
+    AccountStatus,
+    Role,
+    PlayerProfile,
+    PlayerStatus,
+    Team,
+)
+from app.schemas.auth import (
+    LoginRequest,
+    RegisterRequest,
+    RefreshRequest,
+    TokenResponse,
+    UserPublic,
+    MessageOut,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -48,6 +65,83 @@ def serialize_user(user: User) -> UserPublic:
     )
 
 
+def _issue_tokens(user: User) -> TokenResponse:
+    access = create_access_token(user.id, extra={"roles": [r.code for r in user.roles]})
+    refresh = create_refresh_token(user.id)
+    return TokenResponse(
+        access_token=access,
+        refresh_token=refresh,
+        user=serialize_user(user),
+    )
+
+
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db)):
+    if body.password != body.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
+
+    email = str(body.email).strip().lower()
+    username = (body.username or email.split("@")[0]).strip().lower()
+    username = re.sub(r"[^a-z0-9._-]", "", username) or "player"
+    if len(username) < 3:
+        username = f"user{username}"
+
+    if db.query(User).filter(func.lower(User.email) == email).first():
+        raise HTTPException(status_code=400, detail="Email already registered. Please login.")
+    if db.query(User).filter(func.lower(User.username) == username).first():
+        # try unique username
+        base = username
+        n = 1
+        while db.query(User).filter(func.lower(User.username) == username).first():
+            username = f"{base}{n}"
+            n += 1
+            if n > 99:
+                raise HTTPException(status_code=400, detail="Username unavailable")
+
+    player_role = db.query(Role).filter(Role.code == "player").first()
+    if not player_role:
+        raise HTTPException(status_code=500, detail="System roles not ready. Contact admin.")
+
+    user = User(
+        username=username,
+        email=email,
+        full_name=body.full_name.strip(),
+        phone=(body.phone or "").strip() or None,
+        password_hash=hash_password(body.password),
+        account_status=AccountStatus.active,
+    )
+    user.roles = [player_role]
+    db.add(user)
+    db.flush()
+
+    # Assign to Senior 1st XI by default if exists
+    team = db.query(Team).filter(Team.slug == "senior-1st-xi").first()
+    count = db.query(PlayerProfile).count() + 1
+    db.add(
+        PlayerProfile(
+            user_id=user.id,
+            player_code=f"MCC-P-{count:04d}",
+            team_id=team.id if team else None,
+            status=PlayerStatus.active,
+        )
+    )
+
+    db.add(
+        AuditLog(
+            actor_user_id=user.id,
+            action="register",
+            entity_type="user",
+            entity_id=user.id,
+            detail=f"Public signup: {email}",
+            ip_address=request.client.host if request.client else None,
+        )
+    )
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(user)
+    return _issue_tokens(user)
+
+
 @router.post("/login", response_model=TokenResponse)
 def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
     ident = body.identifier.strip().lower()
@@ -57,7 +151,10 @@ def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
         .first()
     )
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials. No account? Create one on Sign up.",
+        )
 
     now = datetime.now(timezone.utc)
     if user.locked_until and user.locked_until > now:
@@ -92,17 +189,7 @@ def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
         )
     )
     db.commit()
-
-    access = create_access_token(
-        user.id,
-        extra={"roles": [r.code for r in user.roles]},
-    )
-    refresh = create_refresh_token(user.id)
-    return TokenResponse(
-        access_token=access,
-        refresh_token=refresh,
-        user=serialize_user(user),
-    )
+    return _issue_tokens(user)
 
 
 @router.post("/refresh", response_model=TokenResponse)

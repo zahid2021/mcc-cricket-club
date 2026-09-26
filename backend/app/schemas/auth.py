@@ -15,6 +15,15 @@ class LoginRequest(BaseModel):
     remember_me: bool = True
 
 
+class RegisterRequest(BaseModel):
+    full_name: str = Field(..., min_length=2, max_length=200)
+    email: EmailStr
+    username: str | None = Field(None, min_length=3, max_length=80)
+    phone: str | None = Field(None, max_length=40)
+    password: str = Field(..., min_length=6, max_length=128)
+    confirm_password: str = Field(..., min_length=6, max_length=128)
+
+
 class RefreshRequest(BaseModel):
     refresh_token: str
 

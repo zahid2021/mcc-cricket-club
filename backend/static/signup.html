@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Member Login | Mustafa Cricket Club</title>
+  <title>Sign Up | Mustafa Cricket Club</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100svh; font-family: "DM Sans", system-ui, sans-serif;
@@ -16,8 +16,8 @@
         radial-gradient(ellipse at 80% 100%, rgba(245,197,24,.1), transparent 40%);
       color: #fff; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
     }
-    .wrap { width: 100%; max-width: 26rem; }
-    .brand { text-align: center; margin-bottom: 1.75rem; }
+    .wrap { width: 100%; max-width: 28rem; }
+    .brand { text-align: center; margin-bottom: 1.5rem; }
     .badge {
       width: 3.5rem; height: 3.5rem; border-radius: 999px; margin: 0 auto;
       display: grid; place-items: center;
@@ -25,8 +25,7 @@
       color: var(--dark); font-family: "Bebas Neue", sans-serif; font-size: 1.35rem;
       box-shadow: 0 0 28px rgba(245,197,24,.4);
     }
-    .brand a { text-decoration: none; color: inherit; }
-    .brand h1 { margin-top: 1rem; font-family: "Bebas Neue", sans-serif; font-size: 2.4rem; letter-spacing: .04em; }
+    .brand h1 { margin-top: 1rem; font-family: "Bebas Neue", sans-serif; font-size: 2.2rem; letter-spacing: .04em; }
     .brand p { margin-top: .35rem; font-size: .85rem; color: rgba(255,255,255,.55); }
     .card {
       border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
@@ -36,18 +35,14 @@
       display: block; font-family: Oswald, sans-serif; font-size: .7rem;
       letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .4rem;
     }
-    input[type=text], input[type=password], input[type=email] {
-      width: 100%; padding: .7rem .85rem; margin-bottom: 1rem;
+    input {
+      width: 100%; padding: .7rem .85rem; margin-bottom: .9rem;
       border: 1px solid rgba(255,255,255,.15); border-radius: 3px;
       background: rgba(0,0,0,.4); color: #fff; font-size: .95rem; outline: none;
     }
     input:focus { border-color: var(--gold); }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 1.25rem; font-size: .85rem; }
-    .row label { display: flex; align-items: center; gap: .4rem; margin: 0; text-transform: none; letter-spacing: 0; font-family: inherit; color: rgba(255,255,255,.6); cursor: pointer; }
-    .row a { color: var(--gold); text-decoration: none; font-size: .8rem; }
-    .row a:hover { color: var(--neon); }
     button {
-      width: 100%; padding: .85rem; border: 0; border-radius: 3px; cursor: pointer;
+      width: 100%; padding: .85rem; border: 0; border-radius: 3px; cursor: pointer; margin-top: .25rem;
       background: var(--gold); color: var(--dark);
       font-family: Oswald, sans-serif; font-size: .85rem; letter-spacing: .15em; text-transform: uppercase;
     }
@@ -59,79 +54,87 @@
       color: #fecaca; font-size: .85rem; border-radius: 3px;
     }
     .err.show { display: block; }
-    .hint { margin-top: 1rem; font-size: .75rem; color: rgba(255,255,255,.4); text-align: center; line-height: 1.5; }
-    .back { display: block; margin-top: 1.25rem; text-align: center; color: rgba(255,255,255,.45); text-decoration: none; font-size: .8rem; }
-    .back:hover { color: var(--gold); }
+    .switch { margin-top: 1.1rem; text-align: center; font-size: .85rem; color: rgba(255,255,255,.55); }
+    .switch a { color: var(--gold); text-decoration: none; }
+    .switch a:hover { color: var(--neon); }
+    .back { display: block; margin-top: 1.1rem; text-align: center; color: rgba(255,255,255,.4); text-decoration: none; font-size: .8rem; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="brand">
-      <a href="/">
-        <div class="badge">MCC</div>
-        <p style="margin-top:.75rem;font-family:Oswald,sans-serif;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-size:.7rem">Mustafa Cricket Club</p>
-        <h1>MEMBER LOGIN</h1>
-        <p>Players, captains, coaches &amp; staff</p>
-      </a>
+      <div class="badge">MCC</div>
+      <p style="margin-top:.75rem;font-family:Oswald,sans-serif;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-size:.7rem">Mustafa Cricket Club</p>
+      <h1>CREATE ACCOUNT</h1>
+      <p>Sign up as a club player</p>
     </div>
-    <form class="card" id="login-form">
+    <form class="card" id="form">
       <div class="err" id="err"></div>
-      <label for="identifier">Username or email</label>
-      <input id="identifier" name="identifier" type="text" autocomplete="username" required placeholder="mali" />
+      <label for="full_name">Full name</label>
+      <input id="full_name" required minlength="2" placeholder="Your name" />
+      <label for="email">Email</label>
+      <input id="email" type="email" required placeholder="you@gmail.com" />
+      <label for="username">Username (optional)</label>
+      <input id="username" minlength="3" placeholder="auto from email if empty" />
+      <label for="phone">Phone (optional)</label>
+      <input id="phone" type="tel" placeholder="+92…" />
       <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
-      <div class="row">
-        <label><input type="checkbox" id="remember" checked /> Remember session</label>
-        <a href="/">Need help?</a>
-      </div>
-      <button type="submit" id="submit">Sign in</button>
-      <p class="hint">Demo: <b>mali</b> / Player@MCC2026 · <b>admin</b> / Admin@MCC2026</p>
-      <p class="hint" style="margin-top:.75rem">New here? <a href="/signup" style="color:var(--gold)">Create an account</a></p>
+      <input id="password" type="password" required minlength="6" placeholder="Min 6 characters" />
+      <label for="confirm_password">Confirm password</label>
+      <input id="confirm_password" type="password" required minlength="6" placeholder="Repeat password" />
+      <button type="submit" id="submit">Sign up</button>
+      <p class="switch">Already have an account? <a href="/login">Login</a></p>
     </form>
     <a class="back" href="/">← Back to public site</a>
   </div>
   <script>
-    const form = document.getElementById("login-form");
+    const form = document.getElementById("form");
     const err = document.getElementById("err");
     const btn = document.getElementById("submit");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       err.classList.remove("show");
+      const password = document.getElementById("password").value;
+      const confirm_password = document.getElementById("confirm_password").value;
+      if (password !== confirm_password) {
+        err.textContent = "Passwords do not match";
+        err.classList.add("show");
+        return;
+      }
       btn.disabled = true;
-      btn.textContent = "Signing in…";
+      btn.textContent = "Creating…";
       try {
-        const res = await fetch("/api/auth/login", {
+        const username = document.getElementById("username").value.trim();
+        const body = {
+          full_name: document.getElementById("full_name").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          phone: document.getElementById("phone").value.trim() || null,
+          password,
+          confirm_password,
+        };
+        if (username) body.username = username;
+        const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            identifier: document.getElementById("identifier").value.trim(),
-            password: document.getElementById("password").value,
-            remember_me: document.getElementById("remember").checked,
-          }),
+          body: JSON.stringify(body),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          err.textContent = data.detail || "Invalid credentials";
+          const detail = data.detail;
+          err.textContent = typeof detail === "string" ? detail : (Array.isArray(detail) ? detail.map(d => d.msg).join(", ") : "Signup failed");
           err.classList.add("show");
           return;
         }
         localStorage.setItem("mcc_access_token", data.access_token);
         if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
-        const role = (data.user && data.user.primary_role) || "player";
-        if (["super_admin", "club_admin"].includes(role)) {
-          location.href = "/portal/admin";
-        } else if (["captain", "vice_captain", "coach", "team_manager", "scorer"].includes(role)) {
-          location.href = "/portal/staff";
-        } else {
-          location.href = "/portal/player";
-        }
+        location.href = "/portal/player";
       } catch (ex) {
         err.textContent = "Unable to reach server. Try again.";
         err.classList.add("show");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Sign in";
+        btn.textContent = "Sign up";
       }
     });
   </script>
