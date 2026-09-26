@@ -86,9 +86,26 @@
       padding: .2rem .5rem; border-radius: 2px; background: rgba(245,197,24,.15); color: var(--gold); border: 1px solid rgba(245,197,24,.35); }
     .footer {
       border-top: 1px solid rgba(255,255,255,.1); background: var(--night);
-      padding: 2.5rem 1rem; text-align: center; color: rgba(255,255,255,.4); font-size: .8rem;
+      padding: 2rem 1rem; color: rgba(255,255,255,.4); font-size: .8rem;
+    }
+    .footer-inner {
+      max-width: 72rem; margin: 0 auto;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 1rem 1.5rem; text-align: left;
+    }
+    .footer-brand { flex: 1 1 14rem; }
+    .footer-brand .logo-mcc {
+      font-family: Bebas Neue, sans-serif; font-size: 1.8rem; color: var(--gold);
     }
     .footer .motto { font-style: italic; color: rgba(255,255,255,.55); margin-top: .5rem; }
+    .footer-credit {
+      flex: 0 1 auto; text-align: right; color: rgba(255,255,255,.5); font-size: .78rem; line-height: 1.45;
+    }
+    .footer-credit strong { color: #F5C518; font-weight: 600; }
+    @media (max-width: 560px) {
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-credit { text-align: center; }
+    }
     .api { margin-top: 1rem; font-size: .75rem; color: rgba(124,255,58,.7); }
     .players-grid {
       display: grid; gap: 1rem; margin-top: 1.5rem;
@@ -193,13 +210,7 @@
     </div>
   </section>
 
-  <footer class="footer">
-    <div style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:var(--gold)">MCC</div>
-    <div>Mustafa Cricket Club · © 2026 · <a href="/login?next=/portal/admin" style="color:#F5C518">Admin Dashboard</a></div>
-    <div class="motto">We Play for the Badge, Not for the Applause.</div>
-  </footer>
-
-  <!-- LAST on homepage: tournament process banner -->
+  <!-- Tournament policy (above footer) -->
   <section id="policy" style="width:100%;background:#06140a;border-top:1px solid rgba(245,197,24,.35);padding:0;margin:0">
     <div style="max-width:72rem;margin:0 auto;padding:1.5rem 1rem 2rem">
       <h2 style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:#F5C518;letter-spacing:.06em;margin:0 0 .35rem">TOURNAMENT POLICY</h2>
@@ -212,6 +223,20 @@
       </p>
     </div>
   </section>
+
+  <!-- Absolute bottom of homepage -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo-mcc">MCC</div>
+        <div>Mustafa Cricket Club · © 2026 · <a href="/login?next=/portal/admin" style="color:#F5C518">Admin Dashboard</a></div>
+        <div class="motto">We Play for the Badge, Not for the Applause.</div>
+      </div>
+      <div class="footer-credit">
+        Created by App Engineer<br /><strong>Zahid Mehmood</strong>
+      </div>
+    </div>
+  </footer>
 
   <script>
     fetch('/health').then(r => r.json()).then(j => {
