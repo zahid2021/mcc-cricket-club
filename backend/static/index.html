@@ -357,7 +357,7 @@
     }
     .band.matches .band-bg { background-image: url("/static/images/mcc-bg-action.png"); }
     .band.players .band-bg { background-image: url("/static/images/mcc-bg-stadium.png"); }
-    .band.teams .band-bg { background-image: url("/static/images/mcc-hero.png"); }
+    .band.teams .band-bg { background-image: url("/static/images/mcc-bg-senior.png"); }
 
     .section {
       position: relative; z-index: 1;
@@ -521,32 +521,18 @@
     }
     .admin-cta { margin-top: 1.6rem; }
 
-    /* Join banner */
-    .join {
-      position: relative; overflow: hidden;
-      border-top: 1px solid rgba(245,197,24,.25);
+    .join-block {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(245,197,24,.22);
+      max-width: 40rem;
     }
-    .join-bg {
-      position: absolute; inset: 0; z-index: 0;
-      background:
-        linear-gradient(90deg, rgba(3,10,6,.92), rgba(3,10,6,.55)),
-        url("/static/images/mcc-bg-senior.png") center / cover no-repeat;
-    }
-    .join-inner {
-      position: relative; z-index: 1;
-      max-width: 80rem; margin: 0 auto;
-      padding: 4rem .95rem;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 1.5rem;
-    }
-    @media (min-width: 640px) { .join-inner { padding: 5rem 1.5rem; } }
-    .join-inner h2 {
+    .join-block h2 {
       font-family: Bebas Neue, sans-serif;
-      font-size: clamp(2.4rem, 7vw, 3.6rem);
+      font-size: clamp(2.2rem, 6vw, 3.2rem);
       line-height: .92; letter-spacing: .03em;
     }
-    .join-inner .muted { max-width: 32rem; }
-    .join-actions { display: flex; flex-wrap: wrap; gap: .7rem; }
+    .join-block .muted { max-width: 34rem; }
 
     #policy {
       position: relative; width: 100%;
@@ -780,26 +766,13 @@
           <p>U19 · U16 · U14 · U12</p>
         </div>
       </div>
-      <p class="admin-cta">
-        <a class="btn" href="/login?next=/portal/admin">Open Admin Dashboard</a>
-      </p>
-    </section>
-  </div>
-
-  <section class="join reveal">
-    <div class="join-bg" aria-hidden="true"></div>
-    <div class="join-inner">
-      <div>
+      <div class="join-block">
         <p class="section-kicker">Join MCC</p>
         <h2>READY TO WEAR THE BADGE?</h2>
         <p class="muted">Sign up, complete your profile, and get selected for day &amp; night fixtures.</p>
       </div>
-      <div class="join-actions">
-        <a class="btn" href="/signup">Sign Up Now</a>
-        <a class="btn btn-outline" href="/portal">Open Portal</a>
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
   <section id="policy" class="reveal">
     <div class="policy-bg" aria-hidden="true"></div>
