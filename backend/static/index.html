@@ -137,6 +137,24 @@
       margin-top: .5rem; padding: 0 .75rem; color: rgba(255,255,255,.65); font-size: .85rem;
       font-family: Oswald, sans-serif; letter-spacing: .14em; text-transform: uppercase;
     }
+    .player-card .discipline {
+      margin: .75rem .75rem 0; padding: .55rem .65rem; border-radius: 3px;
+      text-align: left; font-size: .78rem; line-height: 1.4;
+    }
+    .player-card .discipline strong {
+      display: block; font-family: Oswald, sans-serif; letter-spacing: .1em;
+      text-transform: uppercase; font-size: .72rem; margin-bottom: .25rem;
+    }
+    .player-card .discipline.warn {
+      background: rgba(245,197,24,.12); border: 1px solid rgba(245,197,24,.45); color: #fde68a;
+    }
+    .player-card .discipline.ban,
+    .player-card .discipline.suspend {
+      background: rgba(239,68,68,.15); border: 1px solid rgba(252,165,165,.45); color: #fecaca;
+    }
+    .player-card .discipline.unban {
+      background: rgba(124,255,58,.1); border: 1px solid rgba(124,255,58,.35); color: #bbf7d0;
+    }
     @media (min-width: 640px) {
       .players-grid { grid-template-columns: repeat(2, 1fr); }
       .player-card img, .player-card .ph { height: 16rem; }
@@ -200,7 +218,7 @@
 
   <section class="section" id="players">
     <h2>OUR PLAYERS</h2>
-    <p class="muted">Name · Role · Captain · Senior / Junior</p>
+    <p class="muted">Name · Role · Senior / Junior · Warning / Ban reason (if any)</p>
     <div class="filters">
       <button type="button" class="active" data-cat="">All</button>
       <button type="button" data-cat="senior">Senior</button>
@@ -278,11 +296,22 @@
         if (p.leadership_label) roleBits.push(p.leadership_label);
         const roleText = roleBits.length ? roleBits.join(' · ') : 'Player';
         const cat = (p.category || '').toLowerCase() === 'junior' ? 'Junior' : ((p.category || '').toLowerCase() === 'senior' ? 'Senior' : (p.category || ''));
+        let disc = '';
+        if (p.discipline_type && p.discipline_reason) {
+          const cls = (p.discipline_type === 'ban' || p.discipline_type === 'suspend')
+            ? p.discipline_type
+            : (p.discipline_type === 'unban' ? 'unban' : 'warn');
+          const label = p.discipline_label || String(p.discipline_type).toUpperCase();
+          const safeReason = String(p.discipline_reason)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          disc = `<div class="discipline ${cls}"><strong>${label}</strong>${safeReason}</div>`;
+        }
         return `<article class="player-card">
           ${img}
           <h3>${p.full_name || 'Player'}</h3>
           <div class="role">${roleText}</div>
           ${cat ? `<div class="team-tag">${cat}</div>` : ''}
+          ${disc}
         </article>`;
       }).join('');
     }

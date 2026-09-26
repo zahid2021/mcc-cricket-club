@@ -59,6 +59,14 @@ def on_startup() -> None:
                     conn.exec_driver_sql(
                         "ALTER TABLE player_profiles ADD COLUMN leadership_role VARCHAR(40) DEFAULT 'none'"
                     )
+                if "discipline_type" not in cols:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles ADD COLUMN discipline_type VARCHAR(20)"
+                    )
+                if "discipline_reason" not in cols:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles ADD COLUMN discipline_reason VARCHAR(500)"
+                    )
             elif dialect.startswith("postgres"):
                 conn.exec_driver_sql(
                     "ALTER TABLE users ALTER COLUMN profile_picture TYPE TEXT"
@@ -73,6 +81,15 @@ def on_startup() -> None:
                 try:
                     conn.exec_driver_sql(
                         "ALTER TABLE player_profiles ADD COLUMN IF NOT EXISTS leadership_role VARCHAR(40) DEFAULT 'none'"
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles ADD COLUMN IF NOT EXISTS discipline_type VARCHAR(20)"
+                    )
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles ADD COLUMN IF NOT EXISTS discipline_reason VARCHAR(500)"
                     )
                 except Exception:  # noqa: BLE001
                     pass

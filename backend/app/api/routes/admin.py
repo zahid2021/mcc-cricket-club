@@ -750,6 +750,12 @@ def _notify(db: Session, *, actor: User, player: User, title: str, message: str,
     )
 
 
+def _set_discipline(pp: PlayerProfile, dtype: str, reason: str) -> None:
+    """Store latest discipline so homepage player card can show it."""
+    pp.discipline_type = dtype
+    pp.discipline_reason = (reason or "").strip()[:500] or None
+
+
 @router.post("/discipline/warning", response_model=MessageOut)
 def admin_warning(
     body: DisciplineAction,
@@ -769,6 +775,7 @@ def admin_warning(
         f"Date: {datetime.now(timezone.utc).strftime('%d %B %Y')}\n"
         f"Status: Active"
     )
+    _set_discipline(pp, "warning", body.reason)
     _notify(db, actor=actor, player=player, title=title, message=msg, priority="high" if sev in ("high", "critical") else "normal")
     db.add(
         AuditLog(
@@ -794,6 +801,7 @@ def admin_suspend(
     pp = _get_profile(db, body.profile_id)
     player = pp.user
     pp.status = PlayerStatus.suspended
+    _set_discipline(pp, "suspend", body.reason)
     title = "SUSPENDED — Club discipline"
     msg = (
         f"You have been SUSPENDED from MCC activities.\n"
@@ -825,13 +833,13 @@ def admin_ban(
     actor: User = Depends(require_permissions("discipline.ban")),
     db: Session = Depends(get_db),
 ):
+    from app.models import AccountStatus
+
     pp = _get_profile(db, body.profile_id)
     player = pp.user
     pp.status = PlayerStatus.banned
-    # Also lock account so they cannot use portal
-    from app.models import AccountStatus
-
     player.account_status = AccountStatus.inactive
+    _set_discipline(pp, "ban", body.reason)
     title = "BANNED — Club discipline"
     msg = (
         f"You have been BANNED from Mustafa Cricket Club.\n"
@@ -863,12 +871,13 @@ def admin_unban(
     db: Session = Depends(get_db),
 ):
     """Remove ban / suspend — restore active status."""
-    pp = _get_profile(db, body.profile_id)
-    player = pp.user
     from app.models import AccountStatus
 
+    pp = _get_profile(db, body.profile_id)
+    player = pp.user
     pp.status = PlayerStatus.active
     player.account_status = AccountStatus.active
+    _set_discipline(pp, "unban", body.reason)
     title = "REINSTATED — Ban/Suspend removed"
     msg = (
         f"Your club status has been restored to ACTIVE.\n"

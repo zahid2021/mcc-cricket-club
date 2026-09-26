@@ -186,6 +186,9 @@ class PlayerProfile(Base):
     # Club leadership (alongside batsman/bowler etc.)
     leadership_role: Mapped[str | None] = mapped_column(String(40), nullable=True, default="none")
     status: Mapped[PlayerStatus] = mapped_column(Enum(PlayerStatus), default=PlayerStatus.active)
+    # Latest discipline shown on homepage player card
+    discipline_type: Mapped[str | None] = mapped_column(String(20), nullable=True)  # warning|suspend|ban|unban
+    discipline_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     user: Mapped[User] = relationship(back_populates="player_profile")
     team: Mapped[Team | None] = relationship(lazy="selectin")

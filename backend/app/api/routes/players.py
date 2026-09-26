@@ -28,6 +28,9 @@ class PlayerCard(BaseModel):
     date_of_birth: str | None = None
     status: str
     player_code: str | None = None
+    discipline_type: str | None = None  # warning | suspend | ban | unban
+    discipline_reason: str | None = None
+    discipline_label: str | None = None
 
 
 def _role_label(role: PlayingRole | None) -> str | None:
@@ -52,16 +55,36 @@ def _leadership_label(code: str | None) -> str | None:
     }.get(code, code.replace("_", " ").title())
 
 
+def _discipline_label(dtype: str | None) -> str | None:
+    if not dtype:
+        return None
+    return {
+        "warning": "WARNING",
+        "suspend": "SUSPENDED",
+        "ban": "BANNED",
+        "unban": "REINSTATED",
+    }.get(dtype.lower(), dtype.upper())
+
+
 @router.get("/public", response_model=list[PlayerCard])
 def list_public_players(
     category: str | None = Query(None, description="senior or junior"),
     db: Session = Depends(get_db),
 ):
-    """Homepage / sponsors: registered players with photo, role, phone, senior/junior."""
+    """Homepage: players with photo, role, senior/junior + discipline reason if any."""
     rows = (
         db.query(PlayerProfile)
         .options(joinedload(PlayerProfile.user), joinedload(PlayerProfile.team))
-        .filter(PlayerProfile.status.in_([PlayerStatus.active, PlayerStatus.injured]))
+        .filter(
+            PlayerProfile.status.in_(
+                [
+                    PlayerStatus.active,
+                    PlayerStatus.injured,
+                    PlayerStatus.suspended,
+                    PlayerStatus.banned,
+                ]
+            )
+        )
         .all()
     )
 
@@ -73,6 +96,8 @@ def list_public_players(
         cat = pp.team.category.name if pp.team and pp.team.category else None
         if category and cat and cat.lower() != category.lower():
             continue
+        dtype = getattr(pp, "discipline_type", None)
+        dreason = getattr(pp, "discipline_reason", None)
         out.append(
             PlayerCard(
                 id=user.id,
@@ -92,6 +117,9 @@ def list_public_players(
                 date_of_birth=pp.date_of_birth,
                 status=pp.status.value.upper(),
                 player_code=pp.player_code,
+                discipline_type=dtype,
+                discipline_reason=dreason,
+                discipline_label=_discipline_label(dtype),
             )
         )
     out.sort(key=lambda p: p.player_code or "", reverse=True)
