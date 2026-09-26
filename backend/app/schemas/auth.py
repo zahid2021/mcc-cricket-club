@@ -53,6 +53,12 @@ class MessageOut(BaseModel):
     message: str
 
 
+class RegisterResponse(BaseModel):
+    message: str
+    email: EmailStr
+    username: str
+
+
 class ClubPublic(BaseModel):
     name: str
     short_name: str

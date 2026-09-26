@@ -126,9 +126,9 @@
           err.classList.add("show");
           return;
         }
-        localStorage.setItem("mcc_access_token", data.access_token);
-        if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
-        location.href = "/portal/player";
+        // Signup done → go to login with saved email (then portal after login)
+        const email = encodeURIComponent(data.email || body.email);
+        location.href = "/login?registered=1&email=" + email;
       } catch (ex) {
         err.textContent = "Unable to reach server. Try again.";
         err.classList.add("show");

@@ -27,6 +27,7 @@ from app.models import (
 from app.schemas.auth import (
     LoginRequest,
     RegisterRequest,
+    RegisterResponse,
     RefreshRequest,
     TokenResponse,
     UserPublic,
@@ -75,7 +76,7 @@ def _issue_tokens(user: User) -> TokenResponse:
     )
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db)):
     if body.password != body.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
@@ -102,12 +103,13 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     if not player_role:
         raise HTTPException(status_code=500, detail="System roles not ready. Contact admin.")
 
+    password_hash = hash_password(body.password)
     user = User(
         username=username,
         email=email,
         full_name=body.full_name.strip(),
         phone=(body.phone or "").strip() or None,
-        password_hash=hash_password(body.password),
+        password_hash=password_hash,
         account_status=AccountStatus.active,
     )
     user.roles = [player_role]
@@ -117,10 +119,11 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     # Assign to Senior 1st XI by default if exists
     team = db.query(Team).filter(Team.slug == "senior-1st-xi").first()
     count = db.query(PlayerProfile).count() + 1
+    player_code = f"MCC-P-{count:04d}"
     db.add(
         PlayerProfile(
             user_id=user.id,
-            player_code=f"MCC-P-{count:04d}",
+            player_code=player_code,
             team_id=team.id if team else None,
             status=PlayerStatus.active,
         )
@@ -136,10 +139,27 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
             ip_address=request.client.host if request.client else None,
         )
     )
-    user.last_login_at = datetime.now(timezone.utc)
     db.commit()
-    db.refresh(user)
-    return _issue_tokens(user)
+
+    # Durable backup (survives Render free-tier disk wipe)
+    from app.services.github_user_store import upsert_user
+
+    upsert_user(
+        {
+            "username": username,
+            "email": email,
+            "full_name": body.full_name.strip(),
+            "phone": (body.phone or "").strip() or None,
+            "password_hash": password_hash,
+            "player_code": player_code,
+        }
+    )
+
+    return RegisterResponse(
+        message="Account created. Please login with your email and password.",
+        email=email,
+        username=username,
+    )
 
 
 @router.post("/login", response_model=TokenResponse)

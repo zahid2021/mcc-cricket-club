@@ -40,8 +40,15 @@ if STATIC_DIR.exists():
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
     from app.db.seed import seed_if_empty
+    from app.db.session import SessionLocal
+    from app.services.github_user_store import restore_into_db
 
     seed_if_empty()
+    db = SessionLocal()
+    try:
+        restore_into_db(db)
+    finally:
+        db.close()
 
 
 @app.get("/health")

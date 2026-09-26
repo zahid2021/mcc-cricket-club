@@ -59,6 +59,12 @@
       color: #fecaca; font-size: .85rem; border-radius: 3px;
     }
     .err.show { display: block; }
+    .ok {
+      display: none; margin-bottom: 1rem; padding: .65rem .75rem;
+      border: 1px solid rgba(124,255,58,.45); background: rgba(124,255,58,.12);
+      color: #bbf7d0; font-size: .85rem; border-radius: 3px;
+    }
+    .ok.show { display: block; }
     .hint { margin-top: 1rem; font-size: .75rem; color: rgba(255,255,255,.4); text-align: center; line-height: 1.5; }
     .back { display: block; margin-top: 1.25rem; text-align: center; color: rgba(255,255,255,.45); text-decoration: none; font-size: .8rem; }
     .back:hover { color: var(--gold); }
@@ -75,14 +81,15 @@
       </a>
     </div>
     <form class="card" id="login-form">
+      <div class="ok" id="ok"></div>
       <div class="err" id="err"></div>
       <label for="identifier">Username or email</label>
-      <input id="identifier" name="identifier" type="text" autocomplete="username" required placeholder="mali" />
+      <input id="identifier" name="identifier" type="text" autocomplete="username" required placeholder="you@gmail.com" />
       <label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
       <div class="row">
         <label><input type="checkbox" id="remember" checked /> Remember session</label>
-        <a href="/">Need help?</a>
+        <a href="/signup">Need an account?</a>
       </div>
       <button type="submit" id="submit">Sign in</button>
       <p class="hint">Demo: <b>mali</b> / Player@MCC2026 · <b>admin</b> / Admin@MCC2026</p>
@@ -93,7 +100,17 @@
   <script>
     const form = document.getElementById("login-form");
     const err = document.getElementById("err");
+    const ok = document.getElementById("ok");
     const btn = document.getElementById("submit");
+    const params = new URLSearchParams(location.search);
+    if (params.get("registered") === "1") {
+      ok.textContent = "Account created successfully. Now login with the same email & password.";
+      ok.classList.add("show");
+    }
+    if (params.get("email")) {
+      document.getElementById("identifier").value = params.get("email");
+      document.getElementById("password").focus();
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
