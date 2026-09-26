@@ -7,33 +7,5 @@
     "password_hash": "$2b$12$K/drMbWONzW7J9zdr7dI5Ovk8Cvrgw7w8rnJBlFfcjnxpgXoxCiyS",
     "player_code": "MCC-P-0003",
     "user_id": "32c785ba-017a-441f-889a-fca2cbdbc7a7"
-  },
-  {
-    "user_id": "e9c64542-f6b4-4c71-9c76-db3cd815e553",
-    "username": "raees",
-    "email": "raees@gmail.com",
-    "full_name": "zz",
-    "phone": "301-7941843",
-    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
-    "password_hash": "$2b$12$QaQDoE6zOegcK.xIGfMUcug8vi23yDZ4OGKgnB7iqAR799SvRBe6e",
-    "player_code": "MCC-P-0004",
-    "category": "senior",
-    "team_slug": "senior-1st-xi",
-    "playing_role": "batsman",
-    "jersey_number": null
-  },
-  {
-    "user_id": "dd061cd0-4da4-4fe2-8876-463a8604b008",
-    "username": "userff",
-    "email": "ff@gmail.com",
-    "full_name": "ff",
-    "phone": "301-7941843",
-    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
-    "password_hash": "$2b$12$q4vWm/st2lJEneXdxpTg6uNAKwex8Vq.4Px/0wznNFYrAdZdw7BmW",
-    "player_code": "MCC-P-0005",
-    "category": "senior",
-    "team_slug": "senior-1st-xi",
-    "playing_role": "batsman",
-    "jersey_number": null
   }
 ]
