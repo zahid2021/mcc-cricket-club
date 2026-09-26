@@ -71,8 +71,18 @@ def serialize_user(user: User) -> UserPublic:
     )
 
 
-def _issue_tokens(user: User) -> TokenResponse:
-    access = create_access_token(user.id, extra={"roles": [r.code for r in user.roles]})
+def _issue_tokens(user: User, remember_me: bool = True) -> TokenResponse:
+    # Long-lived access when "remember me" so back/refresh stays on portal
+    expire_minutes = (
+        settings.refresh_token_expire_days * 24 * 60
+        if remember_me
+        else settings.access_token_expire_minutes
+    )
+    access = create_access_token(
+        user.id,
+        extra={"roles": [r.code for r in user.roles]},
+        expire_minutes=expire_minutes,
+    )
     refresh = create_refresh_token(user.id)
     return TokenResponse(
         access_token=access,
@@ -253,7 +263,7 @@ def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
         )
     )
     db.commit()
-    return _issue_tokens(user)
+    return _issue_tokens(user, remember_me=body.remember_me)
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -264,13 +274,7 @@ def refresh(body: RefreshRequest, db: Session = Depends(get_db)):
     user = db.get(User, payload.get("sub"))
     if not user or user.account_status != AccountStatus.active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user")
-    access = create_access_token(user.id, extra={"roles": [r.code for r in user.roles]})
-    new_refresh = create_refresh_token(user.id)
-    return TokenResponse(
-        access_token=access,
-        refresh_token=new_refresh,
-        user=serialize_user(user),
-    )
+    return _issue_tokens(user, remember_me=True)
 
 
 @router.get("/me", response_model=UserPublic)

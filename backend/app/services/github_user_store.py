@@ -1,4 +1,8 @@
-"""Persist registered users + profile photos to GitHub (survives Render free restarts)."""
+"""Persist registered users + profile photos to GitHub (survives Render free restarts).
+
+IMPORTANT: writes go to branch `mcc-data` (not `main`) so they do NOT trigger
+Render auto-deploys. Deploys were wiping SQLite mid-session and breaking saves.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +16,8 @@ import httpx
 REPO = os.getenv("GITHUB_REPO", "zahid2021/mcc-cricket-club")
 PATH = os.getenv("GITHUB_USERS_PATH", "data/registered_users.json")
 AVATAR_DIR = os.getenv("GITHUB_AVATAR_DIR", "data/avatars")
+# Separate branch = no Render deploy on every profile/avatar save
+DATA_BRANCH = os.getenv("GITHUB_DATA_BRANCH", "mcc-data")
 TOKEN = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
 
 
@@ -25,6 +31,33 @@ def _headers() -> dict[str, str]:
     }
 
 
+def _ensure_data_branch(client: httpx.Client) -> None:
+    """Create mcc-data from main once so Contents API can write there."""
+    ref_url = f"https://api.github.com/repos/{REPO}/git/ref/heads/{DATA_BRANCH}"
+    r = client.get(ref_url, headers=_headers())
+    if r.status_code == 200:
+        return
+    main = client.get(
+        f"https://api.github.com/repos/{REPO}/git/ref/heads/main",
+        headers=_headers(),
+    )
+    if main.status_code != 200:
+        print(f"github_user_store: cannot read main ref: {main.status_code}")
+        return
+    sha = main.json().get("object", {}).get("sha")
+    if not sha:
+        return
+    created = client.post(
+        f"https://api.github.com/repos/{REPO}/git/refs",
+        headers=_headers(),
+        json={"ref": f"refs/heads/{DATA_BRANCH}", "sha": sha},
+    )
+    if created.status_code not in (200, 201):
+        print(f"github_user_store: create branch failed: {created.status_code} {created.text[:200]}")
+    else:
+        print(f"github_user_store: created branch {DATA_BRANCH}")
+
+
 def _put_file(path: str, content_text: str, message: str) -> bool:
     if not TOKEN:
         print("github_user_store: no GITHUB_TOKEN — skip persist")
@@ -33,14 +66,17 @@ def _put_file(path: str, content_text: str, message: str) -> bool:
     encoded = base64.b64encode(content_text.encode("utf-8")).decode("ascii")
     try:
         with httpx.Client(timeout=60) as client:
+            _ensure_data_branch(client)
             sha = None
-            existing = client.get(url, headers=_headers())
+            existing = client.get(
+                url, headers=_headers(), params={"ref": DATA_BRANCH}
+            )
             if existing.status_code == 200:
                 sha = existing.json().get("sha")
             payload: dict[str, Any] = {
                 "message": message,
                 "content": encoded,
-                "branch": "main",
+                "branch": DATA_BRANCH,
             }
             if sha:
                 payload["sha"] = sha
@@ -55,17 +91,21 @@ def _put_file(path: str, content_text: str, message: str) -> bool:
 
 
 def _get_file(path: str) -> str | None:
+    """Read from mcc-data first, then fall back to main (legacy backups)."""
     if not TOKEN:
         return None
     url = f"https://api.github.com/repos/{REPO}/contents/{path}"
     try:
         with httpx.Client(timeout=60) as client:
-            r = client.get(url, headers=_headers())
-            if r.status_code == 404:
-                return None
-            r.raise_for_status()
-            data = r.json()
-            return base64.b64decode(data.get("content", "")).decode("utf-8")
+            for ref in (DATA_BRANCH, "main"):
+                r = client.get(url, headers=_headers(), params={"ref": ref})
+                if r.status_code == 404:
+                    continue
+                if r.status_code != 200:
+                    continue
+                data = r.json()
+                return base64.b64decode(data.get("content", "")).decode("utf-8")
+            return None
     except Exception as exc:  # noqa: BLE001
         print(f"github get {path} error: {exc}")
         return None
@@ -89,7 +129,7 @@ def save_users(users: list[dict[str, Any]]) -> None:
     for u in users:
         row = {k: v for k, v in u.items() if k != "profile_picture"}
         slim.append(row)
-    _put_file(PATH, json.dumps(slim, indent=2, ensure_ascii=False), "chore: sync registered MCC users")
+        _put_file(PATH, json.dumps(slim, indent=2, ensure_ascii=False), "data: sync MCC users (no deploy)")
 
 
 def upsert_user(record: dict[str, Any]) -> None:
@@ -202,7 +242,14 @@ def restore_into_db(db) -> int:
                 rec["user_id"] = exists.id
             continue
 
+        from app.models import new_uuid
+
+        uid = rec.get("user_id") or new_uuid()
+        # Reuse backup id so JWT stays valid across Render restarts
+        if db.get(User, uid):
+            uid = new_uuid()
         user = User(
+            id=uid,
             username=username,
             email=email,
             full_name=rec.get("full_name") or username,
@@ -210,6 +257,7 @@ def restore_into_db(db) -> int:
             password_hash=rec["password_hash"],
             account_status=AccountStatus.active,
         )
+
         if player_role:
             user.roles = [player_role]
         db.add(user)

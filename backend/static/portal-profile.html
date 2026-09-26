@@ -118,11 +118,54 @@
       msg.className = "msg show" + (isErr ? " err" : "");
     }
 
+    function getToken() {
+      return localStorage.getItem("mcc_access_token");
+    }
+
+    async function refreshSession() {
+      const rt = localStorage.getItem("mcc_refresh_token");
+      if (!rt) return false;
+      try {
+        const res = await fetch("/api/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: rt }),
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        if (!data.access_token) return false;
+        localStorage.setItem("mcc_access_token", data.access_token);
+        if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function api(url, options) {
+      const opts = options || {};
+      opts.headers = Object.assign({}, opts.headers || {}, {
+        Authorization: "Bearer " + getToken(),
+      });
+      let res = await fetch(url, opts);
+      if (res.status === 401) {
+        const ok = await refreshSession();
+        if (!ok) {
+          localStorage.clear();
+          location.replace("/login");
+          throw new Error("Please login again");
+        }
+        opts.headers.Authorization = "Bearer " + getToken();
+        res = await fetch(url, opts);
+      }
+      return res;
+    }
+
     function setAvatar(src) {
-      if (src && src.startsWith("data:image/")) {
+      if (src && String(src).startsWith("data:image/")) {
         avatarEl.src = src;
         avatarEl.dataset.hasPhoto = "1";
-        photoHint.textContent = "Photo set · MCC logo hidden · saved to database";
+        photoHint.textContent = "Photo set · MCC logo hidden · saved";
         photoHint.style.color = "#7CFF3A";
       } else {
         avatarEl.src = MCC_LOGO;
@@ -154,12 +197,18 @@
       return "";
     }
 
+    function detailText(data) {
+      if (!data) return "Save failed";
+      if (typeof data.detail === "string") return data.detail;
+      if (Array.isArray(data.detail)) return data.detail.map((x) => x.msg || JSON.stringify(x)).join(", ");
+      return "Save failed";
+    }
+
     document.getElementById("btn-change").onclick = () => document.getElementById("photo").click();
 
     async function load() {
-      const r = await fetch("/api/portal/player/profile", { headers: { Authorization: "Bearer " + token } });
-      if (r.status === 401) return location.replace("/login");
-      if (!r.ok) { show("Failed to load profile", true); return; }
+      const r = await api("/api/portal/player/profile");
+      if (!r.ok) { show(detailText(await r.json().catch(() => ({}))), true); return; }
       const p = await r.json();
       setAvatar(p.profile_picture);
       ["full_name","email","username","player_code","phone","address","emergency_contact","category","team","batting_style","bowling_style"].forEach((k) => {
@@ -194,26 +243,23 @@
             show("Image still too large. Try another photo.", true);
             return;
           }
-          // Instant UI: photo only, logo gone
           setAvatar(dataUrl);
-          show("Uploading & saving…");
+          show("Saving photo…");
           try {
-            const res = await fetch("/api/portal/player/avatar", {
+            const res = await api("/api/portal/player/avatar", {
               method: "POST",
-              headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ image_data_url: dataUrl }),
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-              setAvatar(null);
-              show(data.detail || "Upload failed", true);
+              show(detailText(data), true);
               return;
             }
             setAvatar(data.profile_picture || dataUrl);
-            show("Profile picture saved");
+            show("Photo saved");
           } catch (err) {
-            setAvatar(null);
-            show("Upload failed", true);
+            show(err.message || "Upload failed", true);
           }
         };
         img.src = reader.result;
@@ -238,22 +284,21 @@
       };
       show("Saving…");
       try {
-        const res = await fetch("/api/portal/player/profile", {
+        const res = await api("/api/portal/player/profile", {
           method: "PUT",
-          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          const detail = typeof data.detail === "string" ? data.detail : (Array.isArray(data.detail) ? data.detail.map((x) => x.msg).join(", ") : "Save failed");
-          show(detail, true);
+          show(detailText(data), true);
           return;
         }
         show("Profile saved");
         if (data.profile_picture) setAvatar(data.profile_picture);
         document.getElementById("status").textContent = data.status || document.getElementById("status").textContent;
       } catch (err) {
-        show("Save failed", true);
+        show(err.message || "Save failed", true);
       }
     });
 

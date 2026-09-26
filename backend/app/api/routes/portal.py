@@ -139,6 +139,8 @@ def update_profile(
     user: User = Depends(require_permissions("portal.player")),
     db: Session = Depends(get_db),
 ):
+    from sqlalchemy.exc import IntegrityError
+
     if body.full_name:
         user.full_name = body.full_name.strip()
     if body.phone is not None:
@@ -165,30 +167,41 @@ def update_profile(
             raise HTTPException(400, "Invalid playing role")
         pp.playing_role = role
         pp.is_wicketkeeper = role == PlayingRole.wicketkeeper
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Jersey number already used by another player on this team. Choose another number.",
+        )
     db.refresh(user)
+    pp = user.player_profile
 
-    # Durable backup so edits survive Render free restarts
-    from app.services.github_user_store import upsert_user
+    # Soft backup — never fail the user-facing save if GitHub is slow/down
+    try:
+        from app.services.github_user_store import upsert_user
 
-    upsert_user(
-        {
-            "user_id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "full_name": user.full_name,
-            "phone": user.phone,
-            "address": pp.address,
-            "emergency_contact": pp.emergency_contact,
-            "date_of_birth": pp.date_of_birth,
-            "batting_style": pp.batting_style,
-            "bowling_style": pp.bowling_style,
-            "jersey_number": pp.jersey_number,
-            "playing_role": pp.playing_role.value if pp.playing_role else None,
-            "player_code": pp.player_code,
-            "team_slug": pp.team.slug if pp.team else None,
-        }
-    )
+        upsert_user(
+            {
+                "user_id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "full_name": user.full_name,
+                "phone": user.phone,
+                "address": pp.address if pp else None,
+                "emergency_contact": pp.emergency_contact if pp else None,
+                "date_of_birth": pp.date_of_birth if pp else None,
+                "batting_style": pp.batting_style if pp else None,
+                "bowling_style": pp.bowling_style if pp else None,
+                "jersey_number": pp.jersey_number if pp else None,
+                "playing_role": pp.playing_role.value if pp and pp.playing_role else None,
+                "player_code": pp.player_code if pp else None,
+                "team_slug": pp.team.slug if pp and pp.team else None,
+            }
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"profile backup skipped: {exc}")
     return build_profile(user)
 
 
@@ -209,19 +222,21 @@ def upload_avatar(
     db.commit()
     db.refresh(user)
 
-    # Durable backup (Render free disk is wiped on restart)
-    from app.services.github_user_store import save_avatar, upsert_user
+    try:
+        from app.services.github_user_store import save_avatar, upsert_user
 
-    save_avatar(user.id, data)
-    upsert_user(
-        {
-            "user_id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "full_name": user.full_name,
-            "phone": user.phone,
-        }
-    )
+        save_avatar(user.id, data)
+        upsert_user(
+            {
+                "user_id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "full_name": user.full_name,
+                "phone": user.phone,
+            }
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"avatar backup skipped: {exc}")
     return build_profile(user)
 
 

@@ -17,10 +17,13 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 
-def create_access_token(subject: str, extra: dict[str, Any] | None = None) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.access_token_expire_minutes
-    )
+def create_access_token(
+    subject: str,
+    extra: dict[str, Any] | None = None,
+    expire_minutes: int | None = None,
+) -> str:
+    minutes = expire_minutes if expire_minutes is not None else settings.access_token_expire_minutes
+    expire = datetime.now(timezone.utc) + timedelta(minutes=minutes)
     payload: dict[str, Any] = {"sub": subject, "exp": expire, "type": "access"}
     if extra:
         payload.update(extra)
