@@ -791,6 +791,43 @@ def admin_warning(
     return MessageOut(message=f"Warning sent to {player.full_name}")
 
 
+@router.post("/discipline/clear-warning", response_model=MessageOut)
+def admin_clear_warning(
+    body: DisciplineAction,
+    request: Request,
+    actor: User = Depends(require_permissions("discipline.issue_warning")),
+    db: Session = Depends(get_db),
+):
+    """Remove warning from player + homepage card."""
+    pp = _get_profile(db, body.profile_id)
+    player = pp.user
+    note = (body.reason or "").strip() or "Warning cleared by admin"
+    pp.discipline_type = None
+    pp.discipline_reason = None
+    title = "WARNING CLEARED"
+    msg = (
+        f"Your club warning has been removed.\n"
+        f"Note: {note}\n"
+        f"Details: {(body.description or '').strip() or '—'}\n"
+        f"By: {actor.full_name} (Admin)\n"
+        f"Date: {datetime.now(timezone.utc).strftime('%d %B %Y')}\n"
+        f"Homepage pe warning ab nahi dikhegi."
+    )
+    _notify(db, actor=actor, player=player, title=title, message=msg, priority="normal")
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_clear_warning",
+            entity_type="user",
+            entity_id=player.id,
+            detail=note,
+            ip_address=request.client.host if request.client else None,
+        )
+    )
+    db.commit()
+    return MessageOut(message=f"Warning cleared for {player.full_name}")
+
+
 @router.post("/discipline/suspend", response_model=MessageOut)
 def admin_suspend(
     body: DisciplineAction,

@@ -284,7 +284,7 @@
     </div>
     <h2>4 · Discipline — Warning / Ban / Unban</h2>
     <div class="panel">
-      <p class="muted" style="margin-bottom:.75rem">Player ko warning bhejo, suspend/ban karo, ya ban hata kar active banao. Player portal pe notification jayegi.</p>
+      <p class="muted" style="margin-bottom:.75rem">Player ko warning bhejo, warning clear karo, suspend/ban karo, ya ban hata kar active banao. Homepage pe foran update hoga.</p>
       <div class="row cols-2">
         <div>
           <label>Player</label>
@@ -294,6 +294,7 @@
           <label>Action</label>
           <select id="d_action">
             <option value="warning">Send Warning</option>
+            <option value="clear_warning">Clear Warning (homepage se hatao)</option>
             <option value="suspend">Suspend</option>
             <option value="ban">Ban</option>
             <option value="unban">Remove Ban / Reinstate (Active)</option>
@@ -652,6 +653,7 @@
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem">
               <button type="button" class="btn btn-outline btn-sm r-warn">Warn</button>
+              <button type="button" class="btn btn-outline btn-sm r-clear-warn">Clear warn</button>
               <button type="button" class="btn btn-danger btn-sm r-ban">Ban</button>
               <button type="button" class="btn btn-outline btn-sm r-unban">Unban</button>
             </div>
@@ -700,6 +702,13 @@
         tr.querySelector(".r-warn").onclick = () => {
           document.getElementById("d_player").value = p.profile_id;
           document.getElementById("d_action").value = "warning";
+          document.getElementById("d_reason").focus();
+          window.scrollTo({ top: document.getElementById("d_player").offsetTop - 80, behavior: "smooth" });
+        };
+        tr.querySelector(".r-clear-warn").onclick = () => {
+          document.getElementById("d_player").value = p.profile_id;
+          document.getElementById("d_action").value = "clear_warning";
+          document.getElementById("d_reason").value = "Warning cleared by admin";
           document.getElementById("d_reason").focus();
           window.scrollTo({ top: document.getElementById("d_player").offsetTop - 80, behavior: "smooth" });
         };
@@ -869,12 +878,14 @@
       }
       const path = {
         warning: "/api/admin/discipline/warning",
+        clear_warning: "/api/admin/discipline/clear-warning",
         suspend: "/api/admin/discipline/suspend",
         ban: "/api/admin/discipline/ban",
         unban: "/api/admin/discipline/unban",
       }[action];
       if (!path) return;
       if (action === "ban" && !confirm("Is player ko BAN karna hai?")) return;
+      if (action === "clear_warning" && !confirm("Is player ki WARNING clear karni hai? Homepage se hat jayegi.")) return;
       show(msg, "Applying…");
       const res = await api(path, {
         method: "POST",
