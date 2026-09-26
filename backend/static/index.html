@@ -95,10 +95,8 @@
     .api { margin-top: 1rem; font-size: .75rem; color: rgba(124,255,58,.7); }
     .players-grid {
       display: grid; gap: 1rem; margin-top: 1.5rem;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
     }
-    @media (min-width: 640px) { .players-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 960px) { .players-grid { grid-template-columns: repeat(4, 1fr); } }
     .player-card {
       border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
       border-radius: 3px; overflow: hidden; text-align: left; padding: 1rem .9rem 1.1rem;
