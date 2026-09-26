@@ -42,22 +42,6 @@
     }
     .btn:hover { background: var(--neon); }
     .header-actions { display: flex; gap: .4rem; align-items: center; flex-shrink: 0; }
-    .btn-admin {
-      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
-      text-decoration: none; padding: .5rem .75rem; border-radius: 2px;
-      background: #F5C518; color: #06140a; white-space: nowrap; font-weight: 600;
-    }
-    .btn-admin:hover { background: #7CFF3A; }
-    .admin-strip {
-      background: linear-gradient(90deg, rgba(245,197,24,.2), rgba(124,255,58,.08));
-      border-block: 1px solid rgba(245,197,24,.45);
-      padding: 1.25rem 1rem; text-align: center;
-    }
-    .admin-strip h2 {
-      font-family: "Bebas Neue", sans-serif; font-size: 1.8rem; color: var(--gold); letter-spacing: .06em;
-    }
-    .admin-strip p { color: rgba(255,255,255,.65); margin: .4rem 0 1rem; font-size: .9rem; }
-    .admin-strip .btn-admin { display: inline-block; padding: .75rem 1.4rem; font-size: .85rem; }
     .hero {
       position: relative; min-height: 100svh; width: 100%; overflow: hidden;
     }
@@ -157,7 +141,6 @@
       <a href="/signup">Sign up</a>
     </nav>
     <div class="header-actions">
-      <a class="btn-admin" href="/login?next=/portal/admin">Admin</a>
       <a class="btn" href="/portal">Portal</a>
     </div>
   </header>
@@ -175,13 +158,6 @@
         <a class="btn btn-outline" href="/portal">Player Portal</a>
       </div>
     </div>
-  </section>
-
-  <section class="admin-strip" id="admin">
-    <h2>ADMIN DASHBOARD</h2>
-    <p>Match select · Day / Night · Playing boys · Team add/remove · Captains</p>
-    <a class="btn-admin" href="/login?next=/portal/admin">Open Admin Dashboard</a>
-    <p style="margin-top:.75rem;font-size:.8rem;color:rgba(255,255,255,.45)">Login: <b style="color:#F5C518">admin</b> / <b style="color:#F5C518">admin</b></p>
   </section>
 
   <section class="section" id="matches">
@@ -211,14 +187,7 @@
     <div class="grid" style="margin-top:1.5rem">
       <article class="card"><small>Senior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">1st XI · 2nd XI · Development</p></article>
       <article class="card"><small>Junior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">U19 · U16 · U14 · U12</p></article>
-      <article class="card">
-        <small>Admin</small>
-        <p style="margin-top:.75rem;font-family:Oswald,sans-serif">Match selection · Day/Night · Squad</p>
-        <p style="margin-top:1rem"><a class="btn" href="/login?next=/portal/admin">Open Admin Dashboard</a></p>
-      </article>
     </div>
-  </section>
-
   </section>
 
   <footer class="footer">
