@@ -99,36 +99,45 @@
     <a class="back" href="/">← Back to public site</a>
   </div>
   <script>
-    // Already logged in → stay on portal (browser back won't force password again)
-    (async function stayLoggedIn() {
+    function portalPathFor(role) {
+      if (["super_admin", "club_admin"].includes(role)) return "/portal/admin";
+      if (["captain", "vice_captain", "coach", "team_manager", "scorer"].includes(role)) return "/portal/staff";
+      return "/portal/player";
+    }
+
+    // Logged-in user jo Back se login/email pe aaye → turant portal wapas
+    async function bounceToPortalIfLoggedIn() {
       const t = localStorage.getItem("mcc_access_token");
-      if (!t) return;
+      if (!t) return false;
       try {
         let res = await fetch("/api/auth/me", { headers: { Authorization: "Bearer " + t } });
         if (res.status === 401) {
           const rt = localStorage.getItem("mcc_refresh_token");
-          if (rt) {
-            const rr = await fetch("/api/auth/refresh", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ refresh_token: rt }),
-            });
-            if (rr.ok) {
-              const d = await rr.json();
-              localStorage.setItem("mcc_access_token", d.access_token);
-              if (d.refresh_token) localStorage.setItem("mcc_refresh_token", d.refresh_token);
-              res = await fetch("/api/auth/me", { headers: { Authorization: "Bearer " + d.access_token } });
-            }
-          }
+          if (!rt) return false;
+          const rr = await fetch("/api/auth/refresh", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh_token: rt }),
+          });
+          if (!rr.ok) return false;
+          const d = await rr.json();
+          localStorage.setItem("mcc_access_token", d.access_token);
+          if (d.refresh_token) localStorage.setItem("mcc_refresh_token", d.refresh_token);
+          res = await fetch("/api/auth/me", { headers: { Authorization: "Bearer " + d.access_token } });
         }
-        if (!res.ok) return;
+        if (!res.ok) return false;
         const u = await res.json();
-        const role = u.primary_role || "player";
-        if (["super_admin", "club_admin"].includes(role)) location.replace("/portal/admin");
-        else if (["captain", "vice_captain", "coach", "team_manager", "scorer"].includes(role)) location.replace("/portal/staff");
-        else location.replace("/portal/player");
-      } catch (e) { /* show login form */ }
-    })();
+        location.replace(portalPathFor(u.primary_role || "player"));
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    bounceToPortalIfLoggedIn();
+    window.addEventListener("pageshow", function (ev) {
+      bounceToPortalIfLoggedIn();
+    });
 
     const form = document.getElementById("login-form");
     const err = document.getElementById("err");
@@ -167,15 +176,8 @@
         }
         localStorage.setItem("mcc_access_token", data.access_token);
         if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
-        // replace = login page history se hat jaye — Back pe email/login na aaye
-        const role = (data.user && data.user.primary_role) || "player";
-        if (["super_admin", "club_admin"].includes(role)) {
-          location.replace("/portal/admin");
-        } else if (["captain", "vice_captain", "coach", "team_manager", "scorer"].includes(role)) {
-          location.replace("/portal/staff");
-        } else {
-          location.replace("/portal/player");
-        }
+        // replace = history mein login na rahe (Back = Home, email form nahi)
+        location.replace(portalPathFor((data.user && data.user.primary_role) || "player"));
       } catch (ex) {
         err.textContent = "Unable to reach server. Try again.";
         err.classList.add("show");

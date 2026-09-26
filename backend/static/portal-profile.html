@@ -156,13 +156,11 @@
       let res = await fetch(url, opts);
       if (res.status === 401) {
         const ok = await refreshSession();
-        if (!ok) {
-          localStorage.clear();
-          location.replace("/login");
-          throw new Error("Please login again");
+        if (ok) {
+          opts.headers.Authorization = "Bearer " + getToken();
+          res = await fetch(url, opts);
         }
-        opts.headers.Authorization = "Bearer " + getToken();
-        res = await fetch(url, opts);
+        // Save/load fail pe login pe mat bhejo — wahi portal pe error dikhao
       }
       return res;
     }
@@ -214,6 +212,11 @@
 
     async function load() {
       const r = await api("/api/portal/player/profile");
+      if (r.status === 401) {
+        localStorage.clear();
+        location.replace("/login");
+        return;
+      }
       if (!r.ok) { show(detailText(await r.json().catch(() => ({}))), true); return; }
       const p = await r.json();
       setAvatar(p.profile_picture);

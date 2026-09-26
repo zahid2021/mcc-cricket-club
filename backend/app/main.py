@@ -48,10 +48,19 @@ def on_startup() -> None:
                 conn.exec_driver_sql(
                     "CREATE TABLE IF NOT EXISTS _mcc_migrate_note (id INTEGER)"
                 )
+                # Allow same jersey on a team (was blocking Save with 500)
+                conn.exec_driver_sql("DROP INDEX IF EXISTS uq_jersey_team")
             elif dialect.startswith("postgres"):
                 conn.exec_driver_sql(
                     "ALTER TABLE users ALTER COLUMN profile_picture TYPE TEXT"
                 )
+                conn.exec_driver_sql("DROP INDEX IF EXISTS uq_jersey_team")
+                try:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles DROP CONSTRAINT IF EXISTS uq_jersey_team"
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
     except Exception as exc:  # noqa: BLE001
         print(f"profile_picture migrate note: {exc}")
 
