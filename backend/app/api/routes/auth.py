@@ -164,6 +164,19 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
 
     count = db.query(PlayerProfile).count() + 1
     player_code = f"MCC-P-{count:04d}"
+    lead = (body.leadership_role or "none").strip().lower()
+    allowed_lead = {
+        "none",
+        "senior_captain",
+        "senior_vice_captain",
+        "junior_captain",
+        "junior_vice_captain",
+    }
+    if lead not in allowed_lead:
+        lead = "none"
+    if lead != "none":
+        for o in db.query(PlayerProfile).filter(PlayerProfile.leadership_role == lead).all():
+            o.leadership_role = "none"
     db.add(
         PlayerProfile(
             user_id=user.id,
@@ -173,6 +186,7 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
             jersey_number=body.jersey_number,
             playing_role=playing,
             is_wicketkeeper=playing == PlayingRole.wicketkeeper,
+            leadership_role=lead,
             status=PlayerStatus.active,
         )
     )

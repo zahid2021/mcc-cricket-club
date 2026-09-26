@@ -1,0 +1,475 @@
+"""Admin APIs: match selection, squad, team add/remove, leadership."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session, joinedload
+
+from app.api.deps import require_permissions
+from app.db.session import get_db
+from app.models import (
+    Match,
+    MatchSquad,
+    PlayerProfile,
+    PlayerStatus,
+    PlayingRole,
+    Team,
+    User,
+)
+
+router = APIRouter(prefix="/admin", tags=["admin"])
+
+LEADERSHIP_LABELS = {
+    "none": None,
+    "senior_captain": "Senior Captain",
+    "senior_vice_captain": "Senior Vice Captain",
+    "junior_captain": "Junior Captain",
+    "junior_vice_captain": "Junior Vice Captain",
+}
+
+ROLE_LABELS = {
+    PlayingRole.batsman: "Batsman",
+    PlayingRole.bowler: "Bowler",
+    PlayingRole.all_rounder: "All-rounder",
+    PlayingRole.wicketkeeper: "Wicketkeeper",
+}
+
+
+def _role_label(role: PlayingRole | None) -> str | None:
+    if not role:
+        return None
+    return ROLE_LABELS.get(role, role.value)
+
+
+def _leadership_label(code: str | None) -> str | None:
+    if not code or code == "none":
+        return None
+    return LEADERSHIP_LABELS.get(code, code.replace("_", " ").title())
+
+
+# ── Schemas ──────────────────────────────────────────────────────────
+
+
+class PlayerAdminOut(BaseModel):
+    user_id: str
+    profile_id: str
+    full_name: str
+    username: str
+    phone: str | None = None
+    profile_picture: str | None = None
+    playing_role: str | None = None
+    leadership_role: str | None = None
+    leadership_label: str | None = None
+    category: str | None = None
+    team: str | None = None
+    team_id: str | None = None
+    jersey_number: int | None = None
+    status: str
+    player_code: str | None = None
+
+
+class TeamOut(BaseModel):
+    id: str
+    name: str
+    slug: str
+    category: str | None = None
+
+
+class MatchCreate(BaseModel):
+    title: str = Field(..., min_length=3, max_length=200)
+    opponent: str = Field(..., min_length=2, max_length=200)
+    match_date: str = Field(..., min_length=8, max_length=20)  # YYYY-MM-DD
+    match_time: str | None = None
+    session: str = Field("day", pattern="^(day|night)$")
+    category: str = Field("senior", pattern="^(senior|junior)$")
+    team_id: str | None = None
+    venue: str | None = None
+    notes: str | None = None
+    is_published: bool = True
+    player_profile_ids: list[str] = Field(default_factory=list)
+
+
+class MatchUpdate(BaseModel):
+    title: str | None = None
+    opponent: str | None = None
+    match_date: str | None = None
+    match_time: str | None = None
+    session: str | None = Field(None, pattern="^(day|night)$")
+    category: str | None = Field(None, pattern="^(senior|junior)$")
+    team_id: str | None = None
+    venue: str | None = None
+    notes: str | None = None
+    status: str | None = Field(None, pattern="^(upcoming|completed|cancelled)$")
+    is_published: bool | None = None
+    player_profile_ids: list[str] | None = None
+
+
+class SquadPlayerOut(BaseModel):
+    profile_id: str
+    full_name: str
+    profile_picture: str | None = None
+    playing_role: str | None = None
+    leadership_label: str | None = None
+    jersey_number: int | None = None
+
+
+class MatchOut(BaseModel):
+    id: str
+    title: str
+    opponent: str
+    match_date: str
+    match_time: str | None = None
+    session: str
+    category: str
+    team_id: str | None = None
+    team: str | None = None
+    venue: str | None = None
+    status: str
+    is_published: bool
+    notes: str | None = None
+    squad: list[SquadPlayerOut] = Field(default_factory=list)
+
+
+class PlayerTeamUpdate(BaseModel):
+    team_id: str | None = None
+    status: str | None = None  # active / inactive / suspended / banned / injured
+    leadership_role: str | None = None
+    playing_role: str | None = None
+    remove_from_team: bool = False
+
+
+class LeadershipUpdate(BaseModel):
+    leadership_role: str = Field(..., pattern="^(none|senior_captain|senior_vice_captain|junior_captain|junior_vice_captain)$")
+
+
+# ── Helpers ───────────────────────────────────────────────────────────
+
+
+def _player_out(pp: PlayerProfile) -> PlayerAdminOut:
+    user = pp.user
+    cat = pp.team.category.name if pp.team and pp.team.category else None
+    lead = pp.leadership_role or "none"
+    return PlayerAdminOut(
+        user_id=user.id if user else "",
+        profile_id=pp.id,
+        full_name=user.full_name if user else "—",
+        username=user.username if user else "—",
+        phone=user.phone if user else None,
+        profile_picture=user.profile_picture if user else None,
+        playing_role=_role_label(pp.playing_role),
+        leadership_role=lead,
+        leadership_label=_leadership_label(lead),
+        category=cat,
+        team=pp.team.name if pp.team else None,
+        team_id=pp.team_id,
+        jersey_number=pp.jersey_number,
+        status=pp.status.value.upper(),
+        player_code=pp.player_code,
+    )
+
+
+def _match_out(m: Match) -> MatchOut:
+    squad: list[SquadPlayerOut] = []
+    for row in m.squad or []:
+        pp = row.player_profile
+        if not pp or not pp.user:
+            continue
+        squad.append(
+            SquadPlayerOut(
+                profile_id=pp.id,
+                full_name=pp.user.full_name,
+                profile_picture=pp.user.profile_picture,
+                playing_role=_role_label(pp.playing_role),
+                leadership_label=_leadership_label(pp.leadership_role),
+                jersey_number=pp.jersey_number,
+            )
+        )
+    squad.sort(key=lambda s: s.full_name.lower())
+    return MatchOut(
+        id=m.id,
+        title=m.title,
+        opponent=m.opponent,
+        match_date=m.match_date,
+        match_time=m.match_time,
+        session=m.session,
+        category=m.category,
+        team_id=m.team_id,
+        team=m.team.name if m.team else None,
+        venue=m.venue,
+        status=m.status,
+        is_published=m.is_published,
+        notes=m.notes,
+        squad=squad,
+    )
+
+
+def _set_squad(db: Session, match: Match, profile_ids: list[str]) -> None:
+    db.query(MatchSquad).filter(MatchSquad.match_id == match.id).delete()
+    seen: set[str] = set()
+    for pid in profile_ids:
+        if not pid or pid in seen:
+            continue
+        seen.add(pid)
+        pp = db.get(PlayerProfile, pid)
+        if not pp:
+            continue
+        db.add(MatchSquad(match_id=match.id, player_profile_id=pid))
+
+
+# ── Players & teams ───────────────────────────────────────────────────
+
+
+@router.get("/players", response_model=list[PlayerAdminOut])
+def list_players_admin(
+    category: str | None = Query(None),
+    team_id: str | None = Query(None),
+    user: User = Depends(require_permissions("players.manage")),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user), joinedload(PlayerProfile.team))
+        .all()
+    )
+    out: list[PlayerAdminOut] = []
+    for pp in rows:
+        if not pp.user:
+            continue
+        cat = pp.team.category.name if pp.team and pp.team.category else None
+        if category and cat and cat.lower() != category.lower():
+            continue
+        if team_id and pp.team_id != team_id:
+            continue
+        out.append(_player_out(pp))
+    out.sort(key=lambda p: p.full_name.lower())
+    return out
+
+
+@router.get("/teams", response_model=list[TeamOut])
+def list_teams_admin(
+    user: User = Depends(require_permissions("teams.view")),
+    db: Session = Depends(get_db),
+):
+    teams = db.query(Team).filter(Team.is_active.is_(True)).all()
+    return [
+        TeamOut(
+            id=t.id,
+            name=t.name,
+            slug=t.slug,
+            category=t.category.name if t.category else None,
+        )
+        for t in teams
+    ]
+
+
+@router.patch("/players/{profile_id}", response_model=PlayerAdminOut)
+def update_player_admin(
+    profile_id: str,
+    body: PlayerTeamUpdate,
+    user: User = Depends(require_permissions("players.manage")),
+    db: Session = Depends(get_db),
+):
+    pp = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user), joinedload(PlayerProfile.team))
+        .filter(PlayerProfile.id == profile_id)
+        .first()
+    )
+    if not pp:
+        raise HTTPException(404, "Player not found")
+
+    if body.remove_from_team:
+        pp.team_id = None
+    elif body.team_id is not None:
+        if body.team_id == "":
+            pp.team_id = None
+        else:
+            team = db.get(Team, body.team_id)
+            if not team:
+                raise HTTPException(400, "Invalid team")
+            pp.team_id = team.id
+
+    if body.status:
+        try:
+            pp.status = PlayerStatus(body.status.lower())
+        except ValueError as exc:
+            raise HTTPException(400, "Invalid status") from exc
+
+    if body.leadership_role is not None:
+        if body.leadership_role not in LEADERSHIP_LABELS:
+            raise HTTPException(400, "Invalid leadership role")
+        # Only one of each leadership per club — clear previous holders
+        if body.leadership_role != "none":
+            others = (
+                db.query(PlayerProfile)
+                .filter(
+                    PlayerProfile.leadership_role == body.leadership_role,
+                    PlayerProfile.id != pp.id,
+                )
+                .all()
+            )
+            for o in others:
+                o.leadership_role = "none"
+        pp.leadership_role = body.leadership_role
+
+    if body.playing_role:
+        key = body.playing_role.strip().lower().replace("-", "_").replace(" ", "_")
+        role_map = {
+            "batsman": PlayingRole.batsman,
+            "bowler": PlayingRole.bowler,
+            "all_rounder": PlayingRole.all_rounder,
+            "allrounder": PlayingRole.all_rounder,
+            "wicketkeeper": PlayingRole.wicketkeeper,
+            "keeper": PlayingRole.wicketkeeper,
+        }
+        role = role_map.get(key)
+        if not role:
+            raise HTTPException(400, "Invalid playing role")
+        pp.playing_role = role
+        pp.is_wicketkeeper = role == PlayingRole.wicketkeeper
+
+    db.commit()
+    db.refresh(pp)
+    return _player_out(pp)
+
+
+# ── Matches ───────────────────────────────────────────────────────────
+
+
+@router.get("/matches", response_model=list[MatchOut])
+def list_matches_admin(
+    user: User = Depends(require_permissions("matches.manage")),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(Match)
+        .options(
+            joinedload(Match.team),
+            joinedload(Match.squad).joinedload(MatchSquad.player_profile).joinedload(PlayerProfile.user),
+        )
+        .order_by(Match.match_date.desc())
+        .all()
+    )
+    return [_match_out(m) for m in rows]
+
+
+@router.post("/matches", response_model=MatchOut, status_code=201)
+def create_match(
+    body: MatchCreate,
+    user: User = Depends(require_permissions("matches.manage")),
+    db: Session = Depends(get_db),
+):
+    if body.team_id:
+        if not db.get(Team, body.team_id):
+            raise HTTPException(400, "Invalid team")
+    m = Match(
+        title=body.title.strip(),
+        opponent=body.opponent.strip(),
+        match_date=body.match_date.strip(),
+        match_time=(body.match_time or "").strip() or None,
+        session=body.session,
+        category=body.category,
+        team_id=body.team_id,
+        venue=(body.venue or "").strip() or None,
+        notes=(body.notes or "").strip() or None,
+        is_published=body.is_published,
+        status="upcoming",
+        created_by_user_id=user.id,
+    )
+    db.add(m)
+    db.flush()
+    _set_squad(db, m, body.player_profile_ids)
+    db.commit()
+    m = (
+        db.query(Match)
+        .options(
+            joinedload(Match.team),
+            joinedload(Match.squad).joinedload(MatchSquad.player_profile).joinedload(PlayerProfile.user),
+        )
+        .filter(Match.id == m.id)
+        .first()
+    )
+    return _match_out(m)
+
+
+@router.put("/matches/{match_id}", response_model=MatchOut)
+def update_match(
+    match_id: str,
+    body: MatchUpdate,
+    user: User = Depends(require_permissions("matches.manage")),
+    db: Session = Depends(get_db),
+):
+    m = db.get(Match, match_id)
+    if not m:
+        raise HTTPException(404, "Match not found")
+    if body.title is not None:
+        m.title = body.title.strip()
+    if body.opponent is not None:
+        m.opponent = body.opponent.strip()
+    if body.match_date is not None:
+        m.match_date = body.match_date.strip()
+    if body.match_time is not None:
+        m.match_time = body.match_time.strip() or None
+    if body.session is not None:
+        m.session = body.session
+    if body.category is not None:
+        m.category = body.category
+    if body.team_id is not None:
+        m.team_id = body.team_id or None
+    if body.venue is not None:
+        m.venue = body.venue.strip() or None
+    if body.notes is not None:
+        m.notes = body.notes.strip() or None
+    if body.status is not None:
+        m.status = body.status
+    if body.is_published is not None:
+        m.is_published = body.is_published
+    if body.player_profile_ids is not None:
+        _set_squad(db, m, body.player_profile_ids)
+    db.commit()
+    m = (
+        db.query(Match)
+        .options(
+            joinedload(Match.team),
+            joinedload(Match.squad).joinedload(MatchSquad.player_profile).joinedload(PlayerProfile.user),
+        )
+        .filter(Match.id == match_id)
+        .first()
+    )
+    return _match_out(m)
+
+
+@router.delete("/matches/{match_id}")
+def delete_match(
+    match_id: str,
+    user: User = Depends(require_permissions("matches.manage")),
+    db: Session = Depends(get_db),
+):
+    m = db.get(Match, match_id)
+    if not m:
+        raise HTTPException(404, "Match not found")
+    db.delete(m)
+    db.commit()
+    return {"message": "Match deleted"}
+
+
+# ── Public matches (homepage) ─────────────────────────────────────────
+
+public_router = APIRouter(prefix="/matches", tags=["matches-public"])
+
+
+@public_router.get("/public", response_model=list[MatchOut])
+def list_public_matches(db: Session = Depends(get_db)):
+    rows = (
+        db.query(Match)
+        .options(
+            joinedload(Match.team),
+            joinedload(Match.squad).joinedload(MatchSquad.player_profile).joinedload(PlayerProfile.user),
+        )
+        .filter(Match.is_published.is_(True), Match.status == "upcoming")
+        .order_by(Match.match_date.asc())
+        .limit(20)
+        .all()
+    )
+    return [_match_out(m) for m in rows]

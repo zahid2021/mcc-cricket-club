@@ -67,8 +67,20 @@ def _category_name(notif_title: str) -> str:
     return "general"
 
 
+def _leadership_label(code: str | None) -> str | None:
+    if not code or code == "none":
+        return None
+    return {
+        "senior_captain": "Senior Captain",
+        "senior_vice_captain": "Senior Vice Captain",
+        "junior_captain": "Junior Captain",
+        "junior_vice_captain": "Junior Vice Captain",
+    }.get(code, code.replace("_", " ").title())
+
+
 def build_profile(user: User) -> PlayerProfileOut:
     pp = user.player_profile
+    lead = (pp.leadership_role if pp else None) or "none"
     return PlayerProfileOut(
         full_name=user.full_name,
         email=user.email,
@@ -80,6 +92,8 @@ def build_profile(user: User) -> PlayerProfileOut:
         team=pp.team.name if pp and pp.team else None,
         category=pp.team.category.name if pp and pp.team and pp.team.category else None,
         playing_role=_playing_role_label(pp.playing_role) if pp else None,
+        leadership_role=lead,
+        leadership_label=_leadership_label(lead),
         jersey_number=pp.jersey_number if pp else None,
         batting_style=pp.batting_style if pp else None,
         bowling_style=pp.bowling_style if pp else None,
@@ -167,6 +181,26 @@ def update_profile(
             raise HTTPException(400, "Invalid playing role")
         pp.playing_role = role
         pp.is_wicketkeeper = role == PlayingRole.wicketkeeper
+    if body.leadership_role is not None:
+        lead = body.leadership_role.strip().lower() or "none"
+        allowed = {
+            "none",
+            "senior_captain",
+            "senior_vice_captain",
+            "junior_captain",
+            "junior_vice_captain",
+        }
+        if lead not in allowed:
+            raise HTTPException(400, "Invalid leadership role")
+        if lead != "none":
+            others = (
+                db.query(PlayerProfile)
+                .filter(PlayerProfile.leadership_role == lead, PlayerProfile.id != pp.id)
+                .all()
+            )
+            for o in others:
+                o.leadership_role = "none"
+        pp.leadership_role = lead
     try:
         db.commit()
     except IntegrityError:

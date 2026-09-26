@@ -50,6 +50,15 @@ def on_startup() -> None:
                 )
                 # Allow same jersey on a team (was blocking Save with 500)
                 conn.exec_driver_sql("DROP INDEX IF EXISTS uq_jersey_team")
+                # leadership_role column (SQLite: add if missing)
+                cols = [
+                    r[1]
+                    for r in conn.exec_driver_sql("PRAGMA table_info(player_profiles)").fetchall()
+                ]
+                if "leadership_role" not in cols:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles ADD COLUMN leadership_role VARCHAR(40) DEFAULT 'none'"
+                    )
             elif dialect.startswith("postgres"):
                 conn.exec_driver_sql(
                     "ALTER TABLE users ALTER COLUMN profile_picture TYPE TEXT"
@@ -58,6 +67,12 @@ def on_startup() -> None:
                 try:
                     conn.exec_driver_sql(
                         "ALTER TABLE player_profiles DROP CONSTRAINT IF EXISTS uq_jersey_team"
+                    )
+                except Exception:  # noqa: BLE001
+                    pass
+                try:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE player_profiles ADD COLUMN IF NOT EXISTS leadership_role VARCHAR(40) DEFAULT 'none'"
                     )
                 except Exception:  # noqa: BLE001
                     pass

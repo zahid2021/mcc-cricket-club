@@ -86,6 +86,14 @@
         <option value="all_rounder">All-rounder</option>
         <option value="wicketkeeper">Wicketkeeper</option>
       </select>
+      <label>Club position</label>
+      <select id="leadership_role">
+        <option value="none">— None —</option>
+        <option value="senior_captain">Senior Captain</option>
+        <option value="senior_vice_captain">Senior Vice Captain</option>
+        <option value="junior_captain">Junior Captain</option>
+        <option value="junior_vice_captain">Junior Vice Captain</option>
+      </select>
       <label>Jersey number</label>
       <input id="jersey_number" type="number" min="1" max="99" />
       <label>Batting style</label>
@@ -227,6 +235,7 @@
       document.getElementById("date_of_birth").value = toDateInput(p.date_of_birth);
       document.getElementById("jersey_number").value = p.jersey_number || "";
       document.getElementById("playing_role").value = roleValue(p.playing_role);
+      document.getElementById("leadership_role").value = p.leadership_role || "none";
       document.getElementById("status").textContent = p.status || "—";
     }
 
@@ -287,6 +296,7 @@
         batting_style: document.getElementById("batting_style").value.trim(),
         bowling_style: document.getElementById("bowling_style").value.trim(),
         playing_role: document.getElementById("playing_role").value,
+        leadership_role: document.getElementById("leadership_role").value,
         jersey_number: document.getElementById("jersey_number").value
           ? Number(document.getElementById("jersey_number").value)
           : null,

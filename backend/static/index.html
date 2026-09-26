@@ -162,27 +162,10 @@
   </section>
 
   <section class="section" id="matches">
-    <h2>MATCHES</h2>
-    <p class="muted">Live data from MCC operations API</p>
-    <div class="grid">
-      <article class="card">
-        <small>Upcoming</small>
-        <span class="pill">Upcoming</span>
-        <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">MCC 1st XI vs City United CC</p>
-        <p class="muted" style="margin-top:.5rem;font-size:.85rem">Sat · 2:00 PM · Central Ground</p>
-      </article>
-      <article class="card">
-        <small>Latest Result</small>
-        <span class="pill" style="background:rgba(16,185,129,.15);color:#6ee7b7;border-color:rgba(52,211,153,.4)">Completed</span>
-        <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">MCC 1st XI vs Riverside XI</p>
-        <p style="margin-top:.5rem;color:var(--neon);font-size:.9rem">MCC 168/7 · Riverside 159/9</p>
-      </article>
-      <article class="card">
-        <small>Junior</small>
-        <span class="pill">Upcoming</span>
-        <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">MCC U16 vs Academy Stars</p>
-        <p class="muted" style="margin-top:.5rem;font-size:.85rem">Sun · 9:00 AM · Academy Pitch</p>
-      </article>
+    <h2>MATCHES · PLAYING XI</h2>
+    <p class="muted">Admin-selected boys — Senior / Junior · Day / Night</p>
+    <div class="grid" id="matches-grid">
+      <p class="muted" style="grid-column:1/-1">Loading matches…</p>
     </div>
   </section>
 
@@ -258,6 +241,7 @@
         const jersey = p.jersey_number != null ? `#${p.jersey_number}` : '';
         const rows = [
           line('Player ID', p.player_code),
+          line('Club position', p.leadership_label),
           line('Username', p.username),
           line('Email', p.email),
           line('Phone', p.phone),
@@ -272,7 +256,7 @@
         return `<article class="player-card">
           ${img}
           <h3>${p.full_name || 'Player'}${jersey ? ' ' + jersey : ''}</h3>
-          <div class="role">${p.playing_role || 'Player'}</div>
+          <div class="role">${p.playing_role || 'Player'}${p.leadership_label ? ' · ' + p.leadership_label : ''}</div>
           <div class="meta">${rows}</div>
           <div class="pill-wrap"><span class="pill">${p.status || 'ACTIVE'}</span></div>
         </article>`;
@@ -299,6 +283,41 @@
       });
     });
     loadPlayers('');
+
+    const matchesGrid = document.getElementById('matches-grid');
+    async function loadMatches() {
+      if (!matchesGrid) return;
+      try {
+        const r = await fetch('/api/matches/public');
+        const list = await r.json();
+        if (!Array.isArray(list) || !list.length) {
+          matchesGrid.innerHTML = '<p class="muted" style="grid-column:1/-1">Abhi koi upcoming match publish nahi. Admin portal se select karein.</p>';
+          return;
+        }
+        matchesGrid.innerHTML = list.map((m) => {
+          const session = (m.session || 'day').toUpperCase();
+          const cat = (m.category || '').toUpperCase();
+          const boys = (m.squad || []).map((s) => {
+            const bits = [s.full_name];
+            if (s.jersey_number != null) bits[0] += ' #' + s.jersey_number;
+            if (s.leadership_label) bits.push(s.leadership_label);
+            if (s.playing_role) bits.push(s.playing_role);
+            return `<li style="margin:.25rem 0;font-size:.85rem">${bits.join(' · ')}</li>`;
+          }).join('') || '<li class="muted">Squad TBD</li>';
+          return `<article class="card">
+            <small>${cat} · ${session}</small>
+            <span class="pill">${m.status || 'UPCOMING'}</span>
+            <p style="margin-top:1rem;font-family:Oswald,sans-serif;font-size:1.1rem">${m.title}</p>
+            <p class="muted" style="margin-top:.5rem;font-size:.85rem">${m.match_date}${m.match_time ? ' · ' + m.match_time : ''}${m.venue ? ' · ' + m.venue : ''}</p>
+            <p style="margin-top:.85rem;font-family:Oswald,sans-serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)">Playing boys</p>
+            <ul style="margin-top:.35rem;padding-left:1.1rem;color:rgba(255,255,255,.8)">${boys}</ul>
+          </article>`;
+        }).join('');
+      } catch (e) {
+        matchesGrid.innerHTML = '<p class="muted" style="grid-column:1/-1">Could not load matches.</p>';
+      }
+    }
+    loadMatches();
   </script>
 </body>
 </html>

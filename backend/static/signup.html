@@ -84,6 +84,14 @@
         <option value="all_rounder">All-rounder</option>
         <option value="wicketkeeper">Wicketkeeper / Keeper</option>
       </select>
+      <label>Club position (optional)</label>
+      <select id="leadership_role">
+        <option value="none">— None —</option>
+        <option value="senior_captain">Senior Captain</option>
+        <option value="senior_vice_captain">Senior Vice Captain</option>
+        <option value="junior_captain">Junior Captain</option>
+        <option value="junior_vice_captain">Junior Vice Captain</option>
+      </select>
       <label>Password</label>
       <input id="password" type="password" required minlength="6" />
       <label>Confirm password</label>
@@ -137,6 +145,7 @@
         category: cat.value,
         team_slug: teamSel.value,
         playing_role: document.getElementById("playing_role").value,
+        leadership_role: document.getElementById("leadership_role").value,
         jersey_number: jersey ? Number(jersey) : null,
         password,
         confirm_password,

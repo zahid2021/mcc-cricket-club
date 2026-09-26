@@ -49,6 +49,25 @@ class PlayingRole(str, enum.Enum):
     wicketkeeper = "wicketkeeper"
 
 
+class LeadershipRole(str, enum.Enum):
+    none = "none"
+    senior_captain = "senior_captain"
+    senior_vice_captain = "senior_vice_captain"
+    junior_captain = "junior_captain"
+    junior_vice_captain = "junior_vice_captain"
+
+
+class MatchSession(str, enum.Enum):
+    day = "day"
+    night = "night"
+
+
+class MatchStatus(str, enum.Enum):
+    upcoming = "upcoming"
+    completed = "completed"
+    cancelled = "cancelled"
+
+
 role_permissions = Table(
     "role_permissions",
     Base.metadata,
@@ -164,10 +183,55 @@ class PlayerProfile(Base):
     batting_style: Mapped[str | None] = mapped_column(String(40), nullable=True)
     bowling_style: Mapped[str | None] = mapped_column(String(80), nullable=True)
     is_wicketkeeper: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Club leadership (alongside batsman/bowler etc.)
+    leadership_role: Mapped[str | None] = mapped_column(String(40), nullable=True, default="none")
     status: Mapped[PlayerStatus] = mapped_column(Enum(PlayerStatus), default=PlayerStatus.active)
 
     user: Mapped[User] = relationship(back_populates="player_profile")
     team: Mapped[Team | None] = relationship(lazy="selectin")
+
+
+class Match(Base):
+    """Admin-scheduled match shown on homepage with selected playing boys."""
+
+    __tablename__ = "matches"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
+    title: Mapped[str] = mapped_column(String(200))
+    opponent: Mapped[str] = mapped_column(String(200))
+    match_date: Mapped[str] = mapped_column(String(20), index=True)  # YYYY-MM-DD
+    match_time: Mapped[str | None] = mapped_column(String(10), nullable=True)  # HH:MM
+    session: Mapped[str] = mapped_column(String(10), default="day")  # day | night
+    category: Mapped[str] = mapped_column(String(20), default="senior")  # senior | junior
+    team_id: Mapped[str | None] = mapped_column(ForeignKey("teams.id"), nullable=True, index=True)
+    venue: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="upcoming")
+    is_published: Mapped[bool] = mapped_column(Boolean, default=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by_user_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+
+    team: Mapped[Team | None] = relationship(lazy="selectin")
+    squad: Mapped[list["MatchSquad"]] = relationship(
+        back_populates="match", cascade="all, delete-orphan", lazy="selectin"
+    )
+
+
+class MatchSquad(Base):
+    __tablename__ = "match_squad"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_uuid)
+    match_id: Mapped[str] = mapped_column(ForeignKey("matches.id", ondelete="CASCADE"), index=True)
+    player_profile_id: Mapped[str] = mapped_column(
+        ForeignKey("player_profiles.id", ondelete="CASCADE"), index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    match: Mapped[Match] = relationship(back_populates="squad")
+    player_profile: Mapped[PlayerProfile] = relationship(lazy="selectin")
 
 
 class AuditLog(Base):

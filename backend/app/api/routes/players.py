@@ -17,6 +17,7 @@ class PlayerCard(BaseModel):
     username: str | None = None
     profile_picture: str | None = None
     playing_role: str | None = None
+    leadership_label: str | None = None
     phone: str | None = None
     address: str | None = None
     category: str | None = None
@@ -38,6 +39,17 @@ def _role_label(role: PlayingRole | None) -> str | None:
         PlayingRole.all_rounder: "All-rounder",
         PlayingRole.wicketkeeper: "Wicketkeeper",
     }.get(role, role.value.replace("_", " ").title())
+
+
+def _leadership_label(code: str | None) -> str | None:
+    if not code or code == "none":
+        return None
+    return {
+        "senior_captain": "Senior Captain",
+        "senior_vice_captain": "Senior Vice Captain",
+        "junior_captain": "Junior Captain",
+        "junior_vice_captain": "Junior Vice Captain",
+    }.get(code, code.replace("_", " ").title())
 
 
 @router.get("/public", response_model=list[PlayerCard])
@@ -69,6 +81,7 @@ def list_public_players(
                 username=user.username,
                 profile_picture=user.profile_picture,
                 playing_role=_role_label(pp.playing_role),
+                leadership_label=_leadership_label(pp.leadership_role),
                 phone=user.phone,
                 address=pp.address,
                 category=cat,

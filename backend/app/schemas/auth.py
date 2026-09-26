@@ -24,6 +24,10 @@ class RegisterRequest(BaseModel):
     category: str = Field(..., description="senior or junior")
     team_slug: str | None = None
     playing_role: str = Field(..., description="batsman|bowler|all_rounder|wicketkeeper")
+    leadership_role: str | None = Field(
+        "none",
+        description="none|senior_captain|senior_vice_captain|junior_captain|junior_vice_captain",
+    )
     jersey_number: int | None = Field(None, ge=1, le=99)
     password: str = Field(..., min_length=6, max_length=128)
     confirm_password: str = Field(..., min_length=6, max_length=128)
@@ -105,6 +109,8 @@ class PlayerProfileOut(BaseModel):
     team: str | None = None
     category: str | None = None
     playing_role: str | None = None
+    leadership_role: str | None = None
+    leadership_label: str | None = None
     jersey_number: int | None = None
     batting_style: str | None = None
     bowling_style: str | None = None
@@ -124,6 +130,7 @@ class PlayerProfileUpdate(BaseModel):
     bowling_style: str | None = None
     jersey_number: int | None = Field(None, ge=1, le=99)
     playing_role: str | None = None
+    leadership_role: str | None = None
 
 
 class AvatarUpdate(BaseModel):
