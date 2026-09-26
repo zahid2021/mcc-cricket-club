@@ -12,11 +12,17 @@
   <style>
     :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; }
-    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10; position: sticky; top: 0; z-index: 20; }
-    .logo { font-family: Bebas Neue, sans-serif; color: var(--gold); text-decoration: none; font-size: 1.25rem; }
-    button.logout { background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; font-size: .8rem; }
-    main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+    header {
+      min-height: 3.5rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+      padding: .65rem .75rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10;
+      position: sticky; top: 0; z-index: 20; flex-wrap: wrap;
+    }
+    .logo { font-family: Bebas Neue, sans-serif; color: var(--gold); text-decoration: none; font-size: clamp(1rem, 3.8vw, 1.25rem); }
+    button.logout { background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; font-size: .75rem; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem .75rem 2.5rem; }
+    @media (min-width: 640px) { main { padding: 1.25rem 1rem 2.5rem; } }
+    input, select, textarea { font-size: 16px; }
     h1 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; margin-bottom: .35rem; }
     .hint { color: rgba(255,255,255,.45); font-size: .85rem; margin-bottom: 1.25rem; }
     .avatar-wrap { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }

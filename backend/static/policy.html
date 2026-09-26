@@ -12,20 +12,22 @@
   <style>
     :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; line-height: 1.55; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; line-height: 1.55; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
     .top {
       position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between;
       gap: .75rem; padding: .75rem 1rem; background: rgba(10,31,16,.96); border-bottom: 1px solid rgba(255,255,255,.1);
       flex-wrap: wrap;
     }
-    .brand { font-family: "Bebas Neue", sans-serif; color: var(--gold); font-size: 1.35rem; text-decoration: none; }
+    .brand { font-family: "Bebas Neue", sans-serif; color: var(--gold); font-size: clamp(1.15rem, 4vw, 1.35rem); text-decoration: none; }
     .links { display: flex; flex-wrap: wrap; gap: .5rem; }
     .links a {
       font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
       text-decoration: none; color: rgba(255,255,255,.7); padding: .4rem .7rem; border: 1px solid rgba(255,255,255,.15); border-radius: 2px;
     }
     .links a:hover { color: var(--gold); border-color: var(--gold); }
-    .wrap { max-width: 52rem; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 1rem .75rem 3rem; }
+    @media (min-width: 640px) { .wrap { padding: 1.25rem 1rem 3rem; } }
+    .flowchart img, .wrap img { max-width: 100%; height: auto; display: block; }
     .hero-policy {
       border: 1px solid rgba(245,197,24,.35); background: linear-gradient(180deg, rgba(245,197,24,.1), transparent);
       padding: 1.25rem; border-radius: 4px; text-align: center; margin-bottom: 1.25rem;

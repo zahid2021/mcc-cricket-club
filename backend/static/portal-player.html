@@ -12,11 +12,22 @@
   <style>
     :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; }
-    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10; position: sticky; top: 0; z-index: 20; }
-    .logo { font-family: Bebas Neue, sans-serif; color: var(--gold); text-decoration: none; font-size: 1.25rem; }
-    button.logout { background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; font-size: .8rem; }
-    main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+    header {
+      min-height: 3.5rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+      padding: .65rem .75rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10;
+      position: sticky; top: 0; z-index: 20; flex-wrap: wrap;
+    }
+    .logo { font-family: Bebas Neue, sans-serif; color: var(--gold); text-decoration: none; font-size: clamp(1rem, 3.8vw, 1.25rem); }
+    .header-links { display: flex; gap: .55rem; align-items: center; flex-wrap: wrap; }
+    .header-links a, button.logout {
+      color: rgba(255,255,255,.55); text-decoration: none; font-size: .7rem;
+      font-family: Oswald, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+      background: none; border: 0; cursor: pointer;
+    }
+    .header-links a[href="/policy"] { color: #F5C518; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1rem .75rem 2.5rem; }
+    @media (min-width: 640px) { main { padding: 1.25rem 1rem 2.5rem; } }
     .banner {
       display: none; margin-bottom: 1rem; padding: .75rem 1rem; border-radius: 3px;
       border: 1px solid rgba(124,255,58,.4); background: rgba(124,255,58,.12); color: #bbf7d0; font-size: .9rem;
@@ -52,9 +63,9 @@
 <body>
   <header>
     <a class="logo" href="/portal/player">MCC · Player Portal</a>
-    <div style="display:flex;gap:.75rem;align-items:center">
-      <a href="/" style="color:rgba(255,255,255,.55);text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Home</a>
-      <a href="/policy" style="color:#F5C518;text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Policy</a>
+    <div class="header-links">
+      <a href="/">Home</a>
+      <a href="/policy">Policy</a>
       <button class="logout" type="button" id="logout">Logout</button>
     </div>
   </header>

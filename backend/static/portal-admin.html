@@ -12,18 +12,25 @@
   <style>
     :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; }
-    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10; position: sticky; top: 0; z-index: 20; }
-    .logo { font-family: "Bebas Neue", sans-serif; color: var(--gold); font-size: 1.3rem; text-decoration: none; }
-    a.nav { color: rgba(255,255,255,.55); text-decoration: none; font-size: .75rem; font-family: Oswald, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+    header {
+      min-height: 3.5rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+      padding: .65rem .75rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10;
+      position: sticky; top: 0; z-index: 20; flex-wrap: wrap;
+    }
+    .logo { font-family: "Bebas Neue", sans-serif; color: var(--gold); font-size: clamp(1.1rem, 4vw, 1.3rem); text-decoration: none; }
+    .header-links { display: flex; gap: .55rem; align-items: center; flex-wrap: wrap; }
+    a.nav { color: rgba(255,255,255,.55); text-decoration: none; font-size: .7rem; font-family: Oswald, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
     a.nav:hover { color: var(--gold); }
-    main { max-width: 72rem; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
-    h1 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; }
+    main { max-width: 72rem; margin: 0 auto; padding: 1rem .75rem 3rem; }
+    @media (min-width: 640px) { main { padding: 1.25rem 1rem 3rem; } }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.6rem, 6vw, 2rem); }
     h2 { font-family: Oswald, sans-serif; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--neon); margin: 1.5rem 0 .75rem; }
     .muted { color: rgba(255,255,255,.5); font-size: .9rem; margin-top: .35rem; }
-    .panel { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); border-radius: 4px; padding: 1rem; margin-top: 1rem; }
+    .panel { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); border-radius: 4px; padding: .85rem; margin-top: 1rem; }
+    @media (min-width: 640px) { .panel { padding: 1rem; } }
     label { display: block; font-family: Oswald, sans-serif; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); margin: .55rem 0 .25rem; }
-    input, select, textarea { width: 100%; padding: .6rem .75rem; border: 1px solid rgba(255,255,255,.15); border-radius: 3px; background: rgba(0,0,0,.4); color: #fff; font: inherit; }
+    input, select, textarea { width: 100%; padding: .6rem .75rem; border: 1px solid rgba(255,255,255,.15); border-radius: 3px; background: rgba(0,0,0,.4); color: #fff; font: inherit; font-size: 16px; }
     .row { display: grid; gap: .75rem; }
     @media (min-width: 700px) { .row.cols-3 { grid-template-columns: repeat(3, 1fr); } .row.cols-2 { grid-template-columns: 1fr 1fr; } }
     .btn { display: inline-block; padding: .7rem 1.1rem; border: 0; border-radius: 3px; cursor: pointer; font-family: Oswald, sans-serif; letter-spacing: .1em; text-transform: uppercase; font-size: .8rem; }
@@ -33,7 +40,7 @@
     .btn-danger { background: transparent; color: #fca5a5; border: 1px solid rgba(252,165,165,.4); }
     .msg { margin-top: .75rem; font-size: .85rem; color: var(--neon); }
     .err { color: #fca5a5; }
-    .players { display: grid; gap: .4rem; max-height: 22rem; overflow: auto; margin-top: .5rem; }
+    .players { display: grid; gap: .4rem; max-height: 22rem; overflow: auto; margin-top: .5rem; -webkit-overflow-scrolling: touch; }
     .players label.chk { display: flex; gap: .55rem; align-items: center; text-transform: none; letter-spacing: 0; font-family: inherit; font-size: .85rem; color: rgba(255,255,255,.85); margin: 0; padding: .4rem .5rem; border-radius: 3px; border: 1px solid transparent; }
     .players label.chk:hover { background: rgba(255,255,255,.04); }
     .players input { width: auto; }
@@ -42,7 +49,8 @@
     .match-card h3 { font-family: Oswald, sans-serif; font-size: 1.05rem; }
     .squad { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .65rem; }
     .chip { font-size: .72rem; padding: .25rem .5rem; border-radius: 2px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
-    .table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .5rem; }
+    .table-wrap { overflow: auto; -webkit-overflow-scrolling: touch; margin-top: .5rem; }
+    .table { width: 100%; min-width: 42rem; border-collapse: collapse; font-size: .82rem; }
     .table th, .table td { text-align: left; padding: .55rem .4rem; border-bottom: 1px solid rgba(255,255,255,.08); vertical-align: middle; }
     .table th { font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.4); }
     .table select { padding: .35rem; font-size: .8rem; }
@@ -50,15 +58,15 @@
     .modal-bg {
       position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.78);
       display: none; align-items: flex-start; justify-content: center;
-      padding: 1.25rem 1rem; overflow: auto;
+      padding: .75rem .65rem; overflow: auto; -webkit-overflow-scrolling: touch;
     }
     .modal-bg.open { display: flex; }
     .modal {
       width: min(36rem, 100%); background: #0a1f10;
       border: 1px solid rgba(245,197,24,.4); border-radius: 6px;
-      padding: 1.15rem 1.1rem 1.35rem; margin: 1rem auto 2rem;
+      padding: 1rem .9rem 1.25rem; margin: .5rem auto 2rem;
     }
-    .modal h3 { font-family: Bebas Neue, sans-serif; font-size: 1.7rem; color: var(--gold); }
+    .modal h3 { font-family: Bebas Neue, sans-serif; font-size: clamp(1.35rem, 5vw, 1.7rem); color: var(--gold); }
     .modal-avatar {
       width: 5.5rem; height: 5.5rem; border-radius: 999px; object-fit: cover;
       border: 2px solid var(--gold); background: #0d3d18; display: block;
@@ -74,9 +82,9 @@
 <body>
   <header>
     <a class="logo" href="/portal/admin">MCC Admin</a>
-    <div style="display:flex;gap:.85rem;align-items:center">
+    <div class="header-links">
       <a class="nav" href="/">Home</a>
-      <a class="nav" href="/portal/staff-tools">Staff tools</a>
+      <a class="nav" href="/portal/staff-tools">Staff</a>
       <a class="nav" href="#" id="logout">Logout</a>
     </div>
   </header>
@@ -269,7 +277,7 @@
           <button type="button" class="btn btn-outline" id="p_reload">Refresh roster</button>
         </div>
       </div>
-      <div style="overflow:auto">
+      <div class="table-wrap">
         <table class="table" id="p_table">
           <thead>
             <tr>

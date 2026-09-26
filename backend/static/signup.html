@@ -30,10 +30,15 @@
     label { display: block; font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .35rem; }
     input, select, textarea {
       width: 100%; padding: .65rem .8rem; margin-bottom: .8rem; border: 1px solid rgba(255,255,255,.15);
-      border-radius: 3px; background: rgba(0,0,0,.4); color: #fff; font-size: .95rem; outline: none;
+      border-radius: 3px; background: rgba(0,0,0,.4); color: #fff; font-size: 16px; outline: none;
     }
+    body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
     select option { color: #000; }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    .row2 { display: grid; grid-template-columns: 1fr; gap: .6rem; }
+    @media (min-width: 520px) { .row2 { grid-template-columns: 1fr 1fr; } }
+    body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+    .brand h1 { font-size: clamp(1.8rem, 7vw, 2.2rem); }
+    .card { padding: clamp(1rem, 3vw, 1.35rem); }
     button { width: 100%; padding: .85rem; border: 0; border-radius: 3px; cursor: pointer; background: var(--gold); color: var(--dark); font-family: Oswald, sans-serif; letter-spacing: .15em; text-transform: uppercase; }
     button:hover { background: var(--neon); }
     button:disabled { opacity: .6; }
