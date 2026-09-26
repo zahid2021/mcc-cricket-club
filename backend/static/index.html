@@ -142,8 +142,12 @@
       <a href="#teams">Teams</a>
       <a href="/login">Login</a>
       <a href="/signup">Sign up</a>
+      <a href="/login?next=/portal/admin" style="color:#F5C518">Admin</a>
     </nav>
-    <a class="btn" href="/portal">Player Portal</a>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <a class="btn btn-outline" href="/login?next=/portal/admin">Admin Dashboard</a>
+      <a class="btn" href="/portal">Player Portal</a>
+    </div>
   </header>
 
   <section class="hero">
@@ -157,6 +161,7 @@
       <div class="cta">
         <a class="btn" href="#matches">View Fixtures</a>
         <a class="btn btn-outline" href="/portal">Player Portal</a>
+        <a class="btn btn-outline" href="/login?next=/portal/admin">Admin Dashboard</a>
       </div>
     </div>
   </section>
@@ -201,13 +206,17 @@
     <div class="grid" style="margin-top:1.5rem">
       <article class="card"><small>Senior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">1st XI · 2nd XI · Development</p></article>
       <article class="card"><small>Junior</small><p style="margin-top:.75rem;font-family:Oswald,sans-serif">U19 · U16 · U14 · U12</p></article>
-      <article class="card"><small>API</small><p class="api" id="api-status">Checking /health…</p></article>
+      <article class="card">
+        <small>Admin</small>
+        <p style="margin-top:.75rem;font-family:Oswald,sans-serif">Match selection · Day/Night · Squad</p>
+        <p style="margin-top:1rem"><a class="btn" href="/login?next=/portal/admin">Open Admin Dashboard</a></p>
+      </article>
     </div>
   </section>
 
   <footer class="footer">
     <div style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:var(--gold)">MCC</div>
-    <div>Mustafa Cricket Club · © 2026</div>
+    <div>Mustafa Cricket Club · © 2026 · <a href="/login?next=/portal/admin" style="color:#F5C518">Admin Dashboard</a></div>
     <div class="motto">We Play for the Badge, Not for the Applause.</div>
   </footer>
 
