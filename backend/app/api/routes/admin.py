@@ -1,16 +1,20 @@
-"""Admin APIs: match selection, squad, team add/remove, leadership."""
+"""Admin APIs: match selection, squad, team add/remove, leadership, discipline."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import require_permissions
 from app.db.session import get_db
 from app.models import (
+    AuditLog,
     Match,
     MatchSquad,
+    Notification,
     PlayerProfile,
     PlayerStatus,
     PlayingRole,
@@ -452,6 +456,187 @@ def delete_match(
     db.delete(m)
     db.commit()
     return {"message": "Match deleted"}
+
+
+# ── Discipline: warning / ban / suspend / unban ───────────────────────
+
+
+class DisciplineAction(BaseModel):
+    profile_id: str
+    reason: str = Field(..., min_length=3, max_length=500)
+    description: str | None = Field(None, max_length=2000)
+    severity: str = "medium"  # for warnings: low|medium|high
+
+
+class MessageOut(BaseModel):
+    message: str
+
+
+def _get_profile(db: Session, profile_id: str) -> PlayerProfile:
+    pp = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user))
+        .filter(PlayerProfile.id == profile_id)
+        .first()
+    )
+    if not pp or not pp.user:
+        raise HTTPException(404, "Player not found")
+    return pp
+
+
+def _notify(db: Session, *, actor: User, player: User, title: str, message: str, priority: str = "high"):
+    db.add(
+        Notification(
+            title=title,
+            message=message,
+            sender_user_id=actor.id,
+            recipient_user_id=player.id,
+            priority=priority,
+        )
+    )
+
+
+@router.post("/discipline/warning", response_model=MessageOut)
+def admin_warning(
+    body: DisciplineAction,
+    request: Request,
+    actor: User = Depends(require_permissions("discipline.issue_warning")),
+    db: Session = Depends(get_db),
+):
+    pp = _get_profile(db, body.profile_id)
+    player = pp.user
+    sev = (body.severity or "medium").lower()
+    title = f"WARNING RECEIVED — {sev}"
+    msg = (
+        f"Reason: {body.reason}\n"
+        f"Description: {(body.description or '').strip() or '—'}\n"
+        f"Severity: {sev}\n"
+        f"Issued by: {actor.full_name} (Admin)\n"
+        f"Date: {datetime.now(timezone.utc).strftime('%d %B %Y')}\n"
+        f"Status: Active"
+    )
+    _notify(db, actor=actor, player=player, title=title, message=msg, priority="high" if sev in ("high", "critical") else "normal")
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_warning",
+            entity_type="user",
+            entity_id=player.id,
+            detail=body.reason,
+            ip_address=request.client.host if request.client else None,
+        )
+    )
+    db.commit()
+    return MessageOut(message=f"Warning sent to {player.full_name}")
+
+
+@router.post("/discipline/suspend", response_model=MessageOut)
+def admin_suspend(
+    body: DisciplineAction,
+    request: Request,
+    actor: User = Depends(require_permissions("discipline.suspend")),
+    db: Session = Depends(get_db),
+):
+    pp = _get_profile(db, body.profile_id)
+    player = pp.user
+    pp.status = PlayerStatus.suspended
+    title = "SUSPENDED — Club discipline"
+    msg = (
+        f"You have been SUSPENDED from MCC activities.\n"
+        f"Reason: {body.reason}\n"
+        f"Details: {(body.description or '').strip() or '—'}\n"
+        f"By: {actor.full_name} (Admin)\n"
+        f"Date: {datetime.now(timezone.utc).strftime('%d %B %Y')}\n"
+        f"Contact club admin for review."
+    )
+    _notify(db, actor=actor, player=player, title=title, message=msg)
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_suspend",
+            entity_type="user",
+            entity_id=player.id,
+            detail=body.reason,
+            ip_address=request.client.host if request.client else None,
+        )
+    )
+    db.commit()
+    return MessageOut(message=f"{player.full_name} suspended")
+
+
+@router.post("/discipline/ban", response_model=MessageOut)
+def admin_ban(
+    body: DisciplineAction,
+    request: Request,
+    actor: User = Depends(require_permissions("discipline.ban")),
+    db: Session = Depends(get_db),
+):
+    pp = _get_profile(db, body.profile_id)
+    player = pp.user
+    pp.status = PlayerStatus.banned
+    # Also lock account so they cannot use portal
+    from app.models import AccountStatus
+
+    player.account_status = AccountStatus.inactive
+    title = "BANNED — Club discipline"
+    msg = (
+        f"You have been BANNED from Mustafa Cricket Club.\n"
+        f"Reason: {body.reason}\n"
+        f"Details: {(body.description or '').strip() or '—'}\n"
+        f"By: {actor.full_name} (Admin)\n"
+        f"Date: {datetime.now(timezone.utc).strftime('%d %B %Y')}"
+    )
+    _notify(db, actor=actor, player=player, title=title, message=msg)
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_ban",
+            entity_type="user",
+            entity_id=player.id,
+            detail=body.reason,
+            ip_address=request.client.host if request.client else None,
+        )
+    )
+    db.commit()
+    return MessageOut(message=f"{player.full_name} banned")
+
+
+@router.post("/discipline/unban", response_model=MessageOut)
+def admin_unban(
+    body: DisciplineAction,
+    request: Request,
+    actor: User = Depends(require_permissions("discipline.ban")),
+    db: Session = Depends(get_db),
+):
+    """Remove ban / suspend — restore active status."""
+    pp = _get_profile(db, body.profile_id)
+    player = pp.user
+    from app.models import AccountStatus
+
+    pp.status = PlayerStatus.active
+    player.account_status = AccountStatus.active
+    title = "REINSTATED — Ban/Suspend removed"
+    msg = (
+        f"Your club status has been restored to ACTIVE.\n"
+        f"Note: {body.reason}\n"
+        f"Details: {(body.description or '').strip() or '—'}\n"
+        f"By: {actor.full_name} (Admin)\n"
+        f"Date: {datetime.now(timezone.utc).strftime('%d %B %Y')}\n"
+        f"You may use Player Portal again."
+    )
+    _notify(db, actor=actor, player=player, title=title, message=msg, priority="normal")
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_unban",
+            entity_type="user",
+            entity_id=player.id,
+            detail=body.reason,
+            ip_address=request.client.host if request.client else None,
+        )
+    )
+    db.commit()
+    return MessageOut(message=f"{player.full_name} reinstated (active)")
 
 
 # ── Public matches (homepage) ─────────────────────────────────────────

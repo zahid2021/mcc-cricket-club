@@ -150,6 +150,45 @@
       </div>
       <p class="msg" id="p_msg"></p>
     </div>
+    <h2>4 · Discipline — Warning / Ban / Unban</h2>
+    <div class="panel">
+      <p class="muted" style="margin-bottom:.75rem">Player ko warning bhejo, suspend/ban karo, ya ban hata kar active banao. Player portal pe notification jayegi.</p>
+      <div class="row cols-2">
+        <div>
+          <label>Player</label>
+          <select id="d_player"></select>
+        </div>
+        <div>
+          <label>Action</label>
+          <select id="d_action">
+            <option value="warning">Send Warning</option>
+            <option value="suspend">Suspend</option>
+            <option value="ban">Ban</option>
+            <option value="unban">Remove Ban / Reinstate (Active)</option>
+          </select>
+        </div>
+      </div>
+      <div class="row cols-2">
+        <div>
+          <label>Reason</label>
+          <input id="d_reason" placeholder="Late / misconduct / …" />
+        </div>
+        <div>
+          <label>Severity (warnings)</label>
+          <select id="d_sev">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+      <label>Description</label>
+      <textarea id="d_desc" rows="2" placeholder="Details for player notification"></textarea>
+      <div style="margin-top:1rem;display:flex;gap:.6rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-gold" id="d_submit">Apply discipline</button>
+      </div>
+      <p class="msg" id="d_msg"></p>
+    </div>
   </main>
   <script>
     document.getElementById("logout").onclick = (e) => {
@@ -364,7 +403,14 @@
           <td><select class="r-lead">${leadOpts}</select></td>
           <td><select class="r-team">${teamOpts}</select></td>
           <td><select class="r-status">${statusOpts}</select></td>
-          <td><button type="button" class="btn btn-gold r-save">Save</button></td>
+          <td>
+            <button type="button" class="btn btn-gold r-save">Save</button>
+            <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem">
+              <button type="button" class="btn btn-outline r-warn" style="padding:.35rem .5rem;font-size:.65rem">Warn</button>
+              <button type="button" class="btn btn-danger r-ban" style="padding:.35rem .5rem;font-size:.65rem">Ban</button>
+              <button type="button" class="btn btn-outline r-unban" style="padding:.35rem .5rem;font-size:.65rem">Unban</button>
+            </div>
+          </td>
         </tr>`;
       }).join("");
 
@@ -405,7 +451,38 @@
           show(document.getElementById("p_msg"), p.full_name + " updated");
           await loadPlayers();
         };
+
+        tr.querySelector(".r-warn").onclick = () => {
+          document.getElementById("d_player").value = p.profile_id;
+          document.getElementById("d_action").value = "warning";
+          document.getElementById("d_reason").focus();
+          window.scrollTo({ top: document.getElementById("d_player").offsetTop - 80, behavior: "smooth" });
+        };
+        tr.querySelector(".r-ban").onclick = () => {
+          document.getElementById("d_player").value = p.profile_id;
+          document.getElementById("d_action").value = "ban";
+          document.getElementById("d_reason").value = "Banned by admin";
+          document.getElementById("d_reason").focus();
+          window.scrollTo({ top: document.getElementById("d_player").offsetTop - 80, behavior: "smooth" });
+        };
+        tr.querySelector(".r-unban").onclick = () => {
+          document.getElementById("d_player").value = p.profile_id;
+          document.getElementById("d_action").value = "unban";
+          document.getElementById("d_reason").value = "Ban removed — reinstated";
+          document.getElementById("d_reason").focus();
+          window.scrollTo({ top: document.getElementById("d_player").offsetTop - 80, behavior: "smooth" });
+        };
       });
+
+      // Discipline player dropdown
+      const dSel = document.getElementById("d_player");
+      if (dSel) {
+        const prev = dSel.value;
+        dSel.innerHTML = players.map((p) =>
+          `<option value="${p.profile_id}">${p.full_name} · ${p.status || ""} · ${p.username || ""}</option>`
+        ).join("");
+        if (prev) dSel.value = prev;
+      }
     }
 
     document.getElementById("m_category").onchange = () => {
@@ -449,6 +526,46 @@
       }
       show(msg, "Match published — homepage pe dikhega (“" + ids.length + " boys”)");
       loadMatches();
+    };
+
+    document.getElementById("d_submit").onclick = async () => {
+      const msg = document.getElementById("d_msg");
+      const action = document.getElementById("d_action").value;
+      const profile_id = document.getElementById("d_player").value;
+      const reason = document.getElementById("d_reason").value.trim();
+      const description = document.getElementById("d_desc").value.trim();
+      const severity = document.getElementById("d_sev").value;
+      if (!profile_id) {
+        show(msg, "Player select karein", true);
+        return;
+      }
+      if (reason.length < 3) {
+        show(msg, "Reason likhein (min 3 characters)", true);
+        return;
+      }
+      const path = {
+        warning: "/api/admin/discipline/warning",
+        suspend: "/api/admin/discipline/suspend",
+        ban: "/api/admin/discipline/ban",
+        unban: "/api/admin/discipline/unban",
+      }[action];
+      if (!path) return;
+      if (action === "ban" && !confirm("Is player ko BAN karna hai?")) return;
+      show(msg, "Applying…");
+      const res = await api(path, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ profile_id, reason, description, severity }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        show(msg, typeof data.detail === "string" ? data.detail : "Failed", true);
+        return;
+      }
+      show(msg, data.message || "Done");
+      document.getElementById("d_reason").value = "";
+      document.getElementById("d_desc").value = "";
+      await loadPlayers();
     };
 
     (async function init() {
