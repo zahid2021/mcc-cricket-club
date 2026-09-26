@@ -111,12 +111,13 @@ def policy_page():
 
 @app.get("/portal/player")
 def player_portal_page():
-    # Player portal = My Profile (full editable form)
-    return _page("portal-profile.html")
+    # Login ke baad: profile VIEW portal
+    return _page("portal-player.html")
 
 
 @app.get("/portal/player/profile")
 def player_profile_page():
+    # Edit form — Save ke baad wapas /portal/player
     return _page("portal-profile.html")
 
 

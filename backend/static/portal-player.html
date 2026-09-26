@@ -6,125 +6,188 @@
   <title>Player Portal | MCC</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; padding-bottom: 4.5rem; }
-    header { position: sticky; top: 0; z-index: 40; height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; background: rgba(10,31,16,.95); border-bottom: 1px solid rgba(255,255,255,.1); }
-    .logo { font-family: "Bebas Neue", sans-serif; font-size: 1.35rem; color: var(--gold); text-decoration: none; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; }
+    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10; position: sticky; top: 0; z-index: 20; }
+    .logo { font-family: Bebas Neue, sans-serif; color: var(--gold); text-decoration: none; font-size: 1.25rem; }
     button.logout { background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; font-size: .8rem; }
-    main { max-width: 56rem; margin: 0 auto; padding: 1.25rem 1rem 2rem; }
-    .hero-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+    .banner {
+      display: none; margin-bottom: 1rem; padding: .75rem 1rem; border-radius: 3px;
+      border: 1px solid rgba(124,255,58,.4); background: rgba(124,255,58,.12); color: #bbf7d0; font-size: .9rem;
+    }
+    .banner.show { display: block; }
+    .hero { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
     .avatar {
-      width: 4.5rem; height: 4.5rem; border-radius: 999px; object-fit: cover;
-      border: 2px solid var(--gold); background: #123; flex-shrink: 0;
+      width: 6rem; height: 6rem; border-radius: 999px; object-fit: cover;
+      border: 2px solid var(--gold); background: #0d3d18; display: block; flex-shrink: 0;
     }
-    .avatar-ph { display: grid; place-items: center; font-family: Bebas Neue, sans-serif; color: var(--gold); font-size: 1.4rem; }
-    .avatar-box { display: flex; flex-direction: column; align-items: center; gap: .45rem; flex-shrink: 0; }
-    .btn-photo {
-      font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
-      padding: .35rem .65rem; border-radius: 2px; cursor: pointer; border: 1px solid var(--gold);
-      background: rgba(245,197,24,.15); color: var(--gold);
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 5vw, 2.4rem); line-height: 1; }
+    .sub { color: rgba(255,255,255,.55); font-size: .9rem; margin-top: .35rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 1.5rem; }
+    .btn {
+      display: inline-block; padding: .7rem 1.1rem; border: 0; border-radius: 3px; cursor: pointer;
+      font-family: Oswald, sans-serif; letter-spacing: .1em; text-transform: uppercase; font-size: .8rem; text-decoration: none;
     }
-    .btn-photo:hover { background: var(--gold); color: var(--dark); }
-    .photo-msg { font-size: .7rem; color: var(--neon); min-height: 1em; }
-    h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.7rem, 5vw, 2.3rem); }
-    .sub { color: rgba(255,255,255,.55); font-size: .85rem; margin-top: .2rem; }
-    .grid { display: grid; gap: .75rem; margin-top: 1rem; }
-    @media (min-width: 640px) { .grid.stats { grid-template-columns: repeat(3, 1fr); } }
-    .card { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); padding: 1rem; border-radius: 3px; }
-    .card small { font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.4); }
-    .card strong { display: block; margin-top: .35rem; font-family: Oswald, sans-serif; color: var(--gold); }
-    .badge { display: inline-block; margin-top: .5rem; padding: .2rem .55rem; border-radius: 2px; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.4); }
-    .match { margin-top: 1.25rem; padding: 1.1rem; border-radius: 3px; border: 1px solid rgba(245,197,24,.35); background: linear-gradient(90deg, rgba(245,197,24,.12), transparent); }
-    .sections h2 { font-family: Oswald, sans-serif; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--neon); margin: 1.5rem 0 .75rem; }
-    .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; }
-    @media (min-width: 640px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 900px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
-    a.tile {
-      border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
-      padding: .9rem .75rem; border-radius: 3px; color: rgba(255,255,255,.9); text-decoration: none; font-size: .85rem;
-      display: block;
-    }
-    a.tile:hover { border-color: rgba(245,197,24,.45); color: var(--gold); }
-    .bell { font-size: .7rem; color: var(--neon); margin-left: .35rem; }
-    nav.bottom { position: fixed; bottom: 0; inset-inline: 0; height: 4rem; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(255,255,255,.1); background: rgba(10,31,16,.97); }
-    @media (min-width: 768px) { nav.bottom { display: none; } body { padding-bottom: 0; } }
-    nav.bottom a { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: rgba(255,255,255,.5); font-family: Oswald, sans-serif; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; }
+    .btn-gold { background: var(--gold); color: var(--dark); }
+    .btn-gold:hover { background: var(--neon); }
+    .btn-outline { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+    .btn-outline:hover { background: rgba(245,197,24,.15); }
+    #photo { display: none; }
+    .grid { display: grid; gap: .65rem; }
+    @media (min-width: 560px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); padding: .85rem 1rem; border-radius: 3px; }
+    .card small { display: block; font-family: Oswald, sans-serif; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+    .card strong { display: block; margin-top: .3rem; font-size: .95rem; color: #fff; font-weight: 500; word-break: break-word; }
+    .badge { display: inline-block; margin-top: .35rem; padding: .2rem .55rem; border-radius: 2px; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.4); }
+    .msg { margin-top: .75rem; font-size: .85rem; color: var(--neon); min-height: 1.2em; }
+    .err { color: #fca5a5; }
   </style>
 </head>
 <body>
   <header>
     <a class="logo" href="/portal/player">MCC · Player Portal</a>
     <div style="display:flex;gap:.75rem;align-items:center">
+      <a href="/" style="color:rgba(255,255,255,.55);text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Home</a>
       <a href="/policy" style="color:#F5C518;text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Policy</a>
       <button class="logout" type="button" id="logout">Logout</button>
     </div>
   </header>
   <main>
-    <div id="loading" style="color:rgba(255,255,255,.5)">Loading…</div>
-    <div id="dash" hidden>
-      <div class="hero-row">
-        <div class="avatar-box">
-          <img class="avatar" id="avatar" alt="" hidden />
-          <div class="avatar avatar-ph" id="avatar-ph">MCC</div>
-          <input type="file" id="photo-input" accept="image/*" hidden />
-          <button type="button" class="btn-photo" id="change-photo">Change Photo</button>
-          <div class="photo-msg" id="photo-msg"></div>
-        </div>
+    <div class="banner" id="banner">Profile saved</div>
+    <div id="loading" style="color:rgba(255,255,255,.5)">Loading portal…</div>
+    <div id="view" hidden>
+      <div class="hero">
+        <img class="avatar" id="avatar" alt="Profile" width="96" height="96" />
         <div>
-          <h1 id="welcome"></h1>
-          <p class="sub" id="meta"></p>
+          <h1 id="name">—</h1>
+          <p class="sub" id="meta">—</p>
+          <span class="badge" id="status">—</span>
         </div>
       </div>
-      <div class="grid stats">
-        <div class="card"><small>Role</small><strong id="role"></strong></div>
-        <div class="card"><small>Playing as</small><strong id="playing"></strong></div>
-        <div class="card"><small>Team</small><strong id="team"></strong></div>
-        <div class="card"><small>Category</small><strong id="category"></strong></div>
-        <div class="card"><small>Phone</small><strong id="phone"></strong></div>
-        <div class="card"><small>Status</small><span class="badge" id="status"></span></div>
+      <div class="actions">
+        <a class="btn btn-gold" href="/portal/player/profile">Edit Profile</a>
+        <button type="button" class="btn btn-outline" id="btn-photo">Change Photo</button>
+        <input type="file" id="photo" accept="image/*" />
       </div>
-      <div class="match" id="match-box" hidden>
-        <small style="font-family:Oswald,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-size:.65rem">Upcoming Match</small>
-        <p id="match" style="margin-top:.5rem;font-family:Oswald,sans-serif;font-size:1.1rem"></p>
-      </div>
-      <div class="sections">
-        <h2>Quick Links</h2>
-        <div class="tiles" id="sections"></div>
-      </div>
+      <p class="msg" id="msg"></p>
+      <div class="grid" id="cards"></div>
     </div>
   </main>
-  <nav class="bottom">
-    <a href="/portal/player">Home</a>
-    <a href="/portal/player/profile">Profile</a>
-    <a href="/login">Account</a>
-  </nav>
   <script>
-    const token = localStorage.getItem("mcc_access_token");
-    if (!token) location.replace("/login");
+    if (!localStorage.getItem("mcc_access_token")) location.replace("/login");
+    try { history.replaceState({ mccPortal: 1 }, "", "/portal/player"); } catch (e) {}
+
     document.getElementById("logout").onclick = () => {
       localStorage.clear();
-      location.href = "/login";
+      location.replace("/login");
     };
 
-    function setAvatar(src) {
-      const img = document.getElementById("avatar");
-      const ph = document.getElementById("avatar-ph");
-      if (src) {
-        img.src = src;
-        img.hidden = false;
-        ph.hidden = true;
-      }
+    const MCC_LOGO = "data:image/svg+xml," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#0d3d18" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="#F5C518" font-size="28" font-family="sans-serif">MCC</text></svg>'
+    );
+    const params = new URLSearchParams(location.search);
+    if (params.get("saved") === "1") {
+      document.getElementById("banner").textContent = "Profile saved — aap Player Portal pe ho";
+      document.getElementById("banner").classList.add("show");
+      history.replaceState({}, "", "/portal/player");
+    }
+    if (params.get("photo") === "1") {
+      document.getElementById("banner").textContent = "Photo saved — aap Player Portal pe ho";
+      document.getElementById("banner").classList.add("show");
+      history.replaceState({}, "", "/portal/player");
     }
 
-    document.getElementById("change-photo").onclick = () => {
-      document.getElementById("photo-input").click();
-    };
-    document.getElementById("photo-input").addEventListener("change", (e) => {
+    function getToken() { return localStorage.getItem("mcc_access_token"); }
+
+    async function refreshSession() {
+      const rt = localStorage.getItem("mcc_refresh_token");
+      if (!rt) return false;
+      try {
+        const res = await fetch("/api/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: rt }),
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        localStorage.setItem("mcc_access_token", data.access_token);
+        if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
+        return true;
+      } catch (e) { return false; }
+    }
+
+    async function api(url, options) {
+      const opts = options || {};
+      opts.headers = Object.assign({}, opts.headers || {}, { Authorization: "Bearer " + getToken() });
+      let res = await fetch(url, opts);
+      if (res.status === 401) {
+        if (await refreshSession()) {
+          opts.headers.Authorization = "Bearer " + getToken();
+          res = await fetch(url, opts);
+        }
+      }
+      return res;
+    }
+
+    function setAvatar(src) {
+      document.getElementById("avatar").src = (src && String(src).startsWith("data:image/")) ? src : MCC_LOGO;
+    }
+
+    function card(label, value) {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = "<small>" + label + "</small><strong>" + (value || "—") + "</strong>";
+      return d;
+    }
+
+    async function load() {
+      const r = await api("/api/portal/player/profile");
+      if (r.status === 401) {
+        localStorage.clear();
+        location.replace("/login");
+        return;
+      }
+      if (!r.ok) {
+        document.getElementById("loading").textContent = "Failed to load profile";
+        return;
+      }
+      const p = await r.json();
+      document.getElementById("loading").hidden = true;
+      document.getElementById("view").hidden = false;
+      setAvatar(p.profile_picture);
+      document.getElementById("name").textContent = p.full_name || p.username || "Player";
+      document.getElementById("meta").textContent = [p.playing_role, p.category, p.team].filter(Boolean).join(" · ") || "MCC Player";
+      document.getElementById("status").textContent = p.status || "—";
+      const box = document.getElementById("cards");
+      box.innerHTML = "";
+      [
+        ["Full name", p.full_name],
+        ["Email", p.email],
+        ["Username", p.username],
+        ["Player ID", p.player_code],
+        ["Phone", p.phone],
+        ["Address", p.address],
+        ["Emergency contact", p.emergency_contact],
+        ["Date of birth", p.date_of_birth],
+        ["Category", p.category],
+        ["Team", p.team],
+        ["Playing role", p.playing_role],
+        ["Jersey number", p.jersey_number != null ? String(p.jersey_number) : ""],
+        ["Batting style", p.batting_style],
+        ["Bowling style", p.bowling_style],
+        ["Status", p.status],
+      ].forEach(([k, v]) => box.appendChild(card(k, v)));
+    }
+
+    document.getElementById("btn-photo").onclick = () => document.getElementById("photo").click();
+    document.getElementById("photo").addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
-      const msg = document.getElementById("photo-msg");
-      msg.textContent = "Saving…";
+      const msg = document.getElementById("msg");
+      msg.className = "msg";
+      msg.textContent = "Saving photo…";
       const reader = new FileReader();
       reader.onload = () => {
         const img = new Image();
@@ -141,23 +204,22 @@
           canvas.getContext("2d").drawImage(img, 0, 0, w, h);
           const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
           try {
-            const res = await fetch("/api/portal/player/avatar", {
+            const res = await api("/api/portal/player/avatar", {
               method: "POST",
-              headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ image_data_url: dataUrl }),
             });
-            const data = await res.json().catch(() => ({}));
             if (!res.ok) {
-              msg.textContent = data.detail || "Upload failed";
-              msg.style.color = "#fca5a5";
+              const data = await res.json().catch(() => ({}));
+              msg.className = "msg err";
+              msg.textContent = data.detail || "Photo save failed";
               return;
             }
-            setAvatar(data.profile_picture);
-            msg.style.color = "#7CFF3A";
-            msg.textContent = "Photo saved";
+            // Foran portal pe rahna / reload with success
+            location.replace("/portal/player?photo=1");
           } catch (err) {
-            msg.textContent = "Upload failed";
-            msg.style.color = "#fca5a5";
+            msg.className = "msg err";
+            msg.textContent = "Photo save failed";
           }
         };
         img.src = reader.result;
@@ -165,44 +227,7 @@
       reader.readAsDataURL(file);
     });
 
-    fetch("/api/portal/player/dashboard", { headers: { Authorization: "Bearer " + token } })
-      .then(async (r) => {
-        if (r.status === 401) { location.replace("/login"); return null; }
-        if (!r.ok) throw new Error("Failed to load");
-        return r.json();
-      })
-      .then((d) => {
-        if (!d) return;
-        document.getElementById("loading").hidden = true;
-        document.getElementById("dash").hidden = false;
-        document.getElementById("welcome").textContent = "Welcome, " + d.welcome_name;
-        document.getElementById("meta").textContent = [d.playing_role, d.category].filter(Boolean).join(" · ");
-        document.getElementById("role").textContent = d.role_label;
-        document.getElementById("playing").textContent = d.playing_role || "—";
-        document.getElementById("team").textContent = d.team || "—";
-        document.getElementById("category").textContent = d.category || "—";
-        document.getElementById("phone").textContent = d.phone || "—";
-        document.getElementById("status").textContent = d.status;
-        if (d.profile_picture) setAvatar(d.profile_picture);
-        if (d.upcoming_match) {
-          document.getElementById("match-box").hidden = false;
-          document.getElementById("match").textContent = d.upcoming_match;
-        }
-        if (d.unread_notifications) {
-          document.getElementById("unread").textContent = "(" + d.unread_notifications + " new)";
-        }
-        const box = document.getElementById("sections");
-        (d.sections || []).forEach((s) => {
-          const a = document.createElement("a");
-          a.className = "tile";
-          a.href = s.href || "#";
-          a.textContent = s.label || s;
-          box.appendChild(a);
-        });
-      })
-      .catch((e) => {
-        document.getElementById("loading").textContent = e.message;
-      });
+    load();
   </script>
 </body>
 </html>

@@ -40,16 +40,15 @@
 </head>
 <body>
   <header>
-    <a class="logo" href="/portal/player">MCC · My Profile</a>
+    <a class="logo" href="/portal/player">← Portal</a>
     <div style="display:flex;gap:.75rem;align-items:center">
-      <a href="/" style="color:rgba(255,255,255,.55);text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Home</a>
-      <a href="/policy" style="color:#F5C518;text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Policy</a>
+      <a href="/portal/player" style="color:rgba(255,255,255,.55);text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">My Portal</a>
       <button class="logout" type="button" id="logout">Logout</button>
     </div>
   </header>
   <main>
-    <h1>My Profile</h1>
-    <p class="hint">Edit karke Save dabao — yahi portal pe rahoge. Back pe login email nahi aayega.</p>
+    <h1>Edit Profile</h1>
+    <p class="hint">Fields / photo change karke Save dabao — foran Player Portal pe wapas aa jaoge.</p>
     <div class="avatar-wrap">
       <img class="avatar" id="avatar" alt="Profile" width="88" height="88" />
       <div>
@@ -96,15 +95,16 @@
       <label>Status</label>
       <div><span class="badge" id="status">—</span></div>
       <button type="submit" class="save">Save profile</button>
+      <a href="/portal/player" style="display:block;text-align:center;margin-top:.85rem;color:rgba(255,255,255,.5);text-decoration:none;font-size:.85rem">Cancel · back to Portal</a>
       <p class="msg" id="msg"></p>
     </form>
   </main>
   <script>
     const token = localStorage.getItem("mcc_access_token");
     if (!token) location.replace("/login");
-    // Login ko history se hatao — browser Back → public Home, email/login nahi
+    // Login ko history se hatao nahi — edit page pe portal pe wapas link hai
     try {
-      history.replaceState({ mccPortal: 1 }, "", "/portal/player");
+      history.replaceState({ mccEdit: 1 }, "", "/portal/player/profile");
     } catch (e) {}
 
     document.getElementById("logout").onclick = () => {
@@ -265,8 +265,8 @@
               show(detailText(data), true);
               return;
             }
-            setAvatar(data.profile_picture || dataUrl);
-            show("Photo saved");
+            // Photo save → foran Player Portal
+            location.replace("/portal/player?photo=1");
           } catch (err) {
             show(err.message || "Upload failed", true);
           }
@@ -303,17 +303,8 @@
           show(detailText(data), true);
           return;
         }
-        // Wahi profile portal pe raho — kahin redirect mat karo
-        if (data.profile_picture) setAvatar(data.profile_picture);
-        document.getElementById("status").textContent = data.status || document.getElementById("status").textContent;
-        ["full_name","phone","address","emergency_contact","batting_style","bowling_style"].forEach((k) => {
-          if (data[k] != null && document.getElementById(k)) document.getElementById(k).value = data[k];
-        });
-        if (data.jersey_number != null) document.getElementById("jersey_number").value = data.jersey_number;
-        if (data.date_of_birth) document.getElementById("date_of_birth").value = toDateInput(data.date_of_birth);
-        if (data.playing_role) document.getElementById("playing_role").value = roleValue(data.playing_role);
-        show("Profile saved — aap My Profile portal pe ho");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        // Save → foran Player Portal (view)
+        location.replace("/portal/player?saved=1");
       } catch (err) {
         show(err.message || "Save failed", true);
       }
