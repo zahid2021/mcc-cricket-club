@@ -55,7 +55,7 @@
         <p style="font-family:Oswald,sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:.75rem;color:rgba(255,255,255,.55)">Profile picture</p>
         <input type="file" id="photo" accept="image/*" />
         <button type="button" class="btn-change" id="btn-change">Change Photo</button>
-        <p id="photo-hint" style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:.45rem">Tap Change Photo to update · saved to database</p>
+        <p id="photo-hint" style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:.45rem">Change Photo → drag / zoom se face set karo → Use Photo</p>
       </div>
     </div>
     <form id="form">
@@ -107,6 +107,7 @@
       <p class="msg" id="msg"></p>
     </form>
   </main>
+  <script src="/static/js/mcc-photo-crop.js"></script>
   <script>
     const token = localStorage.getItem("mcc_access_token");
     if (!token) location.replace("/login?next=/portal/player");
@@ -126,6 +127,7 @@
     const avatarEl = document.getElementById("avatar");
     const msg = document.getElementById("msg");
     const photoHint = document.getElementById("photo-hint");
+    const photoInput = document.getElementById("photo");
 
     function show(t, isErr) {
       msg.textContent = t;
@@ -182,7 +184,7 @@
       } else {
         avatarEl.src = MCC_LOGO;
         avatarEl.dataset.hasPhoto = "0";
-        photoHint.textContent = "Tap Change Photo to update · saved to database";
+        photoHint.textContent = "Change Photo → drag/zoom se set karo · phir Use Photo";
         photoHint.style.color = "rgba(255,255,255,.4)";
       }
     }
@@ -216,7 +218,7 @@
       return "Save failed";
     }
 
-    document.getElementById("btn-change").onclick = () => document.getElementById("photo").click();
+    document.getElementById("btn-change").onclick = () => photoInput.click();
 
     async function load() {
       const r = await api("/api/portal/player/profile");
@@ -239,50 +241,40 @@
       document.getElementById("status").textContent = p.status || "—";
     }
 
-    document.getElementById("photo").addEventListener("change", (e) => {
+    async function uploadAvatar(dataUrl) {
+      setAvatar(dataUrl);
+      show("Saving photo…");
+      try {
+        const res = await api("/api/portal/player/avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_data_url: dataUrl }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          show(detailText(data), true);
+          return;
+        }
+        location.replace("/portal/player?photo=1");
+      } catch (err) {
+        show(err.message || "Upload failed", true);
+      }
+    }
+
+    photoInput.addEventListener("change", async (e) => {
       const file = e.target.files && e.target.files[0];
+      photoInput.value = "";
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = async () => {
-          const max = 480;
-          let w = img.width, h = img.height;
-          if (w > max || h > max) {
-            const scale = Math.min(max / w, max / h);
-            w = Math.round(w * scale);
-            h = Math.round(h * scale);
-          }
-          const canvas = document.createElement("canvas");
-          canvas.width = w; canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
-          if (dataUrl.length > 850000) {
-            show("Image still too large. Try another photo.", true);
-            return;
-          }
-          setAvatar(dataUrl);
-          show("Saving photo…");
-          try {
-            const res = await api("/api/portal/player/avatar", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ image_data_url: dataUrl }),
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-              show(detailText(data), true);
-              return;
-            }
-            // Photo save → foran Player Portal
-            location.replace("/portal/player?photo=1");
-          } catch (err) {
-            show(err.message || "Upload failed", true);
-          }
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
+      if (!window.openMccPhotoCrop) {
+        show("Photo editor load nahi hua. Page refresh karo.", true);
+        return;
+      }
+      const dataUrl = await openMccPhotoCrop(file);
+      if (!dataUrl) {
+        show("Photo cancel — dubara Change Photo se set karo.", true);
+        return;
+      }
+      await uploadAvatar(dataUrl);
     });
 
     document.getElementById("form").addEventListener("submit", async (e) => {

@@ -77,6 +77,7 @@
       <div class="grid" id="cards"></div>
     </div>
   </main>
+  <script src="/static/js/mcc-photo-crop.js"></script>
   <script>
     if (!localStorage.getItem("mcc_access_token")) location.replace("/login?next=/portal/player");
     try { history.replaceState({ mccPortal: 1 }, "", "/portal/player"); } catch (e) {}
@@ -138,45 +139,45 @@
     }
 
     function card(label, value) {
-      const d = document.createElement("div");
-      d.className = "card";
-      d.innerHTML = "<small>" + label + "</small><strong>" + (value || "—") + "</strong>";
-      return d;
+      const el = document.createElement("div");
+      el.className = "card";
+      el.innerHTML = `<small>${label}</small><strong>${value || "—"}</strong>`;
+      return el;
     }
 
     async function load() {
       const r = await api("/api/portal/player/profile");
+      document.getElementById("loading").hidden = true;
       if (r.status === 401) {
         localStorage.clear();
         location.replace("/login?next=/portal/player");
         return;
       }
       if (!r.ok) {
-        document.getElementById("loading").textContent = "Failed to load profile";
+        document.getElementById("msg").className = "msg err";
+        document.getElementById("msg").textContent = "Profile load failed";
         return;
       }
       const p = await r.json();
-      document.getElementById("loading").hidden = true;
       document.getElementById("view").hidden = false;
       setAvatar(p.profile_picture);
-      document.getElementById("name").textContent = p.full_name || p.username || "Player";
-      document.getElementById("meta").textContent = [p.playing_role, p.category, p.team].filter(Boolean).join(" · ") || "MCC Player";
+      document.getElementById("name").textContent = p.full_name || "Player";
+      document.getElementById("meta").textContent = [p.playing_role, p.leadership_label, p.category].filter(Boolean).join(" · ") || "—";
       document.getElementById("status").textContent = p.status || "—";
       const box = document.getElementById("cards");
       box.innerHTML = "";
       [
-        ["Full name", p.full_name],
-        ["Email", p.email],
-        ["Username", p.username],
         ["Player ID", p.player_code],
+        ["Username", p.username],
+        ["Email", p.email],
         ["Phone", p.phone],
         ["Address", p.address],
-        ["Emergency contact", p.emergency_contact],
+        ["Emergency", p.emergency_contact],
         ["Date of birth", p.date_of_birth],
         ["Category", p.category],
         ["Team", p.team],
-        ["Playing role", p.playing_role],
         ["Club position", p.leadership_label],
+        ["Playing role", p.playing_role],
         ["Jersey number", p.jersey_number != null ? String(p.jersey_number) : ""],
         ["Batting style", p.batting_style],
         ["Bowling style", p.bowling_style],
@@ -184,50 +185,44 @@
       ].forEach(([k, v]) => box.appendChild(card(k, v)));
     }
 
-    document.getElementById("btn-photo").onclick = () => document.getElementById("photo").click();
-    document.getElementById("photo").addEventListener("change", (e) => {
+    const photoInput = document.getElementById("photo");
+    document.getElementById("btn-photo").onclick = () => photoInput.click();
+    photoInput.addEventListener("change", async (e) => {
       const file = e.target.files && e.target.files[0];
+      photoInput.value = "";
       if (!file) return;
       const msg = document.getElementById("msg");
+      if (!window.openMccPhotoCrop) {
+        msg.className = "msg err";
+        msg.textContent = "Photo editor load nahi hua. Refresh karo.";
+        return;
+      }
+      const dataUrl = await openMccPhotoCrop(file);
+      if (!dataUrl) {
+        msg.className = "msg err";
+        msg.textContent = "Photo cancel — dubara Change Photo se set karo.";
+        return;
+      }
       msg.className = "msg";
       msg.textContent = "Saving photo…";
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = async () => {
-          const max = 480;
-          let w = img.width, h = img.height;
-          if (w > max || h > max) {
-            const scale = Math.min(max / w, max / h);
-            w = Math.round(w * scale);
-            h = Math.round(h * scale);
-          }
-          const canvas = document.createElement("canvas");
-          canvas.width = w; canvas.height = h;
-          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
-          try {
-            const res = await api("/api/portal/player/avatar", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ image_data_url: dataUrl }),
-            });
-            if (!res.ok) {
-              const data = await res.json().catch(() => ({}));
-              msg.className = "msg err";
-              msg.textContent = data.detail || "Photo save failed";
-              return;
-            }
-            // Foran portal pe rahna / reload with success
-            location.replace("/portal/player?photo=1");
-          } catch (err) {
-            msg.className = "msg err";
-            msg.textContent = "Photo save failed";
-          }
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
+      setAvatar(dataUrl);
+      try {
+        const res = await api("/api/portal/player/avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_data_url: dataUrl }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          msg.className = "msg err";
+          msg.textContent = data.detail || "Photo save failed";
+          return;
+        }
+        location.replace("/portal/player?photo=1");
+      } catch (err) {
+        msg.className = "msg err";
+        msg.textContent = "Photo save failed";
+      }
     });
 
     load();
