@@ -6,9 +6,6 @@ from app.db.session import SessionLocal
 from app.models import (
     Club,
     Permission,
-    PlayerProfile,
-    PlayingRole,
-    PlayerStatus,
     Role,
     Team,
     TeamCategory,
@@ -81,42 +78,9 @@ def seed_if_empty() -> None:
         admin.roles = [role_by_code["super_admin"]]
         db.add(admin)
 
-        player = User(
-            username="mali",
-            email="mali@mustafacc.club",
-            full_name="Muhammad Ali",
-            phone="+10000000001",
-            password_hash=hash_password("Player@MCC2026"),
-        )
-        player.roles = [role_by_code["player"]]
-        db.add(player)
-        db.flush()
-
-        db.add(
-            PlayerProfile(
-                user_id=player.id,
-                player_code="MCC-P-0001",
-                team_id=teams["senior-1st-xi"].id,
-                jersey_number=7,
-                playing_role=PlayingRole.all_rounder,
-                batting_style="Right-hand bat",
-                bowling_style="Right-arm medium",
-                is_wicketkeeper=False,
-                status=PlayerStatus.active,
-            )
-        )
-
-        captain = User(
-            username="captain",
-            email="captain@mustafacc.club",
-            full_name="Ahmed Khan",
-            password_hash=hash_password("Captain@MCC2026"),
-        )
-        captain.roles = [role_by_code["captain"], role_by_code["player"]]
-        db.add(captain)
-
+        # No demo players — client will add their own roster
         db.commit()
-        print("MCC seed complete: admin / mali / captain users created")
+        print("MCC seed complete: admin only (admin / admin)")
     except Exception:
         db.rollback()
         raise

@@ -592,6 +592,81 @@ def delete_player_admin(
     return {"message": f"{name} website se remove ho gaya", "deleted_user_id": user_id}
 
 
+@router.post("/players/purge-all")
+def purge_all_players_admin(
+    actor: User = Depends(require_permissions("players.manage")),
+    db: Session = Depends(get_db),
+):
+    """Wipe all player accounts from DB + durable backup. Keeps admin only."""
+    deleted = 0
+    profiles = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user))
+        .all()
+    )
+    for pp in list(profiles):
+        u = pp.user
+        if not u or u.id == actor.id:
+            continue
+        role_codes = {r.code for r in (u.roles or [])}
+        if role_codes & {"super_admin", "club_admin"}:
+            continue
+        db.query(MatchSquad).filter(MatchSquad.player_profile_id == pp.id).delete()
+        db.query(Notification).filter(Notification.recipient_user_id == u.id).delete()
+        email, username, user_id = u.email, u.username, u.id
+        db.delete(pp)
+        u.roles.clear()
+        db.delete(u)
+        deleted += 1
+        try:
+            from app.services.github_user_store import remove_user
+
+            remove_user(user_id=user_id, email=email, username=username)
+        except Exception as exc:  # noqa: BLE001
+            print(f"github remove_user skipped: {exc}")
+
+    # Also remove leftover non-admin users without profiles (e.g. old captain demo)
+    leftovers = db.query(User).all()
+    for u in list(leftovers):
+        if u.id == actor.id:
+            continue
+        role_codes = {r.code for r in (u.roles or [])}
+        if role_codes & {"super_admin", "club_admin"}:
+            continue
+        if u.player_profile:
+            continue
+        db.query(Notification).filter(Notification.recipient_user_id == u.id).delete()
+        email, username, user_id = u.email, u.username, u.id
+        u.roles.clear()
+        db.delete(u)
+        deleted += 1
+        try:
+            from app.services.github_user_store import remove_user
+
+            remove_user(user_id=user_id, email=email, username=username)
+        except Exception as exc:  # noqa: BLE001
+            print(f"github remove_user skipped: {exc}")
+
+    try:
+        from app.services.github_user_store import save_users
+
+        save_users([])
+    except Exception as exc:  # noqa: BLE001
+        print(f"github save_users([]) skipped: {exc}")
+
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_purge_all_players",
+            entity_type="user",
+            entity_id=None,
+            detail=f"Purged {deleted} player accounts for clean handover",
+        )
+    )
+    db.commit()
+    return {"message": f"Sab players remove — {deleted} accounts deleted. Sirf admin reh gaya.", "deleted": deleted}
+
+
 # ── Matches ───────────────────────────────────────────────────────────
 
 
