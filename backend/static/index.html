@@ -203,32 +203,140 @@
       position: relative;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: .4rem;
-      padding: .4rem;
+      gap: .55rem;
+      padding: .55rem;
       background: #030a06;
     }
     @media (min-width: 768px) {
-      .showcase { grid-template-columns: repeat(4, 1fr); gap: .5rem; padding: .5rem; }
+      .showcase { grid-template-columns: repeat(4, 1fr); gap: .65rem; padding: .75rem 1rem; }
     }
     .shot {
-      position: relative; overflow: hidden; aspect-ratio: 16/11;
-      border: 1px solid rgba(245,197,24,.15);
+      position: relative; overflow: hidden; aspect-ratio: 4/5;
+      border: 1px solid rgba(245,197,24,.22);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
     }
+    @media (min-width: 768px) { .shot { aspect-ratio: 3/4; min-height: 22rem; } }
     .shot img {
       width: 100%; height: 100%; object-fit: cover;
-      transition: transform .7s ease;
+      transition: transform .8s ease;
     }
-    .shot:hover img { transform: scale(1.08); }
+    .shot:hover img { transform: scale(1.1); }
     .shot span {
-      position: absolute; left: .65rem; bottom: .55rem;
-      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .16em;
+      position: absolute; left: .75rem; bottom: .7rem; z-index: 1;
+      font-family: Oswald, sans-serif; font-size: .78rem; letter-spacing: .18em;
       text-transform: uppercase; color: #fff;
-      text-shadow: 0 2px 12px rgba(0,0,0,.8);
+      text-shadow: 0 2px 14px rgba(0,0,0,.85);
     }
     .shot::after {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.65));
+      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.75));
       pointer-events: none;
+    }
+
+    /* Values strip */
+    .values {
+      position: relative;
+      padding: 2.75rem 1rem;
+      border-top: 1px solid rgba(245,197,24,.2);
+      background:
+        linear-gradient(180deg, rgba(3,10,6,.88), rgba(3,10,6,.94)),
+        url("/static/images/mcc-bg-stadium.png") center / cover no-repeat;
+    }
+    .values-inner {
+      max-width: 80rem; margin: 0 auto;
+      display: grid; gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (min-width: 900px) {
+      .values { padding: 3.5rem 1.5rem; }
+      .values-inner { grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+    }
+    .value-item {
+      text-align: center; padding: 1.35rem 1rem;
+      border: 1px solid rgba(245,197,24,.28);
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(8px);
+      transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+    .value-item:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,197,24,.55);
+      box-shadow: 0 16px 36px rgba(0,0,0,.35);
+    }
+    .value-ring {
+      width: 3.4rem; height: 3.4rem; margin: 0 auto .85rem;
+      border-radius: 999px; display: grid; place-items: center;
+      border: 2px solid var(--gold);
+      background: radial-gradient(circle at 30% 30%, rgba(155,225,93,.35), rgba(3,10,6,.9));
+      color: var(--gold); font-family: Bebas Neue, sans-serif; font-size: 1.35rem;
+      box-shadow: 0 0 24px rgba(155,225,93,.2);
+    }
+    .value-item h3 {
+      font-family: Oswald, sans-serif; font-size: .78rem; letter-spacing: .12em;
+      text-transform: uppercase; color: #fff; line-height: 1.35;
+    }
+    .value-item p {
+      margin-top: .4rem; color: var(--muted); font-size: .82rem; line-height: 1.4;
+    }
+
+    /* About / club story */
+    .about {
+      position: relative; overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .about-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(100deg, rgba(3,10,6,.94) 0%, rgba(3,10,6,.72) 45%, rgba(3,10,6,.55) 100%),
+        url("/static/images/mcc-bg-action.png") center / cover no-repeat;
+    }
+    .about-grid {
+      position: relative; z-index: 1;
+      max-width: 80rem; margin: 0 auto;
+      padding: 3.5rem .95rem;
+      display: grid; gap: 1.75rem; align-items: center;
+    }
+    @media (min-width: 860px) {
+      .about-grid {
+        grid-template-columns: 1.05fr .95fr;
+        gap: 2.5rem; padding: 5rem 1.5rem;
+      }
+    }
+    .about-copy h2 {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(2.4rem, 7vw, 3.8rem);
+      letter-spacing: .03em; line-height: .92;
+    }
+    .about-copy .muted { max-width: 34rem; }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem;
+      margin-top: 1.75rem;
+    }
+    .stat {
+      padding: 1rem .75rem; text-align: center;
+      border: 1px solid rgba(245,197,24,.25);
+      background: rgba(0,0,0,.35);
+    }
+    .stat strong {
+      display: block; font-family: Bebas Neue, sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem); color: var(--gold); line-height: 1;
+    }
+    .stat span {
+      display: block; margin-top: .35rem;
+      font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .14em;
+      text-transform: uppercase; color: rgba(255,255,255,.65);
+    }
+    .about-photo {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(245,197,24,.3);
+      min-height: 16rem;
+      box-shadow: 0 28px 60px rgba(0,0,0,.45);
+    }
+    .about-photo img {
+      width: 100%; height: 100%; min-height: 16rem; object-fit: cover;
+    }
+    @media (min-width: 860px) {
+      .about-photo, .about-photo img { min-height: 26rem; }
     }
 
     /* Sections with photo backgrounds */
@@ -240,12 +348,12 @@
     .band-bg {
       position: absolute; inset: 0; z-index: 0;
       background-size: cover; background-position: center;
-      transform: scale(1.04);
-      filter: saturate(1.05);
+      transform: scale(1.05);
+      filter: saturate(1.08);
     }
     .band-bg::after {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(3,10,6,.78), rgba(3,10,6,.9));
+      background: linear-gradient(180deg, rgba(3,10,6,.72), rgba(3,10,6,.88));
     }
     .band.matches .band-bg { background-image: url("/static/images/mcc-bg-action.png"); }
     .band.players .band-bg { background-image: url("/static/images/mcc-bg-stadium.png"); }
@@ -253,95 +361,101 @@
 
     .section {
       position: relative; z-index: 1;
-      padding: 3.4rem .95rem; max-width: 80rem; margin: 0 auto;
+      padding: 4rem .95rem; max-width: 80rem; margin: 0 auto;
     }
-    @media (min-width: 640px) { .section { padding: 4.75rem 1.5rem; } }
-    .section-head { max-width: 36rem; margin-bottom: 1.5rem; }
+    @media (min-width: 640px) { .section { padding: 5.5rem 1.5rem; } }
+    .section-head { max-width: 40rem; margin-bottom: 1.75rem; }
     .section-kicker {
-      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .28em;
-      text-transform: uppercase; color: var(--gold); margin-bottom: .45rem;
+      font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .28em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: .5rem;
     }
     .section h2 {
       font-family: "Bebas Neue", sans-serif;
-      font-size: clamp(2.2rem, 6.5vw, 3.4rem);
-      letter-spacing: .03em; line-height: .95;
+      font-size: clamp(2.5rem, 7vw, 4rem);
+      letter-spacing: .03em; line-height: .92;
     }
-    .muted { color: var(--muted); margin-top: .55rem; font-size: .95rem; line-height: 1.5; }
+    .muted { color: var(--muted); margin-top: .65rem; font-size: 1rem; line-height: 1.55; }
     .reveal {
       opacity: 0; transform: translateY(28px);
       transition: opacity .75s ease, transform .75s ease;
     }
     .reveal.in { opacity: 1; transform: none; }
 
-    .grid { display: grid; gap: 1rem; margin-top: 1.5rem; grid-template-columns: 1fr; }
+    .grid { display: grid; gap: 1.15rem; margin-top: 1.75rem; grid-template-columns: 1fr; }
     @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 960px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 
     .card {
-      border: 1px solid rgba(255,255,255,.12);
-      background: linear-gradient(160deg, rgba(255,255,255,.1), rgba(0,0,0,.35));
-      padding: 1.2rem; border-radius: 4px;
-      backdrop-filter: blur(10px);
-      transition: border-color .25s ease, transform .25s ease;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(165deg, rgba(255,255,255,.12), rgba(0,0,0,.42));
+      padding: 1.4rem 1.25rem; border-radius: 4px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.25);
+      transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
     }
-    .card:hover { border-color: rgba(245,197,24,.4); transform: translateY(-3px); }
+    .card:hover {
+      border-color: rgba(245,197,24,.45);
+      transform: translateY(-4px);
+      box-shadow: 0 22px 48px rgba(0,0,0,.4);
+    }
     .card small {
       font-family: Oswald, sans-serif; letter-spacing: .16em; text-transform: uppercase;
-      color: rgba(255,255,255,.5); font-size: .65rem;
+      color: rgba(255,255,255,.55); font-size: .68rem;
     }
     .pill {
-      display: inline-block; margin-top: .5rem; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
-      padding: .22rem .55rem; border-radius: 2px;
-      background: rgba(245,197,24,.14); color: var(--gold); border: 1px solid rgba(245,197,24,.35);
+      display: inline-block; margin-top: .55rem; font-size: .64rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: .28rem .6rem; border-radius: 2px;
+      background: rgba(245,197,24,.16); color: var(--gold); border: 1px solid rgba(245,197,24,.4);
     }
 
-    .filters { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.1rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.25rem; }
     .filters button {
-      font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
-      padding: .5rem .8rem; border-radius: 2px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.35); color: rgba(255,255,255,.75);
+      font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      padding: .58rem .95rem; border-radius: 2px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.2); background: rgba(0,0,0,.4); color: rgba(255,255,255,.78);
     }
     .filters button.active, .filters button:hover {
-      border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.12);
+      border-color: var(--gold); color: var(--gold); background: rgba(245,197,24,.14);
     }
 
     .players-grid {
-      display: grid; gap: 1.1rem; margin-top: 1.5rem; grid-template-columns: 1fr;
+      display: grid; gap: 1.25rem; margin-top: 1.75rem; grid-template-columns: 1fr;
     }
     .player-card {
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.4);
-      border-radius: 4px; overflow: hidden; text-align: center; padding: 0 0 1.2rem;
-      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.45);
+      border-radius: 4px; overflow: hidden; text-align: center; padding: 0 0 1.35rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.3);
       transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
     }
     .player-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(245,197,24,.45);
-      box-shadow: 0 22px 48px rgba(0,0,0,.45);
+      transform: translateY(-6px);
+      border-color: rgba(245,197,24,.5);
+      box-shadow: 0 26px 55px rgba(0,0,0,.5);
     }
     .player-card img, .player-card .ph {
-      width: 100%; height: min(15rem, 58vw); object-fit: cover; background: #0d3d18;
-      border-bottom: 2px solid rgba(245,197,24,.55);
+      width: 100%; height: min(16.5rem, 62vw); object-fit: cover; background: #0d3d18;
+      border-bottom: 2px solid rgba(245,197,24,.6);
     }
     .player-card .ph {
       display: grid; place-items: center; font-family: "Bebas Neue", sans-serif;
-      color: var(--gold); font-size: 2.5rem;
+      color: var(--gold); font-size: 2.7rem;
     }
     .player-card h3 {
-      margin-top: 1rem; padding: 0 .75rem; font-family: Oswald, sans-serif;
-      font-size: clamp(1.05rem, 3.5vw, 1.25rem); color: #fff;
+      margin-top: 1.05rem; padding: 0 .8rem; font-family: Oswald, sans-serif;
+      font-size: clamp(1.1rem, 3.5vw, 1.3rem); color: #fff;
     }
     .player-card .role {
-      color: var(--gold); font-size: .95rem; margin-top: .35rem; padding: 0 .75rem;
+      color: var(--gold); font-size: 1rem; margin-top: .4rem; padding: 0 .8rem;
       font-family: Oswald, sans-serif; letter-spacing: .06em;
     }
     .player-card .team-tag {
-      margin-top: .45rem; padding: 0 .75rem; color: rgba(255,255,255,.6); font-size: .8rem;
+      margin-top: .5rem; padding: 0 .8rem; color: rgba(255,255,255,.62); font-size: .82rem;
       font-family: Oswald, sans-serif; letter-spacing: .14em; text-transform: uppercase;
     }
     .player-card .discipline {
-      margin: .75rem .75rem 0; padding: .55rem .65rem; border-radius: 3px;
+      margin: .8rem .8rem 0; padding: .55rem .65rem; border-radius: 3px;
       text-align: left; font-size: .78rem; line-height: 1.4;
     }
     .player-card .discipline strong {
@@ -354,51 +468,85 @@
     .player-card .discipline.unban { background: rgba(124,255,58,.1); border: 1px solid rgba(124,255,58,.35); color: #bbf7d0; }
     @media (min-width: 640px) {
       .players-grid { grid-template-columns: repeat(2, 1fr); }
-      .player-card img, .player-card .ph { height: 16.5rem; }
+      .player-card img, .player-card .ph { height: 18rem; }
     }
     @media (min-width: 960px) {
       .players-grid { grid-template-columns: repeat(3, 1fr); }
-      .player-card img, .player-card .ph { height: 18rem; }
+      .player-card img, .player-card .ph { height: 19.5rem; }
     }
     @media (min-width: 1280px) { .players-grid { grid-template-columns: repeat(4, 1fr); } }
 
     .teams-split {
-      display: grid; gap: 1rem; margin-top: 1.5rem;
+      display: grid; gap: 1.25rem; margin-top: 1.75rem;
       grid-template-columns: 1fr;
     }
     @media (min-width: 720px) { .teams-split { grid-template-columns: 1fr 1fr; } }
     .team-panel {
-      position: relative; min-height: 18rem; overflow: hidden; border-radius: 4px;
-      border: 1px solid rgba(245,197,24,.28);
-      padding: 1.6rem;
+      position: relative; min-height: 22rem; overflow: hidden; border-radius: 4px;
+      border: 1px solid rgba(245,197,24,.32);
+      padding: 1.85rem;
       display: flex; flex-direction: column; justify-content: flex-end;
+      box-shadow: 0 24px 50px rgba(0,0,0,.35);
     }
+    @media (min-width: 720px) { .team-panel { min-height: 26rem; } }
     .team-panel::before {
       content: ""; position: absolute; inset: 0; z-index: 0;
       background-size: cover; background-position: center;
-      transition: transform .6s ease;
+      transition: transform .7s ease;
     }
-    .team-panel:hover::before { transform: scale(1.06); }
+    .team-panel:hover::before { transform: scale(1.08); }
     .team-panel.senior::before {
       background-image:
-        linear-gradient(160deg, rgba(3,10,6,.35), rgba(3,10,6,.88)),
+        linear-gradient(160deg, rgba(3,10,6,.25), rgba(3,10,6,.88)),
         url("/static/images/mcc-bg-senior.png");
     }
     .team-panel.junior::before {
       background-image:
-        linear-gradient(200deg, rgba(3,10,6,.3), rgba(3,10,6,.88)),
+        linear-gradient(200deg, rgba(3,10,6,.2), rgba(3,10,6,.88)),
         url("/static/images/mcc-bg-junior.png");
     }
     .team-panel > * { position: relative; z-index: 1; }
     .team-panel small {
-      font-family: Oswald, sans-serif; letter-spacing: .2em; text-transform: uppercase;
-      color: var(--gold); font-size: .72rem;
+      font-family: Oswald, sans-serif; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--gold); font-size: .78rem;
+    }
+    .team-panel h3 {
+      margin-top: .4rem; font-family: Bebas Neue, sans-serif;
+      font-size: clamp(2rem, 5vw, 2.8rem); color: #fff; line-height: .95;
+      text-shadow: 0 6px 22px rgba(0,0,0,.55);
     }
     .team-panel p {
-      margin-top: .55rem; font-family: Oswald, sans-serif; font-size: 1.35rem; color: #fff;
+      margin-top: .55rem; font-family: Oswald, sans-serif; font-size: 1.15rem; color: rgba(255,255,255,.88);
       text-shadow: 0 4px 18px rgba(0,0,0,.5);
     }
-    .admin-cta { margin-top: 1.4rem; }
+    .admin-cta { margin-top: 1.6rem; }
+
+    /* Join banner */
+    .join {
+      position: relative; overflow: hidden;
+      border-top: 1px solid rgba(245,197,24,.25);
+    }
+    .join-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(90deg, rgba(3,10,6,.92), rgba(3,10,6,.55)),
+        url("/static/images/mcc-bg-senior.png") center / cover no-repeat;
+    }
+    .join-inner {
+      position: relative; z-index: 1;
+      max-width: 80rem; margin: 0 auto;
+      padding: 4rem .95rem;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 1.5rem;
+    }
+    @media (min-width: 640px) { .join-inner { padding: 5rem 1.5rem; } }
+    .join-inner h2 {
+      font-family: Bebas Neue, sans-serif;
+      font-size: clamp(2.4rem, 7vw, 3.6rem);
+      line-height: .92; letter-spacing: .03em;
+    }
+    .join-inner .muted { max-width: 32rem; }
+    .join-actions { display: flex; flex-wrap: wrap; gap: .7rem; }
 
     #policy {
       position: relative; width: 100%;
@@ -408,39 +556,56 @@
     .policy-bg {
       position: absolute; inset: 0; z-index: 0;
       background:
-        linear-gradient(180deg, rgba(3,10,6,.85), rgba(3,10,6,.96)),
+        linear-gradient(180deg, rgba(3,10,6,.82), rgba(3,10,6,.95)),
         url("/static/images/mcc-bg-action.png") center / cover no-repeat;
     }
-    .policy-inner { position: relative; z-index: 1; max-width: 72rem; margin: 0 auto; padding: 2.5rem 1rem 2.75rem; }
+    .policy-inner { position: relative; z-index: 1; max-width: 72rem; margin: 0 auto; padding: 3.5rem 1rem 3.75rem; }
+    @media (min-width: 640px) { .policy-inner { padding: 5rem 1.5rem; } }
     .policy-inner h2 {
-      font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 5vw, 2.4rem);
+      font-family: "Bebas Neue", sans-serif; font-size: clamp(2.2rem, 6vw, 3.2rem);
       color: var(--gold); letter-spacing: .05em;
     }
     .policy-frame {
-      display: block; margin-top: 1rem; border: 1px solid rgba(245,197,24,.3);
+      display: block; margin-top: 1.25rem; border: 1px solid rgba(245,197,24,.35);
       border-radius: 4px; overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0,0,0,.4);
+      box-shadow: 0 28px 60px rgba(0,0,0,.45);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .policy-frame:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 34px 70px rgba(0,0,0,.55);
     }
 
     .footer {
       border-top: 1px solid rgba(255,255,255,.08);
-      background: #010503;
-      padding: 2rem 1rem; color: rgba(255,255,255,.42); font-size: .8rem;
+      background:
+        linear-gradient(180deg, rgba(3,10,6,.7), #010503),
+        url("/static/images/mcc-bg-stadium.png") center / cover no-repeat;
+      padding: 2.75rem 1rem; color: rgba(255,255,255,.45); font-size: .82rem;
     }
     .footer-inner {
-      max-width: 72rem; margin: 0 auto;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 1rem 1.5rem;
+      max-width: 80rem; margin: 0 auto;
+      display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between;
+      gap: 1.5rem 2rem;
     }
     .footer-brand .logo-mcc {
-      font-family: Bebas Neue, sans-serif; font-size: 1.9rem; color: var(--gold);
+      font-family: Bebas Neue, sans-serif; font-size: 2.3rem; color: var(--gold);
     }
-    .footer .motto { font-style: italic; color: rgba(255,255,255,.55); margin-top: .45rem; }
-    .footer-credit { text-align: right; color: rgba(255,255,255,.5); line-height: 1.45; }
+    .footer .motto { font-style: italic; color: rgba(255,255,255,.6); margin-top: .55rem; max-width: 22rem; }
+    .footer-links {
+      display: flex; flex-wrap: wrap; gap: .75rem 1.25rem;
+    }
+    .footer-links a {
+      color: rgba(255,255,255,.7); text-decoration: none;
+      font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-credit { text-align: right; color: rgba(255,255,255,.5); line-height: 1.5; }
     .footer-credit strong { color: var(--gold); }
     @media (max-width: 640px) {
       .footer-inner { flex-direction: column; text-align: center; }
       .footer-credit { text-align: center; }
+      .footer-links { justify-content: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -460,6 +625,7 @@
       <span class="logo-text"><span>Mustafa</span><span>Cricket Club</span></span>
     </a>
     <nav class="nav" aria-label="Main">
+      <a href="#about">About</a>
       <a href="#matches">Matches</a>
       <a href="#players">Players</a>
       <a href="#teams">Teams</a>
@@ -473,6 +639,7 @@
     </div>
   </header>
   <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+    <a href="#about">About</a>
     <a href="#matches">Matches</a>
     <a href="#players">Players</a>
     <a href="#teams">Teams</a>
@@ -518,6 +685,50 @@
     </figure>
   </section>
 
+  <section class="values reveal" aria-label="Club values">
+    <div class="values-inner">
+      <article class="value-item">
+        <div class="value-ring">01</div>
+        <h3>Passion in our hearts</h3>
+        <p>Play with fire for the badge.</p>
+      </article>
+      <article class="value-item">
+        <div class="value-ring">02</div>
+        <h3>Discipline in our game</h3>
+        <p>Train hard. Match harder.</p>
+      </article>
+      <article class="value-item">
+        <div class="value-ring">03</div>
+        <h3>Respect for all</h3>
+        <p>Opponents, umpires, the club.</p>
+      </article>
+      <article class="value-item">
+        <div class="value-ring">04</div>
+        <h3>Unity is our strength</h3>
+        <p>One team. One dream.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="about reveal" id="about">
+    <div class="about-bg" aria-hidden="true"></div>
+    <div class="about-grid">
+      <div class="about-copy">
+        <p class="section-kicker">The club</p>
+        <h2>BUILT FOR THE BADGE</h2>
+        <p class="muted">Mustafa Cricket Club brings senior and junior pathways under one roof — selection, fixtures, discipline, and pride. We play hard, stay humble, and win together.</p>
+        <div class="about-stats">
+          <div class="stat"><strong>2</strong><span>Pathways</span></div>
+          <div class="stat"><strong>XI</strong><span>Match Ready</span></div>
+          <div class="stat"><strong>1</strong><span>Badge</span></div>
+        </div>
+      </div>
+      <div class="about-photo">
+        <img src="/static/images/mcc-hero.png" alt="Mustafa Cricket Club on the field" />
+      </div>
+    </div>
+  </section>
+
   <div class="band matches">
     <div class="band-bg" aria-hidden="true"></div>
     <section class="section reveal" id="matches">
@@ -561,11 +772,13 @@
       </div>
       <div class="teams-split">
         <div class="team-panel senior">
-          <small>Senior</small>
+          <small>Senior Pathway</small>
+          <h3>SENIOR XI</h3>
           <p>1st XI · 2nd XI · Development</p>
         </div>
         <div class="team-panel junior">
-          <small>Junior</small>
+          <small>Junior Pathway</small>
+          <h3>JUNIOR ACADEMY</h3>
           <p>U19 · U16 · U14 · U12</p>
         </div>
       </div>
@@ -574,6 +787,21 @@
       </p>
     </section>
   </div>
+
+  <section class="join reveal">
+    <div class="join-bg" aria-hidden="true"></div>
+    <div class="join-inner">
+      <div>
+        <p class="section-kicker">Join MCC</p>
+        <h2>READY TO WEAR THE BADGE?</h2>
+        <p class="muted">Sign up, complete your profile, and get selected for day &amp; night fixtures.</p>
+      </div>
+      <div class="join-actions">
+        <a class="btn" href="/signup">Sign Up Now</a>
+        <a class="btn btn-outline" href="/portal">Open Portal</a>
+      </div>
+    </div>
+  </section>
 
   <section id="policy" class="reveal">
     <div class="policy-bg" aria-hidden="true"></div>
@@ -584,7 +812,7 @@
       <a class="policy-frame" href="/policy">
         <img src="/static/images/mcc-tournament-policy-v2.jpg?v=4" alt="MCC Tournament Process Flow Chart" width="1024" height="935" />
       </a>
-      <p style="margin-top:1.1rem">
+      <p style="margin-top:1.25rem">
         <a class="btn" href="/policy">Read Full Policy</a>
       </p>
     </div>
@@ -594,9 +822,16 @@
     <div class="footer-inner">
       <div class="footer-brand">
         <div class="logo-mcc">MCC</div>
-        <div>Mustafa Cricket Club · © 2026 · <a href="/login?next=/portal/admin" style="color:#F5C518">Admin Dashboard</a></div>
+        <div>Mustafa Cricket Club · © 2026</div>
         <div class="motto">We Play for the Badge, Not for the Applause.</div>
       </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#matches">Matches</a>
+        <a href="#players">Players</a>
+        <a href="#teams">Teams</a>
+        <a href="#policy">Policy</a>
+        <a href="/login?next=/portal/admin">Admin</a>
+      </nav>
       <div class="footer-credit">
         Created by App Engineer<br /><strong>Zahid Mehmood</strong>
       </div>
