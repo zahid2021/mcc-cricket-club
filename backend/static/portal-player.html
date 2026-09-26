@@ -18,7 +18,15 @@
       width: 4.5rem; height: 4.5rem; border-radius: 999px; object-fit: cover;
       border: 2px solid var(--gold); background: #123; flex-shrink: 0;
     }
-    .avatar.ph { display: grid; place-items: center; font-family: Bebas Neue, sans-serif; color: var(--gold); font-size: 1.4rem; }
+    .avatar-ph { display: grid; place-items: center; font-family: Bebas Neue, sans-serif; color: var(--gold); font-size: 1.4rem; }
+    .avatar-box { display: flex; flex-direction: column; align-items: center; gap: .45rem; flex-shrink: 0; }
+    .btn-photo {
+      font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+      padding: .35rem .65rem; border-radius: 2px; cursor: pointer; border: 1px solid var(--gold);
+      background: rgba(245,197,24,.15); color: var(--gold);
+    }
+    .btn-photo:hover { background: var(--gold); color: var(--dark); }
+    .photo-msg { font-size: .7rem; color: var(--neon); min-height: 1em; }
     h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.7rem, 5vw, 2.3rem); }
     .sub { color: rgba(255,255,255,.55); font-size: .85rem; margin-top: .2rem; }
     .grid { display: grid; gap: .75rem; margin-top: 1rem; }
@@ -56,8 +64,13 @@
     <div id="loading" style="color:rgba(255,255,255,.5)">Loading…</div>
     <div id="dash" hidden>
       <div class="hero-row">
-        <img class="avatar" id="avatar" alt="" hidden />
-        <div class="avatar ph" id="avatar-ph">MCC</div>
+        <div class="avatar-box">
+          <img class="avatar" id="avatar" alt="" hidden />
+          <div class="avatar avatar-ph" id="avatar-ph">MCC</div>
+          <input type="file" id="photo-input" accept="image/*" hidden />
+          <button type="button" class="btn-photo" id="change-photo">Change Photo</button>
+          <div class="photo-msg" id="photo-msg"></div>
+        </div>
         <div>
           <h1 id="welcome"></h1>
           <p class="sub" id="meta"></p>
@@ -101,6 +114,65 @@
       localStorage.clear();
       location.href = "/login";
     };
+
+    function setAvatar(src) {
+      const img = document.getElementById("avatar");
+      const ph = document.getElementById("avatar-ph");
+      if (src) {
+        img.src = src;
+        img.hidden = false;
+        ph.hidden = true;
+      }
+    }
+
+    document.getElementById("change-photo").onclick = () => {
+      document.getElementById("photo-input").click();
+    };
+    document.getElementById("photo-input").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const msg = document.getElementById("photo-msg");
+      msg.textContent = "Saving…";
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = async () => {
+          const max = 480;
+          let w = img.width, h = img.height;
+          if (w > max || h > max) {
+            const scale = Math.min(max / w, max / h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
+          try {
+            const res = await fetch("/api/portal/player/avatar", {
+              method: "POST",
+              headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+              body: JSON.stringify({ image_data_url: dataUrl }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              msg.textContent = data.detail || "Upload failed";
+              msg.style.color = "#fca5a5";
+              return;
+            }
+            setAvatar(data.profile_picture);
+            msg.style.color = "#7CFF3A";
+            msg.textContent = "Photo saved";
+          } catch (err) {
+            msg.textContent = "Upload failed";
+            msg.style.color = "#fca5a5";
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
     fetch("/api/portal/player/dashboard", { headers: { Authorization: "Bearer " + token } })
       .then(async (r) => {
         if (r.status === 401) { location.replace("/login"); return null; }
@@ -119,12 +191,7 @@
         document.getElementById("category").textContent = d.category || "—";
         document.getElementById("phone").textContent = d.phone || "—";
         document.getElementById("status").textContent = d.status;
-        if (d.profile_picture) {
-          const img = document.getElementById("avatar");
-          img.src = d.profile_picture;
-          img.hidden = false;
-          document.getElementById("avatar-ph").hidden = true;
-        }
+        if (d.profile_picture) setAvatar(d.profile_picture);
         if (d.upcoming_match) {
           document.getElementById("match-box").hidden = false;
           document.getElementById("match").textContent = d.upcoming_match;
