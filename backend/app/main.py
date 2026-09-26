@@ -49,9 +49,34 @@ def health():
     return {"status": "ok", "club": "Mustafa Cricket Club", "short": "MCC"}
 
 
+def _page(name: str):
+    path = STATIC_DIR / name
+    if path.exists():
+        return FileResponse(path)
+    return {"error": "page not found"}
+
+
 @app.get("/")
 def public_home():
-    index = STATIC_DIR / "index.html"
-    if index.exists():
-        return FileResponse(index)
-    return {"club": "Mustafa Cricket Club", "docs": "/docs"}
+    return _page("index.html")
+
+
+@app.get("/login")
+def login_page():
+    return _page("login.html")
+
+
+@app.get("/portal/player")
+def player_portal_page():
+    return _page("portal-player.html")
+
+
+@app.get("/portal/admin")
+def admin_portal_page():
+    return _page("portal-admin.html")
+
+
+@app.get("/portal/staff")
+def staff_portal_page():
+    # Staff uses player-style portal for now
+    return _page("portal-player.html")
