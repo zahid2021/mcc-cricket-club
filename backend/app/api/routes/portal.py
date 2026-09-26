@@ -33,6 +33,7 @@ router = APIRouter(prefix="/portal/player", tags=["player-portal"])
 SECTIONS = [
     {"key": "profile", "label": "My Profile", "href": "/portal/player/profile"},
     {"key": "team", "label": "My Team", "href": "/portal/player/team"},
+    {"key": "policy", "label": "Tournament Policy", "href": "/policy"},
     {"key": "statistics", "label": "My Statistics", "href": "/portal/player/section?s=statistics"},
     {"key": "matches", "label": "My Matches", "href": "/portal/player/section?s=matches"},
     {"key": "selection", "label": "My Selection", "href": "/portal/player/notifications?filter=selection"},

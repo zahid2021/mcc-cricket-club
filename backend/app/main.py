@@ -78,6 +78,11 @@ def signup_page():
     return _page("signup.html")
 
 
+@app.get("/policy")
+def policy_page():
+    return _page("policy.html")
+
+
 @app.get("/portal/player")
 def player_portal_page():
     return _page("portal-player.html")

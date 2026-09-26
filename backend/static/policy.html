@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tournament Policy | Mustafa Cricket Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Nastaliq+Urdu:wght@400;600&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; line-height: 1.55; }
+    .top {
+      position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between;
+      gap: .75rem; padding: .75rem 1rem; background: rgba(10,31,16,.96); border-bottom: 1px solid rgba(255,255,255,.1);
+      flex-wrap: wrap;
+    }
+    .brand { font-family: "Bebas Neue", sans-serif; color: var(--gold); font-size: 1.35rem; text-decoration: none; }
+    .links { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .links a {
+      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+      text-decoration: none; color: rgba(255,255,255,.7); padding: .4rem .7rem; border: 1px solid rgba(255,255,255,.15); border-radius: 2px;
+    }
+    .links a:hover { color: var(--gold); border-color: var(--gold); }
+    .wrap { max-width: 52rem; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+    .hero-policy {
+      border: 1px solid rgba(245,197,24,.35); background: linear-gradient(180deg, rgba(245,197,24,.1), transparent);
+      padding: 1.25rem; border-radius: 4px; text-align: center; margin-bottom: 1.25rem;
+    }
+    .hero-policy h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: .04em; }
+    .hero-policy .ur { font-family: "Noto Nastaliq Urdu", serif; font-size: 1.15rem; margin-top: .5rem; color: var(--gold); direction: rtl; }
+    .motto { margin-top: .75rem; color: var(--neon); font-family: Oswald, sans-serif; letter-spacing: .12em; text-transform: uppercase; font-size: .8rem; }
+    .values { margin-top: .5rem; color: rgba(255,255,255,.65); font-size: .9rem; }
+    .tabs { display: flex; gap: .5rem; margin: 1rem 0; flex-wrap: wrap; }
+    .tabs button {
+      flex: 1; min-width: 7rem; padding: .7rem; border-radius: 3px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.2); background: transparent; color: rgba(255,255,255,.75);
+      font-family: Oswald, sans-serif; letter-spacing: .1em; text-transform: uppercase; font-size: .75rem;
+    }
+    .tabs button.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .flow {
+      margin: 1.25rem 0; border: 1px solid rgba(255,255,255,.12); border-radius: 4px; overflow: hidden; background: #0a1f10;
+    }
+    .flow img { width: 100%; height: auto; display: block; }
+    .cap { padding: .65rem .9rem; font-size: .8rem; color: rgba(255,255,255,.55); border-top: 1px solid rgba(255,255,255,.08); }
+    article { margin-top: 1.25rem; padding: 1rem; border: 1px solid rgba(255,255,255,.1); border-radius: 3px; background: rgba(255,255,255,.03); }
+    article h2 { font-family: Oswald, sans-serif; color: var(--gold); font-size: 1rem; margin-bottom: .55rem; }
+    article h2.ur-h { font-family: "Noto Nastaliq Urdu", serif; font-size: 1.15rem; direction: rtl; text-align: right; }
+    .ur-body { font-family: "Noto Nastaliq Urdu", serif; direction: rtl; text-align: right; font-size: 1.05rem; line-height: 2; }
+    ul { margin: .5rem 0 .5rem 1.2rem; }
+    .ur-body ul { margin: .5rem 1.2rem .5rem 0; padding: 0; }
+    .process {
+      margin-top: 1rem; padding: 1rem; border-left: 3px solid var(--gold); background: rgba(245,197,24,.06);
+      font-size: .9rem; white-space: pre-line;
+    }
+    .ur-body .process { border-left: 0; border-right: 3px solid var(--gold); text-align: right; }
+    .principle {
+      margin-top: 1.5rem; padding: 1.1rem; border: 1px solid rgba(124,255,58,.35);
+      background: rgba(124,255,58,.08); border-radius: 3px; text-align: center;
+    }
+    .foot { margin-top: 2rem; text-align: center; color: rgba(255,255,255,.45); font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <a class="brand" href="/">MCC</a>
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="/login">Login</a>
+      <a href="/portal/player">Player Portal</a>
+      <a href="/portal/admin">Admin</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero-policy">
+      <h1>TOURNAMENT PARTICIPATION POLICY</h1>
+      <p class="ur">ٹورنامنٹ میں شرکت کی پالیسی</p>
+      <p class="motto">One Team. One Dream. — ایک ٹیم، ایک خواب</p>
+      <p class="values">Passion • Discipline • Respect • Unity<br/>جذبہ • نظم و ضبط • احترام • اتحاد</p>
+    </div>
+
+    <div class="flow">
+      <img src="/static/images/mcc-tournament-policy.png" alt="MCC Tournament Process Flow Chart" />
+      <div class="cap">Official MCC Tournament Process Flow Chart — every player must read and follow this.</div>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="active" data-tab="en">English</button>
+      <button type="button" data-tab="ur">اردو</button>
+    </div>
+
+    <div id="en" class="panel active">
+      <article>
+        <h2>1. Purpose</h2>
+        <p>This policy establishes the official process for Mustafa Cricket Club (MCC) when considering, entering, selecting teams for, and participating in cricket tournaments.</p>
+        <p style="margin-top:.5rem">It ensures tournament participation is properly communicated, approved and managed, with clear responsibilities for the Chairman, Selection Committee, Captains, Vice-Captains and appointed officials.</p>
+      </article>
+      <article>
+        <h2>2. Tournament Information</h2>
+        <p>Before MCC commits to a tournament, the maximum possible information should be obtained and shared in relevant MCC groups, including where available:</p>
+        <ul>
+          <li>Tournament name, venue/location, organiser details</li>
+          <li>Dates, match times, format, overs per match</li>
+          <li>Entry fee, number of teams, registration deadline</li>
+          <li>Playing conditions, rules, prizes, special requirements</li>
+        </ul>
+      </article>
+      <article>
+        <h2>3. Consultation</h2>
+        <p>Once sufficient information is received, the MCC Chairman and all relevant Captains will be consulted regarding participation and proposed number of teams — before any formal entry.</p>
+      </article>
+      <article>
+        <h2>4. Number of MCC Teams</h2>
+        <p>The Selection Committee determines and announces how many MCC teams will participate, based on availability, format, captains, balance, registration needs and operations.</p>
+      </article>
+      <article>
+        <h2>5. Appointment of Captains</h2>
+        <p>Chairman and Selection Committee announce the Captain for each team. Vice-Captains may also be appointed where appropriate.</p>
+      </article>
+      <article>
+        <h2>6. Tournament Entry</h2>
+        <p>Appointed Captains contact organisers and complete/coordinate team entry. Fees, deadlines and conditions must be communicated to MCC management.</p>
+      </article>
+      <article>
+        <h2>7. Player Availability &amp; Team Formation</h2>
+        <p>Captain and Vice-Captain will: create availability poll → collect Yes/No → review players → prepare proposed squad → present to Selection Committee → seek Chairman &amp; Committee approval before public announcement.</p>
+        <p style="margin-top:.5rem"><strong>No proposed team is final until MCC approval is obtained.</strong></p>
+      </article>
+      <article>
+        <h2>8. Appointment of Team Officials</h2>
+        <p>After final approval, the Captain announces three tournament-specific roles:</p>
+        <ul>
+          <li><strong>Social Media Handler</strong> — updates, photos, approved communications</li>
+          <li><strong>Team Coordinator</strong> — schedules, coordination, organisation</li>
+          <li><strong>Discipline In-Charge</strong> — discipline, behaviour, Club rules</li>
+        </ul>
+        <p style="margin-top:.5rem">These do not create permanent MCC positions.</p>
+      </article>
+      <article>
+        <h2>9. Captain’s Ongoing Communication</h2>
+        <p>After registration is confirmed, the Captain continuously shares: schedules, venues, reporting times, fixture changes, conditions, results, urgent notices and organiser instructions.</p>
+      </article>
+      <article>
+        <h2>10. Captain &amp; Vice-Captain Responsibilities</h2>
+        <p>They ensure the team follows MCC rules, discipline and values. Players must cooperate with Captains and appointed officials.</p>
+      </article>
+      <article>
+        <h2>11. MCC Approval Authority</h2>
+        <p>Chairman and Selection Committee retain oversight. Selection, participation or management issues may be referred back to them.</p>
+      </article>
+      <article>
+        <h2>12. End of Tournament — Positions Dissolved</h2>
+        <p>When the tournament ends, all tournament-specific positions dissolve automatically (Captain/Vice-Captain if tournament-only, Social Media Handler, Team Coordinator, Discipline In-Charge).</p>
+        <p style="margin-top:.5rem"><strong>Every new tournament starts a new process.</strong></p>
+      </article>
+      <div class="process">OFFICIAL MCC TOURNAMENT PROCESS
+
+Tournament Information Received
+↓ Information Shared with MCC Groups
+↓ Chairman & Captains Consulted
+↓ Selection Committee Determines Number of Teams
+↓ Captains Appointed
+↓ Captains Enter Teams with Organisers
+↓ Availability Poll → Proposed Teams
+↓ Selection Committee & Chairman Approval
+↓ Final Teams Announced
+↓ Officials Appointed (SM / Coordinator / Discipline)
+↓ Continuous Updates → Tournament Completed
+↓ Tournament-Specific Positions Dissolved</div>
+      <div class="principle">
+        <strong>MCC PRINCIPLE</strong><br/>
+        All tournament participation should be organised, transparent and disciplined — with clear responsibilities, consultation and approval.<br/><br/>
+        <em>We Play for the Badge, Not for the Applause.</em>
+      </div>
+    </div>
+
+    <div id="ur" class="panel">
+      <div class="ur-body">
+        <article>
+          <h2 class="ur-h">۱۔ مقصد</h2>
+          <p>اس پالیسی کا مقصد مصطفیٰ کرکٹ کلب (MCC) کی جانب سے کسی بھی کرکٹ ٹورنامنٹ میں شرکت، ٹیموں کے انتخاب، رجسٹریشن اور انتظام کے لیے ایک واضح اور باقاعدہ طریقۂ کار متعین کرنا ہے۔</p>
+          <p>اس سے یقینی بنایا جائے گا کہ تمام امور مناسب مشاورت، منظوری اور واضح ذمہ داریوں کے تحت انجام پائیں — چیئرمین، سلیکشن کمیٹی، کپتان، نائب کپتان اور دیگر عہدیداران کی ذمہ داریاں واضح ہوں۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۲۔ ٹورنامنٹ کی معلومات</h2>
+          <p>حتمی فیصلے سے پہلے زیادہ سے زیادہ معلومات حاصل کرکے متعلقہ MCC گروپس میں شیئر کی جائیں گی، بشمول:</p>
+          <ul>
+            <li>نام، مقام، منتظمین، تاریخیں اور اوقات</li>
+            <li>فارمیٹ، اوورز، فیس، ٹیموں کی تعداد، رجسٹریشن ڈیڈ لائن</li>
+            <li>قواعد، انعامات، خاص شرائط اور دیگر اہم معلومات</li>
+          </ul>
+        </article>
+        <article>
+          <h2 class="ur-h">۳۔ مشاورت</h2>
+          <p>مناسب معلومات کے بعد چیئرمین اور متعلقہ کپتانوں سے مشاورت ہوگی — باقاعدہ انٹری سے پہلے یہ عمل مکمل ہوگا۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۴۔ MCC ٹیموں کی تعداد</h2>
+          <p>سلیکشن کمیٹی فیصلہ کرے گی کہ کتنی ٹیمیں شرکت کریں گی (دستیابی، فارمیٹ، کپتان، توازن، رجسٹریشن، انتظام)۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۵۔ کپتانوں کی تقرری</h2>
+          <p>چیئرمین اور سلیکشن کمیٹی ہر ٹیم کے کپتان کا اعلان کریں گے؛ ضرورت پر نائب کپتان بھی مقرر کیے جا سکتے ہیں۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۶۔ ٹورنامنٹ میں انٹری</h2>
+          <p>کپتان منتظمین سے رابطہ کرکے انٹری مکمل کریں گے اور فیس، ڈیڈ لائن اور شرائط انتظامیہ تک پہنچائیں گے۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۷۔ کھلاڑیوں کی دستیابی اور ٹیم کی تشکیل</h2>
+          <p>کپتان/نائب کپتان: پول بنائیں → ہاں/نہیں لیں → جائزہ → مجوزہ اسکواڈ → سلیکشن کمیٹی → چیئرمین منظوری → پھر حتمی اعلان۔</p>
+          <p><strong>منظوری سے پہلے کوئی ٹیم حتمی نہیں۔</strong></p>
+        </article>
+        <article>
+          <h2 class="ur-h">۸۔ ٹیم کے عہدیداران</h2>
+          <ul>
+            <li><strong>سوشل میڈیا ہینڈلر</strong> — اپڈیٹس، تصاویر، منظور شدہ مواد</li>
+            <li><strong>ٹیم کوآرڈینیٹر</strong> — شیڈول، رابطہ، انتظام</li>
+            <li><strong>ڈسپلن انچارج</strong> — نظم و ضبط اور قواعد</li>
+          </ul>
+          <p>یہ عہدے صرف متعلقہ ٹورنامنٹ کے لیے عارضی ہیں۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۹۔ مسلسل اپڈیٹس</h2>
+          <p>رجسٹریشن تصدیق کے بعد کپتان شیڈول، مقام، رپورٹنگ وقت، تبدیلیاں، نتائج اور فوری اطلاعات گروپ میں شیئر کریں گے۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۱۰۔ کپتان اور نائب کپتان</h2>
+          <p>وہ یقینی بنائیں گے کہ ٹیم MCC قواعد اور اقدار پر عمل کرے۔ کھلاڑیوں سے تعاون متوقع ہے۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۱۱۔ MCC کی نگرانی</h2>
+          <p>چیئرمین اور سلیکشن کمیٹی مجموعی نگرانی رکھتے ہیں؛ اہم مسائل ان کے سامنے پیش کیے جا سکتے ہیں۔</p>
+        </article>
+        <article>
+          <h2 class="ur-h">۱۲۔ ٹورنامنٹ کے اختتام پر عہدوں کا خاتمہ</h2>
+          <p>ٹورنامنٹ ختم ہوتے ہی تمام عارضی عہدے خود بخود ختم۔ نئے ٹورنامنٹ کے لیے نیا عمل شروع ہوگا۔</p>
+        </article>
+        <div class="process">باضابطہ طریقۂ کار
+
+معلومات موصول → گروپس میں شیئر → مشاورت → ٹیموں کی تعداد → کپتان تقرری → انٹری → دستیابی پول → مجوزہ ٹیم → منظوری → حتمی اعلان → عہدیداران → مسلسل اپڈیٹس → اختتام → عارضی عہدوں کا خاتمہ</div>
+        <div class="principle">
+          <strong>بنیادی اصول</strong><br/>
+          تمام شرکت منظم، شفاف اور نظم و ضبط کے مطابق ہونی چاہیے۔<br/><br/>
+          ہم داد کے لئے نہیں، کلب کے نشان کے لیے کھیلتے ہیں۔
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">
+      MUSTAFA CRICKET CLUB (MCC)<br/>
+      One Team. One Dream. — ایک ٹیم، ایک خواب
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll(".tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
