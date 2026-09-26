@@ -7,42 +7,5 @@
     "password_hash": "$2b$12$waHLcKwf0L2iyw008X/Gr.rCjdIpOBFFkrJdKn7YB/e8ofrnnsxHa",
     "player_code": "MCC-P-0002",
     "user_id": "4b936cf5-214b-4891-a22e-83eb180f5b01"
-  },
-  {
-    "username": "usert",
-    "email": "t@gmail.com",
-    "full_name": "zz",
-    "phone": "301-7941843",
-    "password_hash": "$2b$12$K/drMbWONzW7J9zdr7dI5Ovk8Cvrgw7w8rnJBlFfcjnxpgXoxCiyS",
-    "player_code": "MCC-P-0003",
-    "user_id": "32c785ba-017a-441f-889a-fca2cbdbc7a7"
-  },
-  {
-    "username": "raees",
-    "email": "raees@gmail.com",
-    "full_name": "zz",
-    "phone": "301-7941843",
-    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
-    "password_hash": "$2b$12$0TrZ/.KeIy/56NE4ROlZRudKdIJt/0Yiuvl85BBwqeFPevgywpQL.",
-    "player_code": "MCC-P-0004",
-    "category": "senior",
-    "team_slug": "senior-1st-xi",
-    "playing_role": "batsman",
-    "jersey_number": null,
-    "user_id": "914b518b-62bd-4c54-92f0-2d9846ae8bd8"
-  },
-  {
-    "username": "abdullahumer007",
-    "email": "abdullahumer007@outlook.com",
-    "full_name": "gg",
-    "phone": "301-7941843",
-    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
-    "password_hash": "$2b$12$wJEM5MfTgKqq/gXugEZw3.saEEGeLk3jYi6iw6nQQoJB7/RA61f5i",
-    "player_code": "MCC-P-0005",
-    "category": "junior",
-    "team_slug": "u19",
-    "playing_role": "batsman",
-    "jersey_number": 3,
-    "user_id": "f87ca381-73bc-4872-901f-ab8af8a648d9"
   }
 ]
