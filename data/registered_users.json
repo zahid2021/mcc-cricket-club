@@ -33,5 +33,19 @@
     "emergency_contact": "000000000",
     "date_of_birth": "2026-07-08",
     "batting_style": "right"
+  },
+  {
+    "user_id": "dc1cdcc4-6291-4986-8c11-61e292fcb0c8",
+    "username": "userr",
+    "email": "r@gmail.com",
+    "full_name": "cc",
+    "phone": "301-7941843",
+    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
+    "password_hash": "$2b$12$TRGEWkYX6nXeSwYMPmsN5u2D5ug0ClWxisuUaxlTgtogO7pbSAEPe",
+    "player_code": "MCC-P-0005",
+    "category": "senior",
+    "team_slug": "senior-1st-xi",
+    "playing_role": "bowler",
+    "jersey_number": 10
   }
 ]
