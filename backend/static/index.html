@@ -108,30 +108,40 @@
     }
     .api { margin-top: 1rem; font-size: .75rem; color: rgba(124,255,58,.7); }
     .players-grid {
-      display: grid; gap: 1rem; margin-top: 1.5rem;
+      display: grid; gap: 1.25rem; margin-top: 1.5rem;
       grid-template-columns: 1fr;
     }
     .player-card {
       border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
-      border-radius: 3px; overflow: hidden; text-align: left; padding: 1rem .9rem 1.1rem;
+      border-radius: 3px; overflow: hidden; text-align: center; padding: 1.25rem 1rem 1.35rem;
     }
     .player-card img, .player-card .ph {
-      width: 5rem; height: 5rem; border-radius: 999px; object-fit: cover;
-      border: 2px solid var(--gold); margin: 0 auto; display: block; background: #0d3d18;
+      width: 9.5rem; height: 9.5rem; border-radius: 999px; object-fit: cover;
+      border: 3px solid var(--gold); margin: 0 auto; display: block; background: #0d3d18;
     }
     .player-card .ph {
       display: grid; place-items: center; font-family: "Bebas Neue", sans-serif;
-      color: var(--gold); font-size: 1.2rem;
+      color: var(--gold); font-size: 2rem;
     }
     .player-card h3 {
-      margin-top: .75rem; font-family: Oswald, sans-serif; font-size: 1.05rem; color: #fff; text-align: center;
+      margin-top: 1rem; font-family: Oswald, sans-serif; font-size: 1.2rem; color: #fff;
     }
-    .player-card .role { color: var(--gold); font-size: .85rem; margin-top: .25rem; text-align: center; font-family: Oswald, sans-serif; letter-spacing: .06em; }
-    .player-card .meta { color: rgba(255,255,255,.55); font-size: .72rem; margin-top: .65rem; line-height: 1.55; }
-    .player-card .meta span { color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .06em; font-size: .62rem; }
-    .player-card .pill-wrap { text-align: center; margin-top: .65rem; }
-    @media (min-width: 640px) { .players-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 960px) { .players-grid { grid-template-columns: repeat(3, 1fr); } }
+    .player-card .role {
+      color: var(--gold); font-size: .95rem; margin-top: .4rem;
+      font-family: Oswald, sans-serif; letter-spacing: .06em;
+    }
+    .player-card .team-tag {
+      margin-top: .55rem; color: rgba(255,255,255,.6); font-size: .8rem;
+      font-family: Oswald, sans-serif; letter-spacing: .14em; text-transform: uppercase;
+    }
+    @media (min-width: 640px) {
+      .players-grid { grid-template-columns: repeat(2, 1fr); }
+      .player-card img, .player-card .ph { width: 11rem; height: 11rem; }
+    }
+    @media (min-width: 960px) {
+      .players-grid { grid-template-columns: repeat(3, 1fr); }
+      .player-card img, .player-card .ph { width: 12rem; height: 12rem; }
+    }
     .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
     .filters button {
       font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
@@ -187,7 +197,7 @@
 
   <section class="section" id="players">
     <h2>OUR PLAYERS</h2>
-    <p class="muted">Portal profile data — photo, role, team, batting/bowling &amp; more</p>
+    <p class="muted">Name · Role · Captain · Senior / Junior</p>
     <div class="filters">
       <button type="button" class="active" data-cat="">All</button>
       <button type="button" data-cat="senior">Senior</button>
@@ -251,11 +261,6 @@
     const placeholder =
       'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#0d3d18" width="100" height="100"/><text x="50" y="56" text-anchor="middle" fill="#F5C518" font-size="22" font-family="sans-serif">MCC</text></svg>');
 
-    function line(label, value) {
-      if (value == null || value === '') return '';
-      return `<div><span>${label}</span><br/>${value}</div>`;
-    }
-
     function renderPlayers(list) {
       if (!list.length) {
         grid.innerHTML = '<p class="muted" style="grid-column:1/-1">No registered players yet. Sign up to appear here.</p>';
@@ -263,29 +268,18 @@
       }
       grid.innerHTML = list.map((p) => {
         const img = p.profile_picture
-          ? `<img src="${p.profile_picture}" alt="${p.full_name}" />`
+          ? `<img src="${p.profile_picture}" alt="${p.full_name || 'Player'}" />`
           : `<div class="ph">MCC</div>`;
-        const jersey = p.jersey_number != null ? `#${p.jersey_number}` : '';
-        const rows = [
-          line('Player ID', p.player_code),
-          line('Club position', p.leadership_label),
-          line('Username', p.username),
-          line('Email', p.email),
-          line('Phone', p.phone),
-          line('Category', p.category),
-          line('Team', p.team),
-          line('Jersey', p.jersey_number != null ? String(p.jersey_number) : ''),
-          line('Batting', p.batting_style),
-          line('Bowling', p.bowling_style),
-          line('Date of birth', p.date_of_birth),
-          line('Address', p.address),
-        ].filter(Boolean).join('');
+        const roleBits = [];
+        if (p.playing_role) roleBits.push(p.playing_role);
+        if (p.leadership_label) roleBits.push(p.leadership_label);
+        const roleText = roleBits.length ? roleBits.join(' · ') : 'Player';
+        const cat = (p.category || '').toLowerCase() === 'junior' ? 'Junior' : ((p.category || '').toLowerCase() === 'senior' ? 'Senior' : (p.category || ''));
         return `<article class="player-card">
           ${img}
-          <h3>${p.full_name || 'Player'}${jersey ? ' ' + jersey : ''}</h3>
-          <div class="role">${p.playing_role || 'Player'}${p.leadership_label ? ' · ' + p.leadership_label : ''}</div>
-          <div class="meta">${rows}</div>
-          <div class="pill-wrap"><span class="pill">${p.status || 'ACTIVE'}</span></div>
+          <h3>${p.full_name || 'Player'}</h3>
+          <div class="role">${roleText}</div>
+          ${cat ? `<div class="team-tag">${cat}</div>` : ''}
         </article>`;
       }).join('');
     }
