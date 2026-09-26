@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "user_id": "48aa043c-efc2-49f9-8c57-83cbc6ef8d00",
+    "username": "usera",
+    "email": "a@gmail.com",
+    "full_name": "Aqib Abasi",
+    "phone": "301-7941843",
+    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
+    "password_hash": "$2b$12$vBJVNGzQAKWRBQYyqoXDke9o/.S.W9RLEpRDY3vBtFaXOKBgegW1K",
+    "player_code": "MCC-P-0001",
+    "category": "senior",
+    "team_slug": "senior-1st-xi",
+    "playing_role": "batsman",
+    "jersey_number": null
+  }
+]
