@@ -32,19 +32,6 @@ router = APIRouter(prefix="/portal/player", tags=["player-portal"])
 
 SECTIONS = [
     {"key": "profile", "label": "My Profile", "href": "/portal/player/profile"},
-    {"key": "team", "label": "My Team", "href": "/portal/player/team"},
-    {"key": "policy", "label": "Tournament Policy", "href": "/policy"},
-    {"key": "statistics", "label": "My Statistics", "href": "/portal/player/section?s=statistics"},
-    {"key": "matches", "label": "My Matches", "href": "/portal/player/section?s=matches"},
-    {"key": "selection", "label": "My Selection", "href": "/portal/player/notifications?filter=selection"},
-    {"key": "training", "label": "My Training", "href": "/portal/player/section?s=training"},
-    {"key": "attendance", "label": "My Attendance", "href": "/portal/player/section?s=attendance"},
-    {"key": "availability", "label": "My Availability", "href": "/portal/player/section?s=availability"},
-    {"key": "awards", "label": "My Awards", "href": "/portal/player/section?s=awards"},
-    {"key": "notifications", "label": "My Notifications", "href": "/portal/player/notifications"},
-    {"key": "warnings", "label": "My Warnings", "href": "/portal/player/warnings"},
-    {"key": "discipline", "label": "My Disciplinary Status", "href": "/portal/player/warnings"},
-    {"key": "announcements", "label": "Club Announcements", "href": "/portal/player/notifications?filter=announcement"},
 ]
 
 ROLE_MAP = {

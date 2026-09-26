@@ -47,7 +47,7 @@
     }
     a.tile:hover { border-color: rgba(245,197,24,.45); color: var(--gold); }
     .bell { font-size: .7rem; color: var(--neon); margin-left: .35rem; }
-    nav.bottom { position: fixed; bottom: 0; inset-inline: 0; height: 4rem; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid rgba(255,255,255,.1); background: rgba(10,31,16,.97); }
+    nav.bottom { position: fixed; bottom: 0; inset-inline: 0; height: 4rem; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(255,255,255,.1); background: rgba(10,31,16,.97); }
     @media (min-width: 768px) { nav.bottom { display: none; } body { padding-bottom: 0; } }
     nav.bottom a { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: rgba(255,255,255,.5); font-family: Oswald, sans-serif; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; }
   </style>
@@ -102,8 +102,6 @@
   </main>
   <nav class="bottom">
     <a href="/portal/player">Home</a>
-    <a href="/portal/player/notifications">Alerts</a>
-    <a href="/portal/player/team">Team</a>
     <a href="/portal/player/profile">Profile</a>
     <a href="/login">Account</a>
   </nav>
