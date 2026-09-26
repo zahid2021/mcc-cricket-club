@@ -148,6 +148,22 @@ def health():
     return {"status": "ok", "club": "Mustafa Cricket Club", "short": "MCC"}
 
 
+@app.get("/favicon.ico")
+def favicon():
+    path = STATIC_DIR / "favicon.ico"
+    if path.exists():
+        return FileResponse(path, media_type="image/x-icon")
+    return {"error": "favicon not found"}
+
+
+@app.get("/apple-touch-icon.png")
+def apple_touch_icon():
+    path = STATIC_DIR / "images" / "mcc-apple-touch-icon.png"
+    if path.exists():
+        return FileResponse(path, media_type="image/png")
+    return {"error": "icon not found"}
+
+
 def _page(name: str):
     path = STATIC_DIR / name
     if path.exists():
