@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Team | MCC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#F5C518; --dark:#06140a; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; margin: 0; min-height: 100svh; }
+    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    a { color: var(--gold); text-decoration: none; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem; }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; }
+    .card { margin-top: 1rem; border: 1px solid rgba(255,255,255,.12); padding: 1.1rem; border-radius: 3px; background: rgba(255,255,255,.04); }
+  </style>
+</head>
+<body>
+  <header><a href="/portal/player">← Portal</a><span style="color:var(--gold);font-family:Bebas Neue,sans-serif">My Team</span></header>
+  <main>
+    <h1>My Team</h1>
+    <div class="card" id="info">Loading…</div>
+  </main>
+  <script>
+    const token = localStorage.getItem("mcc_access_token");
+    if (!token) location.replace("/login");
+    fetch("/api/portal/player/profile", { headers: { Authorization: "Bearer " + token } })
+      .then(r => r.json())
+      .then(p => {
+        document.getElementById("info").innerHTML =
+          `<p><b>Team:</b> ${p.team || "—"}</p>
+           <p style="margin-top:.5rem"><b>Category:</b> ${p.category || "—"}</p>
+           <p style="margin-top:.5rem"><b>Playing role:</b> ${p.playing_role || "—"}</p>
+           <p style="margin-top:.5rem"><b>Jersey:</b> ${p.jersey_number || "—"}</p>
+           <p style="margin-top:.5rem"><b>Status:</b> ${p.status || "—"}</p>`;
+      });
+  </script>
+</body>
+</html>

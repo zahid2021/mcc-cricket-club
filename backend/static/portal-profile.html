@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Profile | MCC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; }
+    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10; }
+    a { color: var(--gold); text-decoration: none; font-size: .85rem; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem 2rem; }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; margin-bottom: 1rem; }
+    .avatar-wrap { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.25rem; }
+    .avatar { width: 5.5rem; height: 5.5rem; border-radius: 999px; object-fit: cover; border: 2px solid var(--gold); background: #123; }
+    label { display: block; font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.45); margin: .7rem 0 .3rem; }
+    input, select, textarea { width: 100%; padding: .65rem .8rem; border: 1px solid rgba(255,255,255,.15); border-radius: 3px; background: rgba(0,0,0,.4); color: #fff; }
+    .ro { opacity: .75; }
+    button { margin-top: 1rem; width: 100%; padding: .8rem; border: 0; border-radius: 3px; background: var(--gold); color: var(--dark); font-family: Oswald, sans-serif; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+    .msg { margin-top: .75rem; font-size: .85rem; color: var(--neon); display: none; }
+    .msg.show { display: block; }
+    .err { color: #fca5a5; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/portal/player">← Portal</a>
+    <span style="font-family:Bebas Neue,sans-serif;color:var(--gold)">My Profile</span>
+  </header>
+  <main>
+    <h1>My Profile</h1>
+    <div class="avatar-wrap">
+      <img class="avatar" id="avatar" alt="Profile" />
+      <div>
+        <label for="photo">Change profile picture</label>
+        <input type="file" id="photo" accept="image/*" />
+        <p style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:.35rem">JPG/PNG, keep under ~600KB</p>
+      </div>
+    </div>
+    <form id="form">
+      <label>Full name</label>
+      <input id="full_name" required />
+      <label>Email</label>
+      <input id="email" class="ro" readonly />
+      <label>Username</label>
+      <input id="username" class="ro" readonly />
+      <label>Player ID</label>
+      <input id="player_code" class="ro" readonly />
+      <label>Phone</label>
+      <input id="phone" />
+      <label>Address</label>
+      <textarea id="address" rows="2"></textarea>
+      <label>Emergency contact</label>
+      <input id="emergency_contact" />
+      <label>Date of birth</label>
+      <input id="date_of_birth" placeholder="YYYY-MM-DD" />
+      <label>Category</label>
+      <input id="category" class="ro" readonly />
+      <label>Team</label>
+      <input id="team" class="ro" readonly />
+      <label>Playing role</label>
+      <select id="playing_role">
+        <option value="batsman">Batsman</option>
+        <option value="bowler">Bowler</option>
+        <option value="all_rounder">All-rounder</option>
+        <option value="wicketkeeper">Wicketkeeper</option>
+      </select>
+      <label>Jersey number</label>
+      <input id="jersey_number" type="number" min="1" max="99" />
+      <label>Batting style</label>
+      <input id="batting_style" placeholder="Right-hand bat" />
+      <label>Bowling style</label>
+      <input id="bowling_style" placeholder="Right-arm medium" />
+      <label>Status</label>
+      <input id="status" class="ro" readonly />
+      <button type="submit">Save profile</button>
+      <p class="msg" id="msg"></p>
+    </form>
+  </main>
+  <script>
+    const token = localStorage.getItem("mcc_access_token");
+    if (!token) location.replace("/login");
+    const msg = document.getElementById("msg");
+    function show(t, isErr) {
+      msg.textContent = t;
+      msg.className = "msg show" + (isErr ? " err" : "");
+    }
+    function roleValue(label) {
+      if (!label) return "batsman";
+      const l = label.toLowerCase();
+      if (l.includes("bowl")) return "bowler";
+      if (l.includes("keep")) return "wicketkeeper";
+      if (l.includes("all")) return "all_rounder";
+      return "batsman";
+    }
+    async function load() {
+      const r = await fetch("/api/portal/player/profile", { headers: { Authorization: "Bearer " + token } });
+      if (r.status === 401) return location.replace("/login");
+      const p = await r.json();
+      document.getElementById("avatar").src = p.profile_picture || "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#0d3d18" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="#F5C518" font-size="28" font-family="sans-serif">MCC</text></svg>');
+      ["full_name","email","username","player_code","phone","address","emergency_contact","date_of_birth","category","team","batting_style","bowling_style","status"].forEach((k) => {
+        const el = document.getElementById(k);
+        if (el) el.value = p[k] || "";
+      });
+      document.getElementById("jersey_number").value = p.jersey_number || "";
+      document.getElementById("playing_role").value = roleValue(p.playing_role);
+    }
+    document.getElementById("photo").addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (file.size > 700000) { show("Image too large. Compress under 600KB.", true); return; }
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const res = await fetch("/api/portal/player/avatar", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+          body: JSON.stringify({ image_data_url: reader.result }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { show(data.detail || "Upload failed", true); return; }
+        document.getElementById("avatar").src = data.profile_picture;
+        show("Profile picture updated");
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = {
+        full_name: document.getElementById("full_name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        emergency_contact: document.getElementById("emergency_contact").value.trim(),
+        date_of_birth: document.getElementById("date_of_birth").value.trim(),
+        batting_style: document.getElementById("batting_style").value.trim(),
+        bowling_style: document.getElementById("bowling_style").value.trim(),
+        playing_role: document.getElementById("playing_role").value,
+        jersey_number: document.getElementById("jersey_number").value ? Number(document.getElementById("jersey_number").value) : null,
+      };
+      const res = await fetch("/api/portal/player/profile", {
+        method: "PUT",
+        headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { show(data.detail || "Save failed", true); return; }
+      show("Profile saved");
+    });
+    load();
+  </script>
+</body>
+</html>

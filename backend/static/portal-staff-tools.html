@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Staff Tools | MCC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; margin: 0; min-height: 100svh; }
+    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    a { color: var(--gold); text-decoration: none; }
+    main { max-width: 36rem; margin: 0 auto; padding: 1.25rem 1rem; }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; }
+    .card { margin-top: 1rem; border: 1px solid rgba(255,255,255,.12); padding: 1.1rem; border-radius: 3px; background: rgba(255,255,255,.04); }
+    label { display: block; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.45); margin: .6rem 0 .3rem; font-family: Oswald, sans-serif; }
+    input, textarea, select { width: 100%; padding: .65rem; border-radius: 3px; border: 1px solid rgba(255,255,255,.15); background: rgba(0,0,0,.4); color: #fff; }
+    button { margin-top: .9rem; width: 100%; padding: .75rem; border: 0; border-radius: 3px; background: var(--gold); color: var(--dark); font-family: Oswald, sans-serif; text-transform: uppercase; cursor: pointer; }
+    .msg { margin-top: .6rem; font-size: .85rem; color: var(--neon); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/portal/admin">← Admin</a>
+    <span style="color:var(--gold);font-family:Bebas Neue,sans-serif">Captain / Admin Tools</span>
+  </header>
+  <main>
+    <h1>Send to Player Portal</h1>
+    <p style="color:rgba(255,255,255,.55);font-size:.9rem;margin-top:.35rem">Warnings & team selection appear in the player's notifications.</p>
+
+    <div class="card">
+      <h2 style="font-family:Oswald,sans-serif;color:var(--gold);font-size:1rem">Issue Warning</h2>
+      <label>Player email or username</label>
+      <input id="w_player" placeholder="player@gmail.com" />
+      <label>Reason</label>
+      <input id="w_reason" placeholder="Late reporting" />
+      <label>Description</label>
+      <textarea id="w_desc" rows="3"></textarea>
+      <label>Severity</label>
+      <select id="w_sev"><option>medium</option><option>high</option><option>low</option></select>
+      <button type="button" id="w_btn">Send Warning</button>
+      <p class="msg" id="w_msg"></p>
+    </div>
+
+    <div class="card">
+      <h2 style="font-family:Oswald,sans-serif;color:var(--gold);font-size:1rem">Notify Selection (Playing XI)</h2>
+      <label>Player email or username</label>
+      <input id="s_player" placeholder="player@gmail.com" />
+      <label>Match</label>
+      <input id="s_match" placeholder="MCC 1st XI vs City United" />
+      <label>Note</label>
+      <input id="s_note" value="Selected in Playing XI" />
+      <button type="button" id="s_btn">Notify Player</button>
+      <p class="msg" id="s_msg"></p>
+    </div>
+  </main>
+  <script>
+    const token = localStorage.getItem("mcc_access_token");
+    if (!token) location.replace("/login");
+    async function post(url, body, msgEl) {
+      msgEl.textContent = "Sending…";
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      msgEl.textContent = res.ok ? (data.message || "Sent") : (data.detail || "Failed — need captain/admin permission");
+    }
+    document.getElementById("w_btn").onclick = () => post("/api/portal/player/staff/warning", {
+      player_email_or_username: document.getElementById("w_player").value.trim(),
+      reason: document.getElementById("w_reason").value.trim(),
+      description: document.getElementById("w_desc").value.trim(),
+      severity: document.getElementById("w_sev").value,
+    }, document.getElementById("w_msg"));
+    document.getElementById("s_btn").onclick = () => post("/api/portal/player/staff/selection", {
+      player_email_or_username: document.getElementById("s_player").value.trim(),
+      match_title: document.getElementById("s_match").value.trim(),
+      role_note: document.getElementById("s_note").value.trim(),
+    }, document.getElementById("s_msg"));
+  </script>
+</body>
+</html>

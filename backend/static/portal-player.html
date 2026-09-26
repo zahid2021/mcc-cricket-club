@@ -9,78 +9,63 @@
     :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; --night:#0a1f10; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; padding-bottom: 4.5rem; }
-    header {
-      position: sticky; top: 0; z-index: 40; height: 3.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 1rem; background: rgba(10,31,16,.95); backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,.1);
-    }
-    .logo { font-family: "Bebas Neue", sans-serif; font-size: 1.4rem; color: var(--gold); text-decoration: none; }
-    button.logout {
-      background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; font-size: .8rem;
-    }
-    button.logout:hover { color: var(--gold); }
+    header { position: sticky; top: 0; z-index: 40; height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; background: rgba(10,31,16,.95); border-bottom: 1px solid rgba(255,255,255,.1); }
+    .logo { font-family: "Bebas Neue", sans-serif; font-size: 1.35rem; color: var(--gold); text-decoration: none; }
+    button.logout { background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; font-size: .8rem; }
     main { max-width: 56rem; margin: 0 auto; padding: 1.25rem 1rem 2rem; }
-    h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.8rem, 5vw, 2.4rem); letter-spacing: .03em; }
+    .hero-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    .avatar {
+      width: 4.5rem; height: 4.5rem; border-radius: 999px; object-fit: cover;
+      border: 2px solid var(--gold); background: #123; flex-shrink: 0;
+    }
+    .avatar.ph { display: grid; place-items: center; font-family: Bebas Neue, sans-serif; color: var(--gold); font-size: 1.4rem; }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: clamp(1.7rem, 5vw, 2.3rem); }
+    .sub { color: rgba(255,255,255,.55); font-size: .85rem; margin-top: .2rem; }
     .grid { display: grid; gap: .75rem; margin-top: 1rem; }
     @media (min-width: 640px) { .grid.stats { grid-template-columns: repeat(3, 1fr); } }
-    .card {
-      border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
-      padding: 1rem; border-radius: 3px;
-    }
+    .card { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); padding: 1rem; border-radius: 3px; }
     .card small { font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.4); }
     .card strong { display: block; margin-top: .35rem; font-family: Oswald, sans-serif; color: var(--gold); }
-    .badge {
-      display: inline-block; margin-top: .5rem; padding: .2rem .55rem; border-radius: 2px;
-      font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
-      background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.4);
-    }
-    .badge.suspended { background: rgba(245,158,11,.2); color: #fcd34d; border-color: rgba(245,158,11,.4); }
-    .badge.banned { background: rgba(239,68,68,.2); color: #fca5a5; border-color: rgba(239,68,68,.4); }
-    .match {
-      margin-top: 1.25rem; padding: 1.1rem; border-radius: 3px;
-      border: 1px solid rgba(245,197,24,.35);
-      background: linear-gradient(90deg, rgba(245,197,24,.12), transparent);
-    }
-    .sections { margin-top: 1.75rem; }
-    .sections h2 { font-family: Oswald, sans-serif; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--neon); margin-bottom: .75rem; }
+    .badge { display: inline-block; margin-top: .5rem; padding: .2rem .55rem; border-radius: 2px; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,.4); }
+    .match { margin-top: 1.25rem; padding: 1.1rem; border-radius: 3px; border: 1px solid rgba(245,197,24,.35); background: linear-gradient(90deg, rgba(245,197,24,.12), transparent); }
+    .sections h2 { font-family: Oswald, sans-serif; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--neon); margin: 1.5rem 0 .75rem; }
     .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; }
     @media (min-width: 640px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
     @media (min-width: 900px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
-    .tile {
+    a.tile {
       border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04);
-      padding: .9rem .75rem; border-radius: 3px; text-align: left; color: rgba(255,255,255,.85);
-      font-size: .85rem; cursor: default;
+      padding: .9rem .75rem; border-radius: 3px; color: rgba(255,255,255,.9); text-decoration: none; font-size: .85rem;
+      display: block;
     }
-    .loading, .error { margin-top: 2rem; color: rgba(255,255,255,.5); }
-    .error { color: #fca5a5; }
-    nav.bottom {
-      position: fixed; bottom: 0; inset-inline: 0; height: 4rem;
-      display: grid; grid-template-columns: repeat(5, 1fr);
-      border-top: 1px solid rgba(255,255,255,.1); background: rgba(10,31,16,.97);
-    }
+    a.tile:hover { border-color: rgba(245,197,24,.45); color: var(--gold); }
+    .bell { font-size: .7rem; color: var(--neon); margin-left: .35rem; }
+    nav.bottom { position: fixed; bottom: 0; inset-inline: 0; height: 4rem; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid rgba(255,255,255,.1); background: rgba(10,31,16,.97); }
     @media (min-width: 768px) { nav.bottom { display: none; } body { padding-bottom: 0; } }
-    nav.bottom a {
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
-      text-decoration: none; color: rgba(255,255,255,.5); font-family: Oswald, sans-serif;
-      font-size: .6rem; letter-spacing: .08em; text-transform: uppercase;
-    }
-    nav.bottom a:hover { color: var(--gold); }
+    nav.bottom a { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: rgba(255,255,255,.5); font-family: Oswald, sans-serif; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; }
   </style>
 </head>
 <body>
   <header>
-    <a class="logo" href="/">MCC · Player Portal</a>
+    <a class="logo" href="/portal/player">MCC · Player Portal</a>
     <button class="logout" type="button" id="logout">Logout</button>
   </header>
   <main>
-    <div class="loading" id="loading">Loading dashboard…</div>
-    <div class="error" id="error" hidden></div>
+    <div id="loading" style="color:rgba(255,255,255,.5)">Loading…</div>
     <div id="dash" hidden>
-      <h1 id="welcome"></h1>
+      <div class="hero-row">
+        <img class="avatar" id="avatar" alt="" hidden />
+        <div class="avatar ph" id="avatar-ph">MCC</div>
+        <div>
+          <h1 id="welcome"></h1>
+          <p class="sub" id="meta"></p>
+        </div>
+      </div>
       <div class="grid stats">
         <div class="card"><small>Role</small><strong id="role"></strong></div>
+        <div class="card"><small>Playing as</small><strong id="playing"></strong></div>
         <div class="card"><small>Team</small><strong id="team"></strong></div>
+        <div class="card"><small>Category</small><strong id="category"></strong></div>
+        <div class="card"><small>Phone</small><strong id="phone"></strong></div>
         <div class="card"><small>Status</small><span class="badge" id="status"></span></div>
       </div>
       <div class="match" id="match-box" hidden>
@@ -88,67 +73,67 @@
         <p id="match" style="margin-top:.5rem;font-family:Oswald,sans-serif;font-size:1.1rem"></p>
       </div>
       <div class="sections">
-        <h2>My Dashboard</h2>
+        <h2>My Dashboard <span class="bell" id="unread"></span></h2>
         <div class="tiles" id="sections"></div>
       </div>
     </div>
   </main>
   <nav class="bottom">
     <a href="/portal/player">Home</a>
-    <a href="#match-box">Matches</a>
-    <a href="#team">Team</a>
-    <a href="#sections">Alerts</a>
-    <a href="/login">Profile</a>
+    <a href="/portal/player/notifications">Alerts</a>
+    <a href="/portal/player/team">Team</a>
+    <a href="/portal/player/profile">Profile</a>
+    <a href="/login">Account</a>
   </nav>
   <script>
     const token = localStorage.getItem("mcc_access_token");
     if (!token) location.replace("/login");
-
     document.getElementById("logout").onclick = () => {
-      localStorage.removeItem("mcc_access_token");
-      localStorage.removeItem("mcc_refresh_token");
+      localStorage.clear();
       location.href = "/login";
     };
-
-    fetch("/api/portal/player/dashboard", {
-      headers: { Authorization: "Bearer " + token },
-    })
+    fetch("/api/portal/player/dashboard", { headers: { Authorization: "Bearer " + token } })
       .then(async (r) => {
         if (r.status === 401) { location.replace("/login"); return null; }
-        if (!r.ok) {
-          const j = await r.json().catch(() => ({}));
-          throw new Error(j.detail || "Failed to load dashboard");
-        }
+        if (!r.ok) throw new Error("Failed to load");
         return r.json();
       })
-      .then((data) => {
-        if (!data) return;
+      .then((d) => {
+        if (!d) return;
         document.getElementById("loading").hidden = true;
         document.getElementById("dash").hidden = false;
-        document.getElementById("welcome").textContent = "Welcome, " + data.welcome_name;
-        document.getElementById("role").textContent = data.role_label;
-        document.getElementById("team").textContent = data.team || "—";
-        const st = document.getElementById("status");
-        st.textContent = data.status;
-        if (data.status === "SUSPENDED") st.classList.add("suspended");
-        if (data.status === "BANNED") st.classList.add("banned");
-        if (data.upcoming_match) {
+        document.getElementById("welcome").textContent = "Welcome, " + d.welcome_name;
+        document.getElementById("meta").textContent = [d.playing_role, d.category].filter(Boolean).join(" · ");
+        document.getElementById("role").textContent = d.role_label;
+        document.getElementById("playing").textContent = d.playing_role || "—";
+        document.getElementById("team").textContent = d.team || "—";
+        document.getElementById("category").textContent = d.category || "—";
+        document.getElementById("phone").textContent = d.phone || "—";
+        document.getElementById("status").textContent = d.status;
+        if (d.profile_picture) {
+          const img = document.getElementById("avatar");
+          img.src = d.profile_picture;
+          img.hidden = false;
+          document.getElementById("avatar-ph").hidden = true;
+        }
+        if (d.upcoming_match) {
           document.getElementById("match-box").hidden = false;
-          document.getElementById("match").textContent = data.upcoming_match;
+          document.getElementById("match").textContent = d.upcoming_match;
+        }
+        if (d.unread_notifications) {
+          document.getElementById("unread").textContent = "(" + d.unread_notifications + " new)";
         }
         const box = document.getElementById("sections");
-        (data.sections || []).forEach((s) => {
-          const d = document.createElement("div");
-          d.className = "tile";
-          d.textContent = s;
-          box.appendChild(d);
+        (d.sections || []).forEach((s) => {
+          const a = document.createElement("a");
+          a.className = "tile";
+          a.href = s.href || "#";
+          a.textContent = s.label || s;
+          box.appendChild(a);
         });
       })
       .catch((e) => {
-        document.getElementById("loading").hidden = true;
-        const er = document.getElementById("error");
-        er.hidden = false;
-        er.textContent = e.message;
+        document.getElementById("loading").textContent = e.message;
       });
   </script>
 </body>

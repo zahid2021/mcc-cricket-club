@@ -83,6 +83,36 @@ def player_portal_page():
     return _page("portal-player.html")
 
 
+@app.get("/portal/player/profile")
+def player_profile_page():
+    return _page("portal-profile.html")
+
+
+@app.get("/portal/player/notifications")
+def player_notifications_page():
+    return _page("portal-notifications.html")
+
+
+@app.get("/portal/player/warnings")
+def player_warnings_page():
+    return _page("portal-notifications.html")
+
+
+@app.get("/portal/player/team")
+def player_team_page():
+    return _page("portal-team.html")
+
+
+@app.get("/portal/player/section")
+def player_section_page():
+    return _page("portal-section.html")
+
+
+@app.get("/portal/staff-tools")
+def staff_tools_page():
+    return _page("portal-staff-tools.html")
+
+
 @app.get("/portal/admin")
 def admin_portal_page():
     return _page("portal-admin.html")

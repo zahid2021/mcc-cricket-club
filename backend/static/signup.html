@@ -11,89 +11,112 @@
     body {
       min-height: 100svh; font-family: "DM Sans", system-ui, sans-serif;
       background: var(--dark);
-      background-image:
-        radial-gradient(ellipse at 50% 0%, rgba(57,255,20,.15), transparent 55%),
-        radial-gradient(ellipse at 80% 100%, rgba(245,197,24,.1), transparent 40%);
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(57,255,20,.15), transparent 55%);
       color: #fff; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
     }
-    .wrap { width: 100%; max-width: 28rem; }
-    .brand { text-align: center; margin-bottom: 1.5rem; }
+    .wrap { width: 100%; max-width: 32rem; }
+    .brand { text-align: center; margin-bottom: 1.25rem; }
     .badge {
-      width: 3.5rem; height: 3.5rem; border-radius: 999px; margin: 0 auto;
-      display: grid; place-items: center;
-      background: linear-gradient(135deg, var(--gold), #E8A317);
-      color: var(--dark); font-family: "Bebas Neue", sans-serif; font-size: 1.35rem;
-      box-shadow: 0 0 28px rgba(245,197,24,.4);
+      width: 3.5rem; height: 3.5rem; border-radius: 999px; margin: 0 auto; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--gold), #E8A317); color: var(--dark);
+      font-family: "Bebas Neue", sans-serif; font-size: 1.35rem;
     }
-    .brand h1 { margin-top: 1rem; font-family: "Bebas Neue", sans-serif; font-size: 2.2rem; letter-spacing: .04em; }
-    .brand p { margin-top: .35rem; font-size: .85rem; color: rgba(255,255,255,.55); }
-    .card {
-      border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
-      padding: 1.5rem; border-radius: 4px;
+    .brand h1 { margin-top: 1rem; font-family: "Bebas Neue", sans-serif; font-size: 2.2rem; }
+    .card { border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); padding: 1.35rem; border-radius: 4px; }
+    label { display: block; font-family: Oswald, sans-serif; font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .35rem; }
+    input, select, textarea {
+      width: 100%; padding: .65rem .8rem; margin-bottom: .8rem; border: 1px solid rgba(255,255,255,.15);
+      border-radius: 3px; background: rgba(0,0,0,.4); color: #fff; font-size: .95rem; outline: none;
     }
-    label {
-      display: block; font-family: Oswald, sans-serif; font-size: .7rem;
-      letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .4rem;
-    }
-    input {
-      width: 100%; padding: .7rem .85rem; margin-bottom: .9rem;
-      border: 1px solid rgba(255,255,255,.15); border-radius: 3px;
-      background: rgba(0,0,0,.4); color: #fff; font-size: .95rem; outline: none;
-    }
-    input:focus { border-color: var(--gold); }
-    button {
-      width: 100%; padding: .85rem; border: 0; border-radius: 3px; cursor: pointer; margin-top: .25rem;
-      background: var(--gold); color: var(--dark);
-      font-family: Oswald, sans-serif; font-size: .85rem; letter-spacing: .15em; text-transform: uppercase;
-    }
+    select option { color: #000; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    button { width: 100%; padding: .85rem; border: 0; border-radius: 3px; cursor: pointer; background: var(--gold); color: var(--dark); font-family: Oswald, sans-serif; letter-spacing: .15em; text-transform: uppercase; }
     button:hover { background: var(--neon); }
-    button:disabled { opacity: .6; cursor: wait; }
-    .err {
-      display: none; margin-bottom: 1rem; padding: .65rem .75rem;
-      border: 1px solid rgba(239,68,68,.45); background: rgba(239,68,68,.12);
-      color: #fecaca; font-size: .85rem; border-radius: 3px;
-    }
+    button:disabled { opacity: .6; }
+    .err { display: none; margin-bottom: .9rem; padding: .65rem; border: 1px solid rgba(239,68,68,.45); background: rgba(239,68,68,.12); color: #fecaca; font-size: .85rem; border-radius: 3px; }
     .err.show { display: block; }
-    .switch { margin-top: 1.1rem; text-align: center; font-size: .85rem; color: rgba(255,255,255,.55); }
+    .switch { margin-top: 1rem; text-align: center; font-size: .85rem; color: rgba(255,255,255,.55); }
     .switch a { color: var(--gold); text-decoration: none; }
-    .switch a:hover { color: var(--neon); }
-    .back { display: block; margin-top: 1.1rem; text-align: center; color: rgba(255,255,255,.4); text-decoration: none; font-size: .8rem; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="brand">
       <div class="badge">MCC</div>
-      <p style="margin-top:.75rem;font-family:Oswald,sans-serif;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-size:.7rem">Mustafa Cricket Club</p>
       <h1>CREATE ACCOUNT</h1>
-      <p>Sign up as a club player</p>
+      <p style="color:rgba(255,255,255,.55);font-size:.85rem;margin-top:.35rem">Senior / Junior · Role · Contact details</p>
     </div>
     <form class="card" id="form">
       <div class="err" id="err"></div>
-      <label for="full_name">Full name</label>
-      <input id="full_name" required minlength="2" placeholder="Your name" />
-      <label for="email">Email</label>
+      <label>Full name</label>
+      <input id="full_name" required minlength="2" placeholder="Your full name" />
+      <label>Email</label>
       <input id="email" type="email" required placeholder="you@gmail.com" />
-      <label for="username">Username (optional)</label>
-      <input id="username" minlength="3" placeholder="auto from email if empty" />
-      <label for="phone">Phone (optional)</label>
-      <input id="phone" type="tel" placeholder="+92…" />
-      <label for="password">Password</label>
-      <input id="password" type="password" required minlength="6" placeholder="Min 6 characters" />
-      <label for="confirm_password">Confirm password</label>
-      <input id="confirm_password" type="password" required minlength="6" placeholder="Repeat password" />
+      <div class="row2">
+        <div>
+          <label>Phone</label>
+          <input id="phone" type="tel" placeholder="+92…" />
+        </div>
+        <div>
+          <label>Jersey no.</label>
+          <input id="jersey_number" type="number" min="1" max="99" placeholder="7" />
+        </div>
+      </div>
+      <label>Address</label>
+      <textarea id="address" rows="2" placeholder="City / area"></textarea>
+      <div class="row2">
+        <div>
+          <label>Category</label>
+          <select id="category" required>
+            <option value="senior">Senior</option>
+            <option value="junior">Junior</option>
+          </select>
+        </div>
+        <div>
+          <label>Team</label>
+          <select id="team_slug" required></select>
+        </div>
+      </div>
+      <label>Playing role</label>
+      <select id="playing_role" required>
+        <option value="batsman">Batsman</option>
+        <option value="bowler">Bowler</option>
+        <option value="all_rounder">All-rounder</option>
+        <option value="wicketkeeper">Wicketkeeper / Keeper</option>
+      </select>
+      <label>Password</label>
+      <input id="password" type="password" required minlength="6" />
+      <label>Confirm password</label>
+      <input id="confirm_password" type="password" required minlength="6" />
       <button type="submit" id="submit">Sign up</button>
       <p class="switch">Already have an account? <a href="/login">Login</a></p>
     </form>
-    <a class="back" href="/">← Back to public site</a>
   </div>
   <script>
-    const form = document.getElementById("form");
-    const err = document.getElementById("err");
-    const btn = document.getElementById("submit");
+    const SENIOR = [
+      { slug: "senior-1st-xi", name: "Senior 1st XI" },
+      { slug: "senior-2nd-xi", name: "Senior 2nd XI" },
+      { slug: "development", name: "Development Team" },
+    ];
+    const JUNIOR = [
+      { slug: "u19", name: "U19" },
+      { slug: "u16", name: "U16" },
+      { slug: "u14", name: "U14" },
+      { slug: "u12", name: "U12" },
+    ];
+    const cat = document.getElementById("category");
+    const teamSel = document.getElementById("team_slug");
+    function fillTeams() {
+      const list = cat.value === "junior" ? JUNIOR : SENIOR;
+      teamSel.innerHTML = list.map(t => `<option value="${t.slug}">${t.name}</option>`).join("");
+    }
+    cat.addEventListener("change", fillTeams);
+    fillTeams();
 
-    form.addEventListener("submit", async (e) => {
+    document.getElementById("form").addEventListener("submit", async (e) => {
       e.preventDefault();
+      const err = document.getElementById("err");
+      const btn = document.getElementById("submit");
       err.classList.remove("show");
       const password = document.getElementById("password").value;
       const confirm_password = document.getElementById("confirm_password").value;
@@ -104,16 +127,20 @@
       }
       btn.disabled = true;
       btn.textContent = "Creating…";
+      const jersey = document.getElementById("jersey_number").value;
+      const body = {
+        full_name: document.getElementById("full_name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim() || null,
+        address: document.getElementById("address").value.trim() || null,
+        category: cat.value,
+        team_slug: teamSel.value,
+        playing_role: document.getElementById("playing_role").value,
+        jersey_number: jersey ? Number(jersey) : null,
+        password,
+        confirm_password,
+      };
       try {
-        const username = document.getElementById("username").value.trim();
-        const body = {
-          full_name: document.getElementById("full_name").value.trim(),
-          email: document.getElementById("email").value.trim(),
-          phone: document.getElementById("phone").value.trim() || null,
-          password,
-          confirm_password,
-        };
-        if (username) body.username = username;
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -126,11 +153,9 @@
           err.classList.add("show");
           return;
         }
-        // Signup done → go to login with saved email (then portal after login)
-        const email = encodeURIComponent(data.email || body.email);
-        location.href = "/login?registered=1&email=" + email;
+        location.href = "/login?registered=1&email=" + encodeURIComponent(data.email || body.email);
       } catch (ex) {
-        err.textContent = "Unable to reach server. Try again.";
+        err.textContent = "Unable to reach server.";
         err.classList.add("show");
       } finally {
         btn.disabled = false;

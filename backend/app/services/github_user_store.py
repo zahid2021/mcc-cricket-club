@@ -89,14 +89,27 @@ def upsert_user(record: dict[str, Any]) -> None:
 
 def restore_into_db(db) -> int:
     """Import backed-up users into SQLAlchemy DB if missing. Returns count imported."""
-    from app.models import User, Role, PlayerProfile, PlayerStatus, Team, AccountStatus
+    from app.models import (
+        User,
+        Role,
+        PlayerProfile,
+        PlayerStatus,
+        PlayingRole,
+        Team,
+        AccountStatus,
+    )
 
     users = load_users()
     if not users:
         return 0
     player_role = db.query(Role).filter(Role.code == "player").first()
-    team = db.query(Team).filter(Team.slug == "senior-1st-xi").first()
     imported = 0
+    role_map = {
+        "batsman": PlayingRole.batsman,
+        "bowler": PlayingRole.bowler,
+        "all_rounder": PlayingRole.all_rounder,
+        "wicketkeeper": PlayingRole.wicketkeeper,
+    }
     for rec in users:
         email = (rec.get("email") or "").lower().strip()
         username = (rec.get("username") or "").lower().strip()
@@ -121,12 +134,22 @@ def restore_into_db(db) -> int:
             user.roles = [player_role]
         db.add(user)
         db.flush()
+        team = None
+        if rec.get("team_slug"):
+            team = db.query(Team).filter(Team.slug == rec["team_slug"]).first()
+        if not team:
+            team = db.query(Team).filter(Team.slug == "senior-1st-xi").first()
+        playing = role_map.get((rec.get("playing_role") or "").lower())
         count = db.query(PlayerProfile).count() + 1
         db.add(
             PlayerProfile(
                 user_id=user.id,
                 player_code=rec.get("player_code") or f"MCC-P-{count:04d}",
                 team_id=team.id if team else None,
+                address=rec.get("address"),
+                jersey_number=rec.get("jersey_number"),
+                playing_role=playing,
+                is_wicketkeeper=playing == PlayingRole.wicketkeeper if playing else False,
                 status=PlayerStatus.active,
             )
         )

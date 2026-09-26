@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Section | MCC</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #06140a; color: #fff; margin: 0; min-height: 100svh; }
+    header { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    a { color: #F5C518; text-decoration: none; }
+    main { padding: 1.25rem; max-width: 36rem; margin: 0 auto; }
+    h1 { text-transform: capitalize; }
+  </style>
+</head>
+<body>
+  <header><a href="/portal/player">← Portal</a></header>
+  <main>
+    <h1 id="t">Section</h1>
+    <p style="color:rgba(255,255,255,.6);margin-top:.75rem;line-height:1.5">
+      This module is connected to the MCC portal. Full match stats / training / attendance records will appear here as matches and sessions are recorded by scorers and coaches.
+    </p>
+    <p style="margin-top:1rem"><a href="/portal/player/notifications">Open notifications →</a></p>
+  </main>
+  <script>
+    const s = new URLSearchParams(location.search).get("s") || "section";
+    document.getElementById("t").textContent = "My " + s;
+    document.title = "My " + s + " | MCC";
+  </script>
+</body>
+</html>

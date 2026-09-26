@@ -22,6 +22,7 @@ from app.models import (
     Role,
     PlayerProfile,
     PlayerStatus,
+    PlayingRole,
     Team,
 )
 from app.schemas.auth import (
@@ -41,8 +42,11 @@ def serialize_user(user: User) -> UserPublic:
     team_name = None
     category = None
     player_status = None
+    playing_role = None
     if user.player_profile:
         player_status = user.player_profile.status.value
+        if user.player_profile.playing_role:
+            playing_role = user.player_profile.playing_role.value
         if user.player_profile.team:
             team_name = user.player_profile.team.name
             if user.player_profile.team.category:
@@ -61,6 +65,7 @@ def serialize_user(user: User) -> UserPublic:
         team=team_name,
         category=category,
         player_status=player_status,
+        playing_role=playing_role,
         last_login=user.last_login_at,
         created_at=user.created_at,
     )
@@ -116,8 +121,37 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     db.add(user)
     db.flush()
 
-    # Assign to Senior 1st XI by default if exists
-    team = db.query(Team).filter(Team.slug == "senior-1st-xi").first()
+    category = (body.category or "senior").strip().lower()
+    if category not in ("senior", "junior"):
+        raise HTTPException(status_code=400, detail="Category must be senior or junior")
+
+    role_key = body.playing_role.strip().lower().replace("-", "_").replace(" ", "_")
+    role_map = {
+        "batsman": PlayingRole.batsman,
+        "bowler": PlayingRole.bowler,
+        "all_rounder": PlayingRole.all_rounder,
+        "allrounder": PlayingRole.all_rounder,
+        "wicketkeeper": PlayingRole.wicketkeeper,
+        "keeper": PlayingRole.wicketkeeper,
+    }
+    playing = role_map.get(role_key)
+    if not playing:
+        raise HTTPException(
+            status_code=400,
+            detail="Playing role must be batsman, bowler, all_rounder, or wicketkeeper",
+        )
+
+    default_slug = "senior-1st-xi" if category == "senior" else "u16"
+    slug = (body.team_slug or default_slug).strip().lower()
+    team = db.query(Team).filter(Team.slug == slug).first()
+    if not team:
+        # fallback by category
+        teams = db.query(Team).all()
+        for t in teams:
+            if t.category and t.category.slug == category:
+                team = t
+                break
+
     count = db.query(PlayerProfile).count() + 1
     player_code = f"MCC-P-{count:04d}"
     db.add(
@@ -125,6 +159,10 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
             user_id=user.id,
             player_code=player_code,
             team_id=team.id if team else None,
+            address=(body.address or "").strip() or None,
+            jersey_number=body.jersey_number,
+            playing_role=playing,
+            is_wicketkeeper=playing == PlayingRole.wicketkeeper,
             status=PlayerStatus.active,
         )
     )
@@ -135,7 +173,7 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
             action="register",
             entity_type="user",
             entity_id=user.id,
-            detail=f"Public signup: {email}",
+            detail=f"Public signup: {email} / {category} / {playing.value}",
             ip_address=request.client.host if request.client else None,
         )
     )
@@ -150,8 +188,13 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
             "email": email,
             "full_name": body.full_name.strip(),
             "phone": (body.phone or "").strip() or None,
+            "address": (body.address or "").strip() or None,
             "password_hash": password_hash,
             "player_code": player_code,
+            "category": category,
+            "team_slug": team.slug if team else slug,
+            "playing_role": playing.value,
+            "jersey_number": body.jersey_number,
         }
     )
 

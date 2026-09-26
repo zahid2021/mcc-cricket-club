@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user, require_permissions, primary_role_code
-from app.core.permissions import ROLE_LABELS
+from app.api.deps import get_current_user
 from app.db.session import get_db
-from app.models import Club, Team, User
-from app.schemas.auth import ClubPublic, TeamPublic, PlayerDashboard, UserPublic
+from app.models import Club, Team
+from app.schemas.auth import ClubPublic, TeamPublic, UserPublic
 from app.api.routes.auth import serialize_user
+from app.models import User
 
 router = APIRouter(tags=["club"])
 
@@ -42,39 +42,6 @@ def list_teams(db: Session = Depends(get_db)):
         )
         for t in teams
     ]
-
-
-@router.get("/portal/player/dashboard", response_model=PlayerDashboard)
-def player_dashboard(user: User = Depends(require_permissions("portal.player"))):
-    role = primary_role_code(user)
-    team = None
-    status = "active"
-    if user.player_profile:
-        status = user.player_profile.status.value
-        if user.player_profile.team:
-            team = user.player_profile.team.name
-    return PlayerDashboard(
-        welcome_name=user.full_name,
-        role_label=ROLE_LABELS.get(role, role.replace("_", " ").title()),
-        team=team,
-        status=status.upper(),
-        upcoming_match="MCC 1st XI vs City United CC",
-        sections=[
-            "My Profile",
-            "My Team",
-            "My Statistics",
-            "My Matches",
-            "My Selection",
-            "My Training",
-            "My Attendance",
-            "My Availability",
-            "My Awards",
-            "My Notifications",
-            "My Warnings",
-            "My Disciplinary Status",
-            "Club Announcements",
-        ],
-    )
 
 
 @router.get("/users/me", response_model=UserPublic)

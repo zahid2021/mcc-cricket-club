@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notifications | MCC</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --gold:#F5C518; --neon:#7CFF3A; --dark:#06140a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "DM Sans", system-ui, sans-serif; background: var(--dark); color: #fff; min-height: 100svh; }
+    header { height: 3.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.1); background: #0a1f10; }
+    a { color: var(--gold); text-decoration: none; font-size: .85rem; }
+    main { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem; }
+    h1 { font-family: "Bebas Neue", sans-serif; font-size: 2rem; margin-bottom: 1rem; }
+    .item { border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); padding: 1rem; border-radius: 3px; margin-bottom: .75rem; }
+    .item.unread { border-color: rgba(124,255,58,.4); }
+    .item h3 { font-family: Oswald, sans-serif; font-size: .95rem; color: var(--gold); }
+    .item p { white-space: pre-wrap; margin-top: .5rem; font-size: .9rem; color: rgba(255,255,255,.8); line-height: 1.45; }
+    .meta { margin-top: .55rem; font-size: .75rem; color: rgba(255,255,255,.4); }
+    .tag { display: inline-block; padding: .15rem .45rem; border-radius: 2px; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; margin-right: .35rem; background: rgba(245,197,24,.15); color: var(--gold); }
+    .empty { color: rgba(255,255,255,.45); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/portal/player">← Portal</a>
+    <span style="font-family:Bebas Neue,sans-serif;color:var(--gold)" id="title">Notifications</span>
+  </header>
+  <main>
+    <h1 id="heading">My Notifications</h1>
+    <div id="list" class="empty">Loading…</div>
+  </main>
+  <script>
+    const token = localStorage.getItem("mcc_access_token");
+    if (!token) location.replace("/login");
+    const params = new URLSearchParams(location.search);
+    const filter = params.get("filter") || "";
+    if (filter === "selection") document.getElementById("heading").textContent = "My Selection";
+    if (filter === "warning") document.getElementById("heading").textContent = "My Warnings";
+    if (filter === "announcement") document.getElementById("heading").textContent = "Club Announcements";
+    const url = "/api/portal/player/notifications" + (filter ? ("?filter=" + encodeURIComponent(filter)) : "");
+    fetch(url, { headers: { Authorization: "Bearer " + token } })
+      .then(async (r) => {
+        if (r.status === 401) location.replace("/login");
+        return r.json();
+      })
+      .then((rows) => {
+        const box = document.getElementById("list");
+        if (!rows.length) { box.textContent = "No messages yet."; return; }
+        box.className = "";
+        box.innerHTML = "";
+        rows.forEach((n) => {
+          const d = document.createElement("div");
+          d.className = "item" + (n.is_read ? "" : " unread");
+          d.innerHTML = `<span class="tag">${n.category}</span><h3>${n.title}</h3><p>${n.message}</p><div class="meta">${new Date(n.created_at).toLocaleString()}${n.is_read ? "" : " · NEW"}</div>`;
+          d.onclick = () => {
+            if (!n.is_read) {
+              fetch("/api/portal/player/notifications/" + n.id + "/read", { method: "POST", headers: { Authorization: "Bearer " + token } });
+              d.classList.remove("unread");
+            }
+          };
+          box.appendChild(d);
+        });
+      });
+  </script>
+</body>
+</html>
