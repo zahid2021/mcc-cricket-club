@@ -109,15 +109,21 @@ def policy_page():
     return _page("policy.html")
 
 
+@app.get("/portal")
+def portal_gate_page():
+    # Player Portal click → pehle login/signup gate (edit form nahi)
+    return _page("portal-gate.html")
+
+
 @app.get("/portal/player")
 def player_portal_page():
-    # Login ke baad: profile VIEW portal
+    # Login ke baad: profile VIEW only
     return _page("portal-player.html")
 
 
 @app.get("/portal/player/profile")
 def player_profile_page():
-    # Edit form — Save ke baad wapas /portal/player
+    # Sirf Edit button se — Save ke baad wapas /portal/player
     return _page("portal-profile.html")
 
 

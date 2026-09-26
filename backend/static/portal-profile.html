@@ -101,15 +101,15 @@
   </main>
   <script>
     const token = localStorage.getItem("mcc_access_token");
-    if (!token) location.replace("/login");
-    // Login ko history se hatao nahi — edit page pe portal pe wapas link hai
+    if (!token) location.replace("/login?next=/portal/player");
+    // Edit page — after login always profile view pe bhejo, edit pe nahi
     try {
       history.replaceState({ mccEdit: 1 }, "", "/portal/player/profile");
     } catch (e) {}
 
     document.getElementById("logout").onclick = () => {
       localStorage.clear();
-      location.replace("/login");
+      location.replace("/portal");
     };
 
     const MCC_LOGO = "data:image/svg+xml," + encodeURIComponent(
@@ -214,7 +214,7 @@
       const r = await api("/api/portal/player/profile");
       if (r.status === 401) {
         localStorage.clear();
-        location.replace("/login");
+        location.replace("/login?next=/portal/player");
         return;
       }
       if (!r.ok) { show(detailText(await r.json().catch(() => ({}))), true); return; }

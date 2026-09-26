@@ -105,7 +105,13 @@
       return "/portal/player";
     }
 
-    // Logged-in user jo Back se login/email pe aaye → turant portal wapas
+    function safeNext() {
+      const n = new URLSearchParams(location.search).get("next") || "";
+      if (n === "/portal/player" || n === "/portal/admin" || n === "/portal/staff") return n;
+      return null;
+    }
+
+    // Logged-in user jo Back se login/email pe aaye → turant portal (profile view)
     async function bounceToPortalIfLoggedIn() {
       const t = localStorage.getItem("mcc_access_token");
       if (!t) return false;
@@ -127,7 +133,7 @@
         }
         if (!res.ok) return false;
         const u = await res.json();
-        location.replace(portalPathFor(u.primary_role || "player"));
+        location.replace(safeNext() || portalPathFor(u.primary_role || "player"));
         return true;
       } catch (e) {
         return false;
@@ -135,7 +141,7 @@
     }
 
     bounceToPortalIfLoggedIn();
-    window.addEventListener("pageshow", function (ev) {
+    window.addEventListener("pageshow", function () {
       bounceToPortalIfLoggedIn();
     });
 
@@ -176,8 +182,9 @@
         }
         localStorage.setItem("mcc_access_token", data.access_token);
         if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
-        // replace = history mein login na rahe (Back = Home, email form nahi)
-        location.replace(portalPathFor((data.user && data.user.primary_role) || "player"));
+        // Hamesha profile VIEW (/portal/player) — edit form nahi
+        const dest = safeNext() || portalPathFor((data.user && data.user.primary_role) || "player");
+        location.replace(dest === "/portal/player/profile" ? "/portal/player" : dest);
       } catch (ex) {
         err.textContent = "Unable to reach server. Try again.";
         err.classList.add("show");

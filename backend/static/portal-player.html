@@ -58,6 +58,7 @@
     <div class="banner" id="banner">Profile saved</div>
     <div id="loading" style="color:rgba(255,255,255,.5)">Loading portal…</div>
     <div id="view" hidden>
+      <p style="font-family:Oswald,sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem">Aapki Profile</p>
       <div class="hero">
         <img class="avatar" id="avatar" alt="Profile" width="96" height="96" />
         <div>
@@ -71,17 +72,18 @@
         <button type="button" class="btn btn-outline" id="btn-photo">Change Photo</button>
         <input type="file" id="photo" accept="image/*" />
       </div>
+      <p style="font-size:.8rem;color:rgba(255,255,255,.4);margin:-.5rem 0 1rem">Edit karna ho to <b style="color:#F5C518">Edit Profile</b> dabao. Save ke baad yahi profile pe wapas aaoge.</p>
       <p class="msg" id="msg"></p>
       <div class="grid" id="cards"></div>
     </div>
   </main>
   <script>
-    if (!localStorage.getItem("mcc_access_token")) location.replace("/login");
+    if (!localStorage.getItem("mcc_access_token")) location.replace("/login?next=/portal/player");
     try { history.replaceState({ mccPortal: 1 }, "", "/portal/player"); } catch (e) {}
 
     document.getElementById("logout").onclick = () => {
       localStorage.clear();
-      location.replace("/login");
+      location.replace("/portal");
     };
 
     const MCC_LOGO = "data:image/svg+xml," + encodeURIComponent(
@@ -146,7 +148,7 @@
       const r = await api("/api/portal/player/profile");
       if (r.status === 401) {
         localStorage.clear();
-        location.replace("/login");
+        location.replace("/login?next=/portal/player");
         return;
       }
       if (!r.ok) {
