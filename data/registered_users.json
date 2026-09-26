@@ -33,5 +33,19 @@
     "emergency_contact": "000000000",
     "date_of_birth": "2026-07-08",
     "batting_style": "right"
+  },
+  {
+    "username": "abdullahumer007",
+    "email": "abdullahumer007@outlook.com",
+    "full_name": "gg",
+    "phone": "301-7941843",
+    "address": "basti shah  wali tahseel khearpur tammy wali distric bahawa",
+    "password_hash": "$2b$12$wJEM5MfTgKqq/gXugEZw3.saEEGeLk3jYi6iw6nQQoJB7/RA61f5i",
+    "player_code": "MCC-P-0005",
+    "category": "junior",
+    "team_slug": "u19",
+    "playing_role": "batsman",
+    "jersey_number": 3,
+    "user_id": "f87ca381-73bc-4872-901f-ab8af8a648d9"
   }
 ]
