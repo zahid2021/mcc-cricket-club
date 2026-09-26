@@ -534,6 +534,123 @@
     }
     .join-block .muted { max-width: 34rem; }
 
+    /* Sponsor / Mustafa */
+    .sponsor {
+      position: relative; overflow: hidden;
+      border-top: 1px solid rgba(245,197,24,.22);
+    }
+    .sponsor-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        linear-gradient(180deg, rgba(3,10,6,.82), rgba(3,10,6,.94)),
+        url("/static/images/mcc-sponsor-youth.png") center / cover no-repeat;
+    }
+    .sponsor-inner {
+      position: relative; z-index: 1;
+      max-width: 80rem; margin: 0 auto;
+      padding: 4rem .95rem 4.5rem;
+    }
+    @media (min-width: 640px) { .sponsor-inner { padding: 5.5rem 1.5rem; } }
+    .sponsor-hero {
+      display: grid; gap: 1.75rem; align-items: center;
+    }
+    @media (min-width: 900px) {
+      .sponsor-hero { grid-template-columns: 1.05fr .95fr; gap: 2.5rem; }
+    }
+    .sponsor-hero h2 {
+      font-family: Bebas Neue, sans-serif;
+      font-size: clamp(2.6rem, 7vw, 4.2rem);
+      line-height: .9; letter-spacing: .03em;
+    }
+    .sponsor-hero h2 em {
+      font-style: normal; color: var(--gold);
+      display: block;
+    }
+    .sponsor-hero .lead {
+      margin-top: 1rem; max-width: 36rem;
+      color: rgba(255,255,255,.88); font-size: 1.05rem; line-height: 1.6;
+    }
+    .sponsor-photo {
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(245,197,24,.35);
+      min-height: 16rem;
+      box-shadow: 0 28px 60px rgba(0,0,0,.45);
+    }
+    .sponsor-photo img {
+      width: 100%; height: 100%; min-height: 16rem; object-fit: cover;
+    }
+    @media (min-width: 900px) {
+      .sponsor-photo, .sponsor-photo img { min-height: 24rem; }
+    }
+    .sponsor-photo figcaption {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: .85rem 1rem;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.8));
+      font-family: Oswald, sans-serif; font-size: .72rem; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    .sponsor-pillars {
+      display: grid; gap: 1rem; margin-top: 2.25rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) { .sponsor-pillars { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .sponsor-pillars { grid-template-columns: repeat(4, 1fr); } }
+    .pillar {
+      padding: 1.35rem 1.15rem;
+      border: 1px solid rgba(245,197,24,.28);
+      background: rgba(0,0,0,.4);
+      backdrop-filter: blur(10px);
+      transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+    .pillar:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245,197,24,.55);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    }
+    .pillar strong {
+      display: block; font-family: Oswald, sans-serif;
+      font-size: .78rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: .55rem;
+    }
+    .pillar p {
+      color: rgba(255,255,255,.78); font-size: .92rem; line-height: 1.5;
+    }
+    .sponsor-gear {
+      margin-top: 2.25rem;
+      display: grid; gap: 1.25rem; align-items: stretch;
+    }
+    @media (min-width: 860px) {
+      .sponsor-gear { grid-template-columns: .9fr 1.1fr; }
+    }
+    .sponsor-gear-photo {
+      overflow: hidden; border: 1px solid rgba(245,197,24,.3);
+      min-height: 14rem;
+      box-shadow: 0 22px 48px rgba(0,0,0,.4);
+    }
+    .sponsor-gear-photo img {
+      width: 100%; height: 100%; min-height: 14rem; object-fit: cover;
+    }
+    .sponsor-note {
+      padding: 1.6rem 1.35rem;
+      border: 1px solid rgba(245,197,24,.28);
+      background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(0,0,0,.45));
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .sponsor-note h3 {
+      font-family: Bebas Neue, sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      letter-spacing: .03em; line-height: .95; color: #fff;
+    }
+    .sponsor-note p {
+      margin-top: .75rem; color: rgba(255,255,255,.8); line-height: 1.6; font-size: .98rem;
+    }
+    .sponsor-note .tag {
+      margin-top: 1rem;
+      font-family: Oswald, sans-serif; font-size: .7rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--gold);
+    }
+
     #policy {
       position: relative; width: 100%;
       border-top: 1px solid var(--line);
@@ -613,6 +730,7 @@
       <a href="#matches">Matches</a>
       <a href="#players">Players</a>
       <a href="#teams">Teams</a>
+      <a href="#sponsor">Sponsor</a>
       <a href="#policy">Policy</a>
       <a href="/login">Login</a>
       <a href="/signup">Sign up</a>
@@ -627,6 +745,7 @@
     <a href="#matches">Matches</a>
     <a href="#players">Players</a>
     <a href="#teams">Teams</a>
+    <a href="#sponsor">Sponsor</a>
     <a href="#policy">Policy</a>
     <a href="/login">Login</a>
     <a href="/signup">Sign up</a>
@@ -774,6 +893,53 @@
     </section>
   </div>
 
+  <section class="sponsor reveal" id="sponsor">
+    <div class="sponsor-bg" aria-hidden="true"></div>
+    <div class="sponsor-inner">
+      <div class="sponsor-hero">
+        <div>
+          <p class="section-kicker">Our Sponsor</p>
+          <h2><em>MUSTAFA</em>THE HEART BEHIND THE BADGE</h2>
+          <p class="lead">Mustafa is the proud sponsor of Mustafa Cricket Club. From Australia, he supports the club remotely — funding the game so our boys can focus on cricket, discipline, and dreams.</p>
+        </div>
+        <figure class="sponsor-photo">
+          <img src="/static/images/mcc-sponsor-youth.png" alt="Junior players supported by the club sponsor" />
+          <figcaption>Supporting every young player</figcaption>
+        </figure>
+      </div>
+
+      <div class="sponsor-pillars">
+        <article class="pillar">
+          <strong>Remote from Australia</strong>
+          <p>Based in Australia, Mustafa stays connected and keeps the club moving with steady guidance and support.</p>
+        </article>
+        <article class="pillar">
+          <strong>Tournament Fees</strong>
+          <p>He covers tournament entry fees so children can compete without financial pressure on their families.</p>
+        </article>
+        <article class="pillar">
+          <strong>Kit &amp; Equipment</strong>
+          <p>Uniforms, bats, balls, and match essentials — Mustafa provides the gear our squad needs to play properly.</p>
+        </article>
+        <article class="pillar">
+          <strong>Full Club Expenses</strong>
+          <p>He bears the total running cost of the club — giving every boy a fair chance to wear the badge with pride.</p>
+        </article>
+      </div>
+
+      <div class="sponsor-gear">
+        <div class="sponsor-gear-photo">
+          <img src="/static/images/mcc-sponsor-gear.png" alt="Cricket kit and equipment provided for the club" />
+        </div>
+        <div class="sponsor-note">
+          <h3>ONE SPONSOR. EVERY EXPENSE COVERED.</h3>
+          <p>From practice days to tournament nights, Mustafa funds the club so talent is never limited by money. Kits, fees, travel support, and day-to-day cricket costs — he carries the full responsibility so the boys can simply play.</p>
+          <p class="tag">Play hard · Stay humble · Win together</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="policy" class="reveal">
     <div class="policy-bg" aria-hidden="true"></div>
     <div class="policy-inner">
@@ -800,6 +966,7 @@
         <a href="#matches">Matches</a>
         <a href="#players">Players</a>
         <a href="#teams">Teams</a>
+        <a href="#sponsor">Sponsor</a>
         <a href="#policy">Policy</a>
         <a href="/login?next=/portal/admin">Admin</a>
       </nav>
