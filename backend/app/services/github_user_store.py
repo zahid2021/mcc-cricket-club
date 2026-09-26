@@ -1,4 +1,4 @@
-"""Persist registered users to GitHub so Render free tier restarts don't wipe accounts."""
+"""Persist registered users + profile photos to GitHub (survives Render free restarts)."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import httpx
 
 REPO = os.getenv("GITHUB_REPO", "zahid2021/mcc-cricket-club")
 PATH = os.getenv("GITHUB_USERS_PATH", "data/registered_users.json")
+AVATAR_DIR = os.getenv("GITHUB_AVATAR_DIR", "data/avatars")
 TOKEN = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
 
 
@@ -24,40 +25,20 @@ def _headers() -> dict[str, str]:
     }
 
 
-def load_users() -> list[dict[str, Any]]:
-    if not TOKEN:
-        return []
-    url = f"https://api.github.com/repos/{REPO}/contents/{PATH}"
-    try:
-        with httpx.Client(timeout=20) as client:
-            r = client.get(url, headers=_headers())
-            if r.status_code == 404:
-                return []
-            r.raise_for_status()
-            data = r.json()
-            content = base64.b64decode(data.get("content", "")).decode("utf-8")
-            users = json.loads(content or "[]")
-            return users if isinstance(users, list) else []
-    except Exception as exc:  # noqa: BLE001
-        print(f"github_user_store load failed: {exc}")
-        return []
-
-
-def save_users(users: list[dict[str, Any]]) -> None:
+def _put_file(path: str, content_text: str, message: str) -> bool:
     if not TOKEN:
         print("github_user_store: no GITHUB_TOKEN — skip persist")
-        return
-    url = f"https://api.github.com/repos/{REPO}/contents/{PATH}"
-    body_content = json.dumps(users, indent=2, ensure_ascii=False)
-    encoded = base64.b64encode(body_content.encode("utf-8")).decode("ascii")
-    sha = None
+        return False
+    url = f"https://api.github.com/repos/{REPO}/contents/{path}"
+    encoded = base64.b64encode(content_text.encode("utf-8")).decode("ascii")
     try:
-        with httpx.Client(timeout=20) as client:
+        with httpx.Client(timeout=60) as client:
+            sha = None
             existing = client.get(url, headers=_headers())
             if existing.status_code == 200:
                 sha = existing.json().get("sha")
             payload: dict[str, Any] = {
-                "message": "chore: sync registered MCC users",
+                "message": message,
                 "content": encoded,
                 "branch": "main",
             }
@@ -65,30 +46,93 @@ def save_users(users: list[dict[str, Any]]) -> None:
                 payload["sha"] = sha
             r = client.put(url, headers=_headers(), json=payload)
             if r.status_code not in (200, 201):
-                print(f"github_user_store save failed: {r.status_code} {r.text[:300]}")
-            else:
-                print(f"github_user_store: saved {len(users)} users")
+                print(f"github put {path} failed: {r.status_code} {r.text[:300]}")
+                return False
+            return True
     except Exception as exc:  # noqa: BLE001
-        print(f"github_user_store save error: {exc}")
+        print(f"github put {path} error: {exc}")
+        return False
+
+
+def _get_file(path: str) -> str | None:
+    if not TOKEN:
+        return None
+    url = f"https://api.github.com/repos/{REPO}/contents/{path}"
+    try:
+        with httpx.Client(timeout=60) as client:
+            r = client.get(url, headers=_headers())
+            if r.status_code == 404:
+                return None
+            r.raise_for_status()
+            data = r.json()
+            return base64.b64decode(data.get("content", "")).decode("utf-8")
+    except Exception as exc:  # noqa: BLE001
+        print(f"github get {path} error: {exc}")
+        return None
+
+
+def load_users() -> list[dict[str, Any]]:
+    raw = _get_file(PATH)
+    if not raw:
+        return []
+    try:
+        users = json.loads(raw)
+        return users if isinstance(users, list) else []
+    except Exception as exc:  # noqa: BLE001
+        print(f"github_user_store load failed: {exc}")
+        return []
+
+
+def save_users(users: list[dict[str, Any]]) -> None:
+    # Never embed huge profile pictures inside users.json
+    slim = []
+    for u in users:
+        row = {k: v for k, v in u.items() if k != "profile_picture"}
+        slim.append(row)
+    _put_file(PATH, json.dumps(slim, indent=2, ensure_ascii=False), "chore: sync registered MCC users")
 
 
 def upsert_user(record: dict[str, Any]) -> None:
     users = load_users()
     email = (record.get("email") or "").lower()
     username = (record.get("username") or "").lower()
-    replaced = False
+    pic = record.pop("profile_picture", None)
+    user_id = record.get("user_id")
+
+    merged = False
     for i, u in enumerate(users):
         if u.get("email", "").lower() == email or u.get("username", "").lower() == username:
-            users[i] = record
-            replaced = True
+            users[i] = {**u, **{k: v for k, v in record.items() if v is not None}}
+            user_id = users[i].get("user_id") or user_id
+            merged = True
             break
-    if not replaced:
+    if not merged:
         users.append(record)
     save_users(users)
 
+    if pic and user_id:
+        save_avatar(user_id, pic)
+
+
+def save_avatar(user_id: str, data_url: str) -> bool:
+    if not data_url or not data_url.startswith("data:image/"):
+        return False
+    path = f"{AVATAR_DIR}/{user_id}.txt"
+    ok = _put_file(path, data_url, f"chore: save avatar {user_id}")
+    if ok:
+        print(f"github_user_store: avatar saved for {user_id}")
+    return ok
+
+
+def load_avatar(user_id: str) -> str | None:
+    raw = _get_file(f"{AVATAR_DIR}/{user_id}.txt")
+    if raw and raw.startswith("data:image/"):
+        return raw
+    return None
+
 
 def restore_into_db(db) -> int:
-    """Import backed-up users into SQLAlchemy DB if missing. Returns count imported."""
+    """Import backed-up users + avatars into SQLAlchemy DB."""
     from app.models import (
         User,
         Role,
@@ -104,6 +148,7 @@ def restore_into_db(db) -> int:
         return 0
     player_role = db.query(Role).filter(Role.code == "player").first()
     imported = 0
+    updated_pics = 0
     role_map = {
         "batsman": PlayingRole.batsman,
         "bowler": PlayingRole.bowler,
@@ -121,7 +166,19 @@ def restore_into_db(db) -> int:
             .first()
         )
         if exists:
+            # Restore missing avatar for existing users
+            if not exists.profile_picture:
+                pic = load_avatar(exists.id) or (
+                    load_avatar(rec["user_id"]) if rec.get("user_id") else None
+                )
+                if pic:
+                    exists.profile_picture = pic
+                    updated_pics += 1
+            # Keep user_id in backup in sync
+            if not rec.get("user_id"):
+                rec["user_id"] = exists.id
             continue
+
         user = User(
             username=username,
             email=email,
@@ -134,6 +191,20 @@ def restore_into_db(db) -> int:
             user.roles = [player_role]
         db.add(user)
         db.flush()
+
+        # Prefer backup user_id mapping for avatar lookup; then new id
+        pic = None
+        if rec.get("user_id"):
+            pic = load_avatar(rec["user_id"])
+        if not pic:
+            pic = load_avatar(user.id)
+        if pic:
+            user.profile_picture = pic
+            updated_pics += 1
+
+        # Persist mapping for future avatar saves
+        rec["user_id"] = user.id
+
         team = None
         if rec.get("team_slug"):
             team = db.query(Team).filter(Team.slug == rec["team_slug"]).first()
@@ -154,7 +225,45 @@ def restore_into_db(db) -> int:
             )
         )
         imported += 1
-    if imported:
+
+    if imported or updated_pics:
         db.commit()
-        print(f"github_user_store: restored {imported} users into DB")
+        print(f"github_user_store: restored {imported} users, {updated_pics} avatars")
+        # Write back user_id mappings
+        try:
+            save_users(users)
+        except Exception as exc:  # noqa: BLE001
+            print(f"user_id sync failed: {exc}")
     return imported
+
+
+def restore_avatars_only(db) -> int:
+    """Re-apply avatars from GitHub for all known users (even if already in DB)."""
+    from app.models import User
+
+    count = 0
+    for user in db.query(User).all():
+        pic = load_avatar(user.id)
+        if pic and user.profile_picture != pic:
+            user.profile_picture = pic
+            count += 1
+    # Also try by backup map
+    for rec in load_users():
+        uid = rec.get("user_id")
+        email = (rec.get("email") or "").lower()
+        if not uid:
+            continue
+        pic = load_avatar(uid)
+        if not pic:
+            continue
+        user = db.query(User).filter(User.email == email).first() if email else db.get(User, uid)
+        if user and (not user.profile_picture or user.profile_picture != pic):
+            # If avatar file is under old id, also copy to current id path later
+            user.profile_picture = pic
+            count += 1
+            if user.id != uid:
+                save_avatar(user.id, pic)
+    if count:
+        db.commit()
+        print(f"github_user_store: refreshed {count} avatars into DB")
+    return count

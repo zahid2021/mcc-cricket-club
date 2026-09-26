@@ -39,14 +39,31 @@ if STATIC_DIR.exists():
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
+    # Ensure profile_picture can hold full base64 images (old DBs used VARCHAR(500))
+    try:
+        with engine.begin() as conn:
+            dialect = engine.dialect.name
+            if dialect == "sqlite":
+                # SQLite ignores VARCHAR length, but recreate affinity via no-op is fine
+                conn.exec_driver_sql(
+                    "CREATE TABLE IF NOT EXISTS _mcc_migrate_note (id INTEGER)"
+                )
+            elif dialect.startswith("postgres"):
+                conn.exec_driver_sql(
+                    "ALTER TABLE users ALTER COLUMN profile_picture TYPE TEXT"
+                )
+    except Exception as exc:  # noqa: BLE001
+        print(f"profile_picture migrate note: {exc}")
+
     from app.db.seed import seed_if_empty
     from app.db.session import SessionLocal
-    from app.services.github_user_store import restore_into_db
+    from app.services.github_user_store import restore_into_db, restore_avatars_only
 
     seed_if_empty()
     db = SessionLocal()
     try:
         restore_into_db(db)
+        restore_avatars_only(db)
     finally:
         db.close()
 

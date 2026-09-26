@@ -194,9 +194,25 @@ def upload_avatar(
         raise HTTPException(400, "Image must be a data URL (jpg/png/webp)")
     if len(data) > 850_000:
         raise HTTPException(400, "Image too large. Use a smaller photo (under ~600KB).")
+
     user.profile_picture = data
+    db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Durable backup (Render free disk is wiped on restart)
+    from app.services.github_user_store import save_avatar, upsert_user
+
+    save_avatar(user.id, data)
+    upsert_user(
+        {
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "full_name": user.full_name,
+            "phone": user.phone,
+        }
+    )
     return build_profile(user)
 
 

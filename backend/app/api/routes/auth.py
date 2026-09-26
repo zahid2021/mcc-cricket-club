@@ -184,6 +184,7 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
 
     upsert_user(
         {
+            "user_id": user.id,
             "username": username,
             "email": email,
             "full_name": body.full_name.strip(),

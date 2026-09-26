@@ -96,7 +96,7 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
     full_name: Mapped[str] = mapped_column(String(200))
     password_hash: Mapped[str] = mapped_column(String(255))
-    profile_picture: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    profile_picture: Mapped[str | None] = mapped_column(Text, nullable=True)
     account_status: Mapped[AccountStatus] = mapped_column(
         Enum(AccountStatus), default=AccountStatus.active
     )
