@@ -149,6 +149,7 @@ def restore_into_db(db) -> int:
     player_role = db.query(Role).filter(Role.code == "player").first()
     imported = 0
     updated_pics = 0
+    updated_profiles = 0
     role_map = {
         "batsman": PlayingRole.batsman,
         "bowler": PlayingRole.bowler,
@@ -166,15 +167,37 @@ def restore_into_db(db) -> int:
             .first()
         )
         if exists:
-            # Restore missing avatar for existing users
-            if not exists.profile_picture:
-                pic = load_avatar(exists.id) or (
-                    load_avatar(rec["user_id"]) if rec.get("user_id") else None
-                )
-                if pic:
-                    exists.profile_picture = pic
-                    updated_pics += 1
-            # Keep user_id in backup in sync
+            # Restore / refresh profile fields from backup
+            if rec.get("full_name") and exists.full_name != rec["full_name"]:
+                exists.full_name = rec["full_name"]
+                updated_profiles += 1
+            if rec.get("phone") is not None and exists.phone != rec.get("phone"):
+                exists.phone = rec.get("phone")
+                updated_profiles += 1
+            pic = load_avatar(exists.id) or (
+                load_avatar(rec["user_id"]) if rec.get("user_id") else None
+            )
+            if pic and exists.profile_picture != pic:
+                exists.profile_picture = pic
+                updated_pics += 1
+            pp = exists.player_profile
+            if pp:
+                for fld in (
+                    "address",
+                    "emergency_contact",
+                    "date_of_birth",
+                    "batting_style",
+                    "bowling_style",
+                    "jersey_number",
+                ):
+                    if rec.get(fld) is not None and getattr(pp, fld) != rec.get(fld):
+                        setattr(pp, fld, rec.get(fld))
+                        updated_profiles += 1
+                playing = role_map.get((rec.get("playing_role") or "").lower())
+                if playing and pp.playing_role != playing:
+                    pp.playing_role = playing
+                    pp.is_wicketkeeper = playing == PlayingRole.wicketkeeper
+                    updated_profiles += 1
             if not rec.get("user_id"):
                 rec["user_id"] = exists.id
             continue
@@ -219,6 +242,10 @@ def restore_into_db(db) -> int:
                 team_id=team.id if team else None,
                 address=rec.get("address"),
                 jersey_number=rec.get("jersey_number"),
+                emergency_contact=rec.get("emergency_contact"),
+                date_of_birth=rec.get("date_of_birth"),
+                batting_style=rec.get("batting_style"),
+                bowling_style=rec.get("bowling_style"),
                 playing_role=playing,
                 is_wicketkeeper=playing == PlayingRole.wicketkeeper if playing else False,
                 status=PlayerStatus.active,
@@ -226,9 +253,12 @@ def restore_into_db(db) -> int:
         )
         imported += 1
 
-    if imported or updated_pics:
+    if imported or updated_pics or updated_profiles:
         db.commit()
-        print(f"github_user_store: restored {imported} users, {updated_pics} avatars")
+        print(
+            f"github_user_store: restored {imported} users, "
+            f"{updated_pics} avatars, {updated_profiles} profile fields"
+        )
         # Write back user_id mappings
         try:
             save_users(users)

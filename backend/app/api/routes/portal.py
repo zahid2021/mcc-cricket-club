@@ -167,6 +167,28 @@ def update_profile(
         pp.is_wicketkeeper = role == PlayingRole.wicketkeeper
     db.commit()
     db.refresh(user)
+
+    # Durable backup so edits survive Render free restarts
+    from app.services.github_user_store import upsert_user
+
+    upsert_user(
+        {
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "full_name": user.full_name,
+            "phone": user.phone,
+            "address": pp.address,
+            "emergency_contact": pp.emergency_contact,
+            "date_of_birth": pp.date_of_birth,
+            "batting_style": pp.batting_style,
+            "bowling_style": pp.bowling_style,
+            "jersey_number": pp.jersey_number,
+            "playing_role": pp.playing_role.value if pp.playing_role else None,
+            "player_code": pp.player_code,
+            "team_slug": pp.team.slug if pp.team else None,
+        }
+    )
     return build_profile(user)
 
 

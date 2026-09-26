@@ -102,7 +102,8 @@ def policy_page():
 
 @app.get("/portal/player")
 def player_portal_page():
-    return _page("portal-player.html")
+    # Player portal = My Profile (full editable form)
+    return _page("portal-profile.html")
 
 
 @app.get("/portal/player/profile")
