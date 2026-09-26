@@ -53,7 +53,7 @@
       <a class="nav" href="#" id="logout">Logout</a>
     </div>
   </header>
-  <main>
+  <main id="admin-root" hidden>
     <h1>Admin Control</h1>
     <p class="muted" id="sub">Match selection · Day/Night · Team add/remove · Captains</p>
 
@@ -152,18 +152,70 @@
     </div>
   </main>
   <script>
-    const token = localStorage.getItem("mcc_access_token");
-    if (!token) location.replace("/login?next=/portal/admin");
     document.getElementById("logout").onclick = (e) => {
       e.preventDefault();
       localStorage.clear();
-      location.replace("/login");
+      location.replace("/login?next=/portal/admin");
     };
 
-    const headers = () => ({
-      Authorization: "Bearer " + token,
-      "Content-Type": "application/json",
-    });
+    function getToken() {
+      return localStorage.getItem("mcc_access_token");
+    }
+
+    function headers() {
+      return {
+        Authorization: "Bearer " + getToken(),
+        "Content-Type": "application/json",
+      };
+    }
+
+    async function refreshSession() {
+      const rt = localStorage.getItem("mcc_refresh_token");
+      if (!rt) return false;
+      try {
+        const res = await fetch("/api/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: rt }),
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        localStorage.setItem("mcc_access_token", data.access_token);
+        if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function isAdminRole(role) {
+      return ["super_admin", "club_admin"].includes(role || "");
+    }
+
+    async function ensureAdmin() {
+      if (!getToken()) {
+        location.replace("/login?next=/portal/admin");
+        return null;
+      }
+      let res = await fetch("/api/auth/me", { headers: { Authorization: "Bearer " + getToken() } });
+      if (res.status === 401) {
+        if (await refreshSession()) {
+          res = await fetch("/api/auth/me", { headers: { Authorization: "Bearer " + getToken() } });
+        }
+      }
+      if (!res.ok) {
+        localStorage.removeItem("mcc_access_token");
+        location.replace("/login?next=/portal/admin");
+        return null;
+      }
+      const u = await res.json();
+      if (!isAdminRole(u.primary_role)) {
+        // Player/other session — admin login chahiye
+        location.replace("/login?next=/portal/admin&need_admin=1");
+        return null;
+      }
+      return u;
+    }
 
     let teams = [];
     let players = [];
@@ -175,9 +227,18 @@
 
     async function api(url, opts) {
       const res = await fetch(url, opts);
-      if (res.status === 401 || res.status === 403) {
+      if (res.status === 401) {
+        if (await refreshSession()) {
+          opts = opts || {};
+          opts.headers = Object.assign({}, opts.headers || {}, headers());
+          return fetch(url, opts);
+        }
         location.replace("/login?next=/portal/admin");
         throw new Error("Unauthorized");
+      }
+      if (res.status === 403) {
+        location.replace("/login?next=/portal/admin&need_admin=1");
+        throw new Error("Forbidden");
       }
       return res;
     }
@@ -391,16 +452,17 @@
     };
 
     (async function init() {
+      const u = await ensureAdmin();
+      if (!u) return;
+      document.getElementById("admin-root").hidden = false;
+      document.getElementById("sub").textContent =
+        u.full_name + " · " + (u.primary_role || "").replaceAll("_", " ") + " · full match & squad control";
       try {
-        const me = await api("/api/auth/me", { headers: headers() });
-        const u = await me.json();
-        document.getElementById("sub").textContent =
-          u.full_name + " · " + (u.primary_role || "").replaceAll("_", " ") + " · full match & squad control";
         await loadTeams();
         await loadPlayers();
         await loadMatches();
       } catch (e) {
-        document.getElementById("sub").textContent = "Admin login required (admin / admin)";
+        document.getElementById("sub").textContent = "Admin APIs failed — dubara login karein (admin / admin)";
       }
     })();
   </script>

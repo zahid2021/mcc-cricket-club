@@ -111,7 +111,7 @@
       return null;
     }
 
-    // Logged-in user jo Back se login/email pe aaye → turant portal (profile view)
+    // Logged-in bounce — admin next pe sirf admin role jaaye
     async function bounceToPortalIfLoggedIn() {
       const t = localStorage.getItem("mcc_access_token");
       if (!t) return false;
@@ -133,7 +133,20 @@
         }
         if (!res.ok) return false;
         const u = await res.json();
-        location.replace(safeNext() || portalPathFor(u.primary_role || "player"));
+        const role = u.primary_role || "player";
+        const next = safeNext();
+        const isAdmin = ["super_admin", "club_admin"].includes(role);
+
+        if (next === "/portal/admin") {
+          if (isAdmin) {
+            location.replace("/portal/admin");
+            return true;
+          }
+          // Player session — login form dikhao taake admin se login ho
+          return false;
+        }
+
+        location.replace(next || portalPathFor(role));
         return true;
       } catch (e) {
         return false;
@@ -153,6 +166,12 @@
     if (params.get("registered") === "1") {
       ok.textContent = "Account created successfully. Now login with the same email & password.";
       ok.classList.add("show");
+    }
+    if (params.get("need_admin") === "1" || params.get("next") === "/portal/admin") {
+      ok.textContent = "Admin Dashboard: username admin · password admin";
+      ok.classList.add("show");
+      document.getElementById("identifier").value = "admin";
+      document.getElementById("password").focus();
     }
     if (params.get("email")) {
       document.getElementById("identifier").value = params.get("email");
@@ -182,8 +201,19 @@
         }
         localStorage.setItem("mcc_access_token", data.access_token);
         if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
-        // Hamesha profile VIEW (/portal/player) — edit form nahi
-        const dest = safeNext() || portalPathFor((data.user && data.user.primary_role) || "player");
+        const role = (data.user && data.user.primary_role) || "player";
+        const next = safeNext();
+        let dest = portalPathFor(role);
+        if (next === "/portal/admin") {
+          if (["super_admin", "club_admin"].includes(role)) dest = "/portal/admin";
+          else {
+            err.textContent = "Yeh account admin nahi hai. admin / admin se login karein.";
+            err.classList.add("show");
+            return;
+          }
+        } else if (next) {
+          dest = next;
+        }
         location.replace(dest === "/portal/player/profile" ? "/portal/player" : dest);
       } catch (ex) {
         err.textContent = "Unable to reach server. Try again.";
