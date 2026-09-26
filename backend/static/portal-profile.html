@@ -42,13 +42,14 @@
   <header>
     <a class="logo" href="/portal/player">MCC · My Profile</a>
     <div style="display:flex;gap:.75rem;align-items:center">
+      <a href="/" style="color:rgba(255,255,255,.55);text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Home</a>
       <a href="/policy" style="color:#F5C518;text-decoration:none;font-size:.75rem;font-family:Oswald,sans-serif;letter-spacing:.08em;text-transform:uppercase">Policy</a>
       <button class="logout" type="button" id="logout">Logout</button>
     </div>
   </header>
   <main>
     <h1>My Profile</h1>
-    <p class="hint">Update your details. Photo replaces MCC logo when set.</p>
+    <p class="hint">Edit karke Save dabao — yahi portal pe rahoge. Back pe login email nahi aayega.</p>
     <div class="avatar-wrap">
       <img class="avatar" id="avatar" alt="Profile" width="88" height="88" />
       <div>
@@ -101,9 +102,14 @@
   <script>
     const token = localStorage.getItem("mcc_access_token");
     if (!token) location.replace("/login");
+    // Login ko history se hatao — browser Back → public Home, email/login nahi
+    try {
+      history.replaceState({ mccPortal: 1 }, "", "/portal/player");
+    } catch (e) {}
+
     document.getElementById("logout").onclick = () => {
       localStorage.clear();
-      location.href = "/login";
+      location.replace("/login");
     };
 
     const MCC_LOGO = "data:image/svg+xml," + encodeURIComponent(
@@ -294,9 +300,17 @@
           show(detailText(data), true);
           return;
         }
-        show("Profile saved");
+        // Wahi profile portal pe raho — kahin redirect mat karo
         if (data.profile_picture) setAvatar(data.profile_picture);
         document.getElementById("status").textContent = data.status || document.getElementById("status").textContent;
+        ["full_name","phone","address","emergency_contact","batting_style","bowling_style"].forEach((k) => {
+          if (data[k] != null && document.getElementById(k)) document.getElementById(k).value = data[k];
+        });
+        if (data.jersey_number != null) document.getElementById("jersey_number").value = data.jersey_number;
+        if (data.date_of_birth) document.getElementById("date_of_birth").value = toDateInput(data.date_of_birth);
+        if (data.playing_role) document.getElementById("playing_role").value = roleValue(data.playing_role);
+        show("Profile saved — aap My Profile portal pe ho");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
         show(err.message || "Save failed", true);
       }

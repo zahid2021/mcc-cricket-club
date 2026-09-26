@@ -167,13 +167,14 @@
         }
         localStorage.setItem("mcc_access_token", data.access_token);
         if (data.refresh_token) localStorage.setItem("mcc_refresh_token", data.refresh_token);
+        // replace = login page history se hat jaye — Back pe email/login na aaye
         const role = (data.user && data.user.primary_role) || "player";
         if (["super_admin", "club_admin"].includes(role)) {
-          location.href = "/portal/admin";
+          location.replace("/portal/admin");
         } else if (["captain", "vice_captain", "coach", "team_manager", "scorer"].includes(role)) {
-          location.href = "/portal/staff";
+          location.replace("/portal/staff");
         } else {
-          location.href = "/portal/player";
+          location.replace("/portal/player");
         }
       } catch (ex) {
         err.textContent = "Unable to reach server. Try again.";

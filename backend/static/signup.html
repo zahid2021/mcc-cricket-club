@@ -154,7 +154,7 @@
           err.classList.add("show");
           return;
         }
-        location.href = "/login?registered=1&email=" + encodeURIComponent(data.email || body.email);
+        location.replace("/login?registered=1&email=" + encodeURIComponent(data.email || body.email));
       } catch (ex) {
         err.textContent = "Unable to reach server.";
         err.classList.add("show");
