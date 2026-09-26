@@ -154,6 +154,38 @@ def upsert_user(record: dict[str, Any]) -> None:
         save_avatar(user_id, pic)
 
 
+def remove_user(*, user_id: str | None = None, email: str | None = None, username: str | None = None) -> None:
+    """Remove a player from durable GitHub backup (mcc-data)."""
+    users = load_users()
+    if not users:
+        return
+    eid = (email or "").lower()
+    uid = (username or "").lower()
+    kept = []
+    removed_id = None
+    for u in users:
+        match = False
+        if user_id and u.get("user_id") == user_id:
+            match = True
+        elif eid and u.get("email", "").lower() == eid:
+            match = True
+        elif uid and u.get("username", "").lower() == uid:
+            match = True
+        if match:
+            removed_id = u.get("user_id") or user_id
+            continue
+        kept.append(u)
+    if len(kept) == len(users):
+        return
+    save_users(kept)
+    # Best-effort: blank avatar file so restore won't bring photo back
+    if removed_id:
+        try:
+            save_avatar(removed_id, "data:image/jpeg;base64,")
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def save_avatar(user_id: str, data_url: str) -> bool:
     if not data_url or not data_url.startswith("data:image/"):
         return False

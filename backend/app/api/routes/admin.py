@@ -60,7 +60,11 @@ class PlayerAdminOut(BaseModel):
     profile_id: str
     full_name: str
     username: str
+    email: str | None = None
     phone: str | None = None
+    address: str | None = None
+    emergency_contact: str | None = None
+    date_of_birth: str | None = None
     profile_picture: str | None = None
     playing_role: str | None = None
     leadership_role: str | None = None
@@ -69,6 +73,8 @@ class PlayerAdminOut(BaseModel):
     team: str | None = None
     team_id: str | None = None
     jersey_number: int | None = None
+    batting_style: str | None = None
+    bowling_style: str | None = None
     status: str
     player_code: str | None = None
 
@@ -143,6 +149,26 @@ class PlayerTeamUpdate(BaseModel):
     remove_from_team: bool = False
 
 
+class AdminPlayerProfileUpdate(BaseModel):
+    """Admin can open and fully edit any player profile."""
+    full_name: str | None = Field(None, min_length=2, max_length=200)
+    phone: str | None = None
+    address: str | None = None
+    emergency_contact: str | None = None
+    date_of_birth: str | None = None
+    batting_style: str | None = None
+    bowling_style: str | None = None
+    jersey_number: int | None = Field(None, ge=1, le=99)
+    playing_role: str | None = None
+    leadership_role: str | None = Field(
+        None, pattern="^(none|senior_captain|senior_vice_captain|junior_captain|junior_vice_captain)$"
+    )
+    team_id: str | None = None
+    remove_from_team: bool = False
+    status: str | None = None
+    profile_picture: str | None = None  # data URL or empty string to clear
+
+
 class LeadershipUpdate(BaseModel):
     leadership_role: str = Field(..., pattern="^(none|senior_captain|senior_vice_captain|junior_captain|junior_vice_captain)$")
 
@@ -159,7 +185,11 @@ def _player_out(pp: PlayerProfile) -> PlayerAdminOut:
         profile_id=pp.id,
         full_name=user.full_name if user else "—",
         username=user.username if user else "—",
+        email=user.email if user else None,
         phone=user.phone if user else None,
+        address=pp.address,
+        emergency_contact=pp.emergency_contact,
+        date_of_birth=pp.date_of_birth,
         profile_picture=user.profile_picture if user else None,
         playing_role=_role_label(pp.playing_role),
         leadership_role=lead,
@@ -168,6 +198,8 @@ def _player_out(pp: PlayerProfile) -> PlayerAdminOut:
         team=pp.team.name if pp.team else None,
         team_id=pp.team_id,
         jersey_number=pp.jersey_number,
+        batting_style=pp.batting_style,
+        bowling_style=pp.bowling_style,
         status=pp.status.value.upper(),
         player_code=pp.player_code,
     )
@@ -336,6 +368,228 @@ def update_player_admin(
     db.commit()
     db.refresh(pp)
     return _player_out(pp)
+
+
+def _apply_playing_role(pp: PlayerProfile, playing_role: str) -> None:
+    key = playing_role.strip().lower().replace("-", "_").replace(" ", "_")
+    role_map = {
+        "batsman": PlayingRole.batsman,
+        "bowler": PlayingRole.bowler,
+        "all_rounder": PlayingRole.all_rounder,
+        "allrounder": PlayingRole.all_rounder,
+        "wicketkeeper": PlayingRole.wicketkeeper,
+        "keeper": PlayingRole.wicketkeeper,
+    }
+    role = role_map.get(key)
+    if not role:
+        raise HTTPException(400, "Invalid playing role")
+    pp.playing_role = role
+    pp.is_wicketkeeper = role == PlayingRole.wicketkeeper
+
+
+def _apply_leadership(db: Session, pp: PlayerProfile, leadership_role: str) -> None:
+    if leadership_role not in LEADERSHIP_LABELS:
+        raise HTTPException(400, "Invalid leadership role")
+    if leadership_role != "none":
+        others = (
+            db.query(PlayerProfile)
+            .filter(
+                PlayerProfile.leadership_role == leadership_role,
+                PlayerProfile.id != pp.id,
+            )
+            .all()
+        )
+        for o in others:
+            o.leadership_role = "none"
+    pp.leadership_role = leadership_role
+
+
+@router.get("/players/{profile_id}", response_model=PlayerAdminOut)
+def get_player_admin(
+    profile_id: str,
+    user: User = Depends(require_permissions("players.manage")),
+    db: Session = Depends(get_db),
+):
+    """Admin: open any player profile."""
+    pp = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user), joinedload(PlayerProfile.team))
+        .filter(PlayerProfile.id == profile_id)
+        .first()
+    )
+    if not pp or not pp.user:
+        raise HTTPException(404, "Player not found")
+    return _player_out(pp)
+
+
+@router.put("/players/{profile_id}/profile", response_model=PlayerAdminOut)
+def edit_player_profile_admin(
+    profile_id: str,
+    body: AdminPlayerProfileUpdate,
+    actor: User = Depends(require_permissions("players.manage")),
+    db: Session = Depends(get_db),
+):
+    """Admin: fully edit any player's profile fields / photo."""
+    pp = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user), joinedload(PlayerProfile.team))
+        .filter(PlayerProfile.id == profile_id)
+        .first()
+    )
+    if not pp or not pp.user:
+        raise HTTPException(404, "Player not found")
+    u = pp.user
+
+    if body.full_name is not None:
+        u.full_name = body.full_name.strip()
+    if body.phone is not None:
+        u.phone = body.phone.strip() or None
+    if body.address is not None:
+        pp.address = body.address.strip() or None
+    if body.emergency_contact is not None:
+        pp.emergency_contact = body.emergency_contact.strip() or None
+    if body.date_of_birth is not None:
+        pp.date_of_birth = body.date_of_birth.strip() or None
+    if body.batting_style is not None:
+        pp.batting_style = body.batting_style.strip() or None
+    if body.bowling_style is not None:
+        pp.bowling_style = body.bowling_style.strip() or None
+    if body.jersey_number is not None:
+        pp.jersey_number = body.jersey_number
+    if body.playing_role:
+        _apply_playing_role(pp, body.playing_role)
+    if body.leadership_role is not None:
+        _apply_leadership(db, pp, body.leadership_role)
+    if body.remove_from_team:
+        pp.team_id = None
+    elif body.team_id is not None:
+        if body.team_id == "":
+            pp.team_id = None
+        else:
+            team = db.get(Team, body.team_id)
+            if not team:
+                raise HTTPException(400, "Invalid team")
+            pp.team_id = team.id
+    if body.status:
+        try:
+            pp.status = PlayerStatus(body.status.lower())
+        except ValueError as exc:
+            raise HTTPException(400, "Invalid status") from exc
+    if body.profile_picture is not None:
+        pic = body.profile_picture.strip()
+        if pic == "":
+            u.profile_picture = None
+        elif pic.startswith("data:image/"):
+            if len(pic) > 850_000:
+                raise HTTPException(400, "Image too large")
+            u.profile_picture = pic
+        else:
+            raise HTTPException(400, "Invalid profile picture")
+
+    db.add(u)
+    db.add(pp)
+    db.commit()
+    db.refresh(pp)
+
+    try:
+        from app.services.github_user_store import save_avatar, upsert_user
+
+        upsert_user(
+            {
+                "user_id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "full_name": u.full_name,
+                "phone": u.phone,
+                "player_code": pp.player_code,
+                "address": pp.address,
+                "emergency_contact": pp.emergency_contact,
+                "date_of_birth": pp.date_of_birth,
+                "jersey_number": pp.jersey_number,
+                "batting_style": pp.batting_style,
+                "bowling_style": pp.bowling_style,
+                "playing_role": pp.playing_role.value if pp.playing_role else None,
+                "leadership_role": pp.leadership_role,
+                "status": pp.status.value if pp.status else None,
+                "team_id": pp.team_id,
+            }
+        )
+        if u.profile_picture:
+            save_avatar(u.id, u.profile_picture)
+    except Exception as exc:  # noqa: BLE001
+        print(f"admin profile backup skipped: {exc}")
+
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_edit_player_profile",
+            entity_type="player_profile",
+            entity_id=pp.id,
+            detail=f"Edited profile of {u.full_name}",
+        )
+    )
+    db.commit()
+    return _player_out(pp)
+
+
+@router.delete("/players/{profile_id}")
+def delete_player_admin(
+    profile_id: str,
+    actor: User = Depends(require_permissions("players.manage")),
+    db: Session = Depends(get_db),
+):
+    """Admin: remove player from website (profile + login account)."""
+    pp = (
+        db.query(PlayerProfile)
+        .options(joinedload(PlayerProfile.user))
+        .filter(PlayerProfile.id == profile_id)
+        .first()
+    )
+    if not pp or not pp.user:
+        raise HTTPException(404, "Player not found")
+
+    target = pp.user
+    if target.id == actor.id:
+        raise HTTPException(400, "Apna account delete nahi kar sakte")
+
+    # Never delete club admin / super admin accounts via this tool
+    role_codes = {r.code for r in (target.roles or [])}
+    if role_codes & {"super_admin", "club_admin"}:
+        raise HTTPException(400, "Admin account delete nahi ho sakta")
+
+    name = target.full_name
+    email = target.email
+    username = target.username
+    user_id = target.id
+
+    # Squad rows cascade from profile if FK set; delete explicitly for safety
+    db.query(MatchSquad).filter(MatchSquad.player_profile_id == pp.id).delete()
+    db.query(Notification).filter(Notification.recipient_user_id == user_id).delete()
+
+    db.delete(pp)
+    # Clear association table roles
+    target.roles.clear()
+    db.delete(target)
+
+    db.add(
+        AuditLog(
+            actor_user_id=actor.id,
+            action="admin_delete_player",
+            entity_type="user",
+            entity_id=user_id,
+            detail=f"Deleted player {name} ({username})",
+        )
+    )
+    db.commit()
+
+    try:
+        from app.services.github_user_store import remove_user
+
+        remove_user(user_id=user_id, email=email, username=username)
+    except Exception as exc:  # noqa: BLE001
+        print(f"github remove_user skipped: {exc}")
+
+    return {"message": f"{name} website se remove ho gaya", "deleted_user_id": user_id}
 
 
 # ── Matches ───────────────────────────────────────────────────────────

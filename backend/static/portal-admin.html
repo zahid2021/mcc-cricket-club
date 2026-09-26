@@ -42,6 +42,29 @@
     .table th, .table td { text-align: left; padding: .55rem .4rem; border-bottom: 1px solid rgba(255,255,255,.08); vertical-align: middle; }
     .table th { font-family: Oswald, sans-serif; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.4); }
     .table select { padding: .35rem; font-size: .8rem; }
+    .btn-sm { padding: .35rem .55rem; font-size: .65rem; }
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.78);
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 1.25rem 1rem; overflow: auto;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      width: min(36rem, 100%); background: #0a1f10;
+      border: 1px solid rgba(245,197,24,.4); border-radius: 6px;
+      padding: 1.15rem 1.1rem 1.35rem; margin: 1rem auto 2rem;
+    }
+    .modal h3 { font-family: Bebas Neue, sans-serif; font-size: 1.7rem; color: var(--gold); }
+    .modal-avatar {
+      width: 5.5rem; height: 5.5rem; border-radius: 999px; object-fit: cover;
+      border: 2px solid var(--gold); background: #0d3d18; display: block;
+    }
+    .modal-head { display: flex; gap: 1rem; align-items: center; margin: .75rem 0 1rem; flex-wrap: wrap; }
+    .view-grid { display: grid; gap: .55rem; }
+    @media (min-width: 560px) { .view-grid { grid-template-columns: 1fr 1fr; } }
+    .view-item { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); padding: .55rem .7rem; border-radius: 3px; }
+    .view-item small { display: block; font-family: Oswald, sans-serif; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+    .view-item strong { display: block; margin-top: .2rem; font-size: .9rem; font-weight: 500; word-break: break-word; }
   </style>
 </head>
 <body>
@@ -53,9 +76,117 @@
       <a class="nav" href="#" id="logout">Logout</a>
     </div>
   </header>
+
+  <div class="modal-bg" id="profile_modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem">
+        <h3 id="pm_title">Player Profile</h3>
+        <button type="button" class="btn btn-outline btn-sm" id="pm_close">Close</button>
+      </div>
+      <div class="modal-head">
+        <img class="modal-avatar" id="pm_avatar" alt="Player" />
+        <div>
+          <p class="muted" id="pm_sub">—</p>
+          <div style="margin-top:.55rem;display:flex;flex-wrap:wrap;gap:.4rem">
+            <button type="button" class="btn btn-gold btn-sm" id="pm_mode_edit">Edit profile</button>
+            <button type="button" class="btn btn-outline btn-sm" id="pm_mode_view" hidden>View only</button>
+            <button type="button" class="btn btn-danger btn-sm" id="pm_delete">Delete from website</button>
+          </div>
+        </div>
+      </div>
+      <div id="pm_view" class="view-grid"></div>
+      <form id="pm_form" hidden>
+        <div class="row cols-2">
+          <div>
+            <label>Full name</label>
+            <input id="pm_full_name" />
+          </div>
+          <div>
+            <label>Phone</label>
+            <input id="pm_phone" />
+          </div>
+        </div>
+        <label>Address</label>
+        <textarea id="pm_address" rows="2"></textarea>
+        <div class="row cols-2">
+          <div>
+            <label>Emergency contact</label>
+            <input id="pm_emergency" />
+          </div>
+          <div>
+            <label>Date of birth</label>
+            <input id="pm_dob" type="date" />
+          </div>
+        </div>
+        <div class="row cols-2">
+          <div>
+            <label>Playing role</label>
+            <select id="pm_role">
+              <option value="batsman">Batsman</option>
+              <option value="bowler">Bowler</option>
+              <option value="all_rounder">All-rounder</option>
+              <option value="wicketkeeper">Wicketkeeper</option>
+            </select>
+          </div>
+          <div>
+            <label>Club position</label>
+            <select id="pm_lead">
+              <option value="none">— None —</option>
+              <option value="senior_captain">Senior Captain</option>
+              <option value="senior_vice_captain">Senior Vice Captain</option>
+              <option value="junior_captain">Junior Captain</option>
+              <option value="junior_vice_captain">Junior Vice Captain</option>
+            </select>
+          </div>
+        </div>
+        <div class="row cols-3">
+          <div>
+            <label>Team</label>
+            <select id="pm_team"></select>
+          </div>
+          <div>
+            <label>Jersey</label>
+            <input id="pm_jersey" type="number" min="1" max="99" />
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="pm_status">
+              <option value="active">active</option>
+              <option value="injured">injured</option>
+              <option value="suspended">suspended</option>
+              <option value="banned">banned</option>
+              <option value="inactive">inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="row cols-2">
+          <div>
+            <label>Batting style</label>
+            <input id="pm_bat" />
+          </div>
+          <div>
+            <label>Bowling style</label>
+            <input id="pm_bowl" />
+          </div>
+        </div>
+        <label>Profile picture (optional — paste new photo after crop, or clear)</label>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.35rem">
+          <input type="file" id="pm_photo" accept="image/*" style="display:none" />
+          <button type="button" class="btn btn-outline btn-sm" id="pm_photo_btn">Change photo</button>
+          <button type="button" class="btn btn-danger btn-sm" id="pm_photo_clear">Remove photo</button>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          <button type="submit" class="btn btn-gold">Save profile</button>
+          <button type="button" class="btn btn-outline" id="pm_cancel">Cancel</button>
+        </div>
+        <p class="msg" id="pm_msg"></p>
+      </form>
+    </div>
+  </div>
+
   <main id="admin-root" hidden>
     <h1>Admin Control</h1>
-    <p class="muted" id="sub">Match selection · Day/Night · Team add/remove · Captains</p>
+    <p class="muted" id="sub">Match selection · Day/Night · Team add/remove · Captains · Open / Edit / Delete profiles</p>
 
     <h2>1 · Create / Publish Match</h2>
     <div class="panel">
@@ -118,8 +249,9 @@
     <h2>2 · Upcoming Matches (Homepage)</h2>
     <div id="matches_list"><p class="muted">Loading…</p></div>
 
-    <h2>3 · Squad &amp; Leadership (full access)</h2>
+    <h2>3 · Players — Open / Edit / Delete</h2>
     <div class="panel">
+      <p class="muted" style="margin-bottom:.75rem">Kisi bhi player ki profile open karo, edit karo, ya website se remove/delete karo.</p>
       <div class="row cols-2">
         <div>
           <label>Filter category</label>
@@ -142,7 +274,7 @@
               <th>Captain / VC</th>
               <th>Team</th>
               <th>Status</th>
-              <th></th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -190,6 +322,8 @@
       <p class="msg" id="d_msg"></p>
     </div>
   </main>
+
+  <script src="/static/js/mcc-photo-crop.js"></script>
   <script>
     document.getElementById("logout").onclick = (e) => {
       e.preventDefault();
@@ -249,7 +383,6 @@
       }
       const u = await res.json();
       if (!isAdminRole(u.primary_role)) {
-        // Player/other session — admin login chahiye
         location.replace("/login?next=/portal/admin&need_admin=1");
         return null;
       }
@@ -258,6 +391,12 @@
 
     let teams = [];
     let players = [];
+    let currentProfile = null;
+    let pendingPhoto = undefined;
+
+    const MCC_LOGO = "data:image/svg+xml," + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#0d3d18" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="#F5C518" font-size="28" font-family="sans-serif">MCC</text></svg>'
+    );
 
     function show(el, text, isErr) {
       el.textContent = text;
@@ -314,7 +453,7 @@
       const r = await api("/api/admin/teams", { headers: headers() });
       teams = await r.json();
       fillTeams();
-      fillRosterTeamSelects();
+      fillPmTeams();
     }
 
     async function loadPlayers() {
@@ -368,8 +507,115 @@
       });
     }
 
-    function fillRosterTeamSelects() {
-      /* team options used inside renderRoster */
+    function fillPmTeams() {
+      const sel = document.getElementById("pm_team");
+      if (!sel) return;
+      sel.innerHTML = '<option value="">— No team —</option>' +
+        teams.map((t) => `<option value="${t.id}">${t.name} (${t.category || ""})</option>`).join("");
+    }
+
+    function roleKey(label) {
+      const pr = (label || "").toLowerCase();
+      if (pr.includes("bowl")) return "bowler";
+      if (pr.includes("keep")) return "wicketkeeper";
+      if (pr.includes("all")) return "all_rounder";
+      return "batsman";
+    }
+
+    function closeProfileModal() {
+      document.getElementById("profile_modal").classList.remove("open");
+      document.getElementById("profile_modal").setAttribute("aria-hidden", "true");
+      currentProfile = null;
+      pendingPhoto = undefined;
+    }
+
+    function setEditMode(on) {
+      document.getElementById("pm_view").hidden = on;
+      document.getElementById("pm_form").hidden = !on;
+      document.getElementById("pm_mode_edit").hidden = on;
+      document.getElementById("pm_mode_view").hidden = !on;
+    }
+
+    function renderProfileView(p) {
+      const rows = [
+        ["Full name", p.full_name],
+        ["Username", p.username],
+        ["Email", p.email],
+        ["Player ID", p.player_code],
+        ["Phone", p.phone],
+        ["Address", p.address],
+        ["Emergency", p.emergency_contact],
+        ["Date of birth", p.date_of_birth],
+        ["Category", p.category],
+        ["Team", p.team],
+        ["Playing role", p.playing_role],
+        ["Club position", p.leadership_label],
+        ["Jersey", p.jersey_number != null ? String(p.jersey_number) : ""],
+        ["Batting", p.batting_style],
+        ["Bowling", p.bowling_style],
+        ["Status", p.status],
+      ];
+      document.getElementById("pm_view").innerHTML = rows.map(([k, v]) =>
+        `<div class="view-item"><small>${k}</small><strong>${v || "—"}</strong></div>`
+      ).join("");
+    }
+
+    function fillProfileForm(p) {
+      fillPmTeams();
+      document.getElementById("pm_full_name").value = p.full_name || "";
+      document.getElementById("pm_phone").value = p.phone || "";
+      document.getElementById("pm_address").value = p.address || "";
+      document.getElementById("pm_emergency").value = p.emergency_contact || "";
+      document.getElementById("pm_dob").value = p.date_of_birth || "";
+      document.getElementById("pm_role").value = roleKey(p.playing_role);
+      document.getElementById("pm_lead").value = p.leadership_role || "none";
+      document.getElementById("pm_team").value = p.team_id || "";
+      document.getElementById("pm_jersey").value = p.jersey_number || "";
+      document.getElementById("pm_status").value = (p.status || "ACTIVE").toLowerCase();
+      document.getElementById("pm_bat").value = p.batting_style || "";
+      document.getElementById("pm_bowl").value = p.bowling_style || "";
+      pendingPhoto = undefined;
+    }
+
+    async function openPlayerProfile(profileId, edit) {
+      const msg = document.getElementById("pm_msg");
+      show(msg, "Loading…");
+      const res = await api("/api/admin/players/" + profileId, { headers: headers() });
+      const p = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        show(document.getElementById("p_msg"), p.detail || "Profile open failed", true);
+        return;
+      }
+      currentProfile = p;
+      document.getElementById("pm_title").textContent = p.full_name || "Player";
+      document.getElementById("pm_sub").textContent =
+        [p.player_code, p.username, p.category, p.status].filter(Boolean).join(" · ");
+      document.getElementById("pm_avatar").src =
+        (p.profile_picture && String(p.profile_picture).startsWith("data:image/"))
+          ? p.profile_picture : MCC_LOGO;
+      renderProfileView(p);
+      fillProfileForm(p);
+      setEditMode(!!edit);
+      show(msg, "");
+      document.getElementById("profile_modal").classList.add("open");
+      document.getElementById("profile_modal").setAttribute("aria-hidden", "false");
+    }
+
+    async function deletePlayer(profileId, name) {
+      if (!confirm((name || "Player") + " ko website se DELETE / REMOVE karna hai? Ye undo nahi hoga.")) return;
+      if (!confirm("Confirm: account + profile dono delete?")) return;
+      const res = await api("/api/admin/players/" + profileId, {
+        method: "DELETE",
+        headers: headers(),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        show(document.getElementById("p_msg"), data.detail || "Delete failed", true);
+        return;
+      }
+      show(document.getElementById("p_msg"), data.message || "Deleted");
+      closeProfileModal();
+      await loadPlayers();
     }
 
     function renderRoster() {
@@ -391,12 +637,6 @@
         <option value="wicketkeeper">Wicketkeeper</option>`;
 
       tbody.innerHTML = players.map((p) => {
-        const roleVal = (p.playing_role || "batsman").toLowerCase().replace("-", "_").replace(" ", "_")
-          .replace("all rounder", "all_rounder");
-        let rv = "batsman";
-        if (roleVal.includes("bowl")) rv = "bowler";
-        else if (roleVal.includes("keep")) rv = "wicketkeeper";
-        else if (roleVal.includes("all")) rv = "all_rounder";
         return `<tr data-id="${p.profile_id}">
           <td><b>${p.full_name}</b><br/><span class="muted">${p.player_code || ""} · ${p.category || ""}</span></td>
           <td><select class="r-role">${roleOpts}</select></td>
@@ -404,11 +644,16 @@
           <td><select class="r-team">${teamOpts}</select></td>
           <td><select class="r-status">${statusOpts}</select></td>
           <td>
-            <button type="button" class="btn btn-gold r-save">Save</button>
+            <div style="display:flex;flex-wrap:wrap;gap:.3rem">
+              <button type="button" class="btn btn-outline btn-sm r-open">Open</button>
+              <button type="button" class="btn btn-gold btn-sm r-edit">Edit</button>
+              <button type="button" class="btn btn-danger btn-sm r-del">Delete</button>
+              <button type="button" class="btn btn-gold btn-sm r-save">Quick save</button>
+            </div>
             <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.35rem">
-              <button type="button" class="btn btn-outline r-warn" style="padding:.35rem .5rem;font-size:.65rem">Warn</button>
-              <button type="button" class="btn btn-danger r-ban" style="padding:.35rem .5rem;font-size:.65rem">Ban</button>
-              <button type="button" class="btn btn-outline r-unban" style="padding:.35rem .5rem;font-size:.65rem">Unban</button>
+              <button type="button" class="btn btn-outline btn-sm r-warn">Warn</button>
+              <button type="button" class="btn btn-danger btn-sm r-ban">Ban</button>
+              <button type="button" class="btn btn-outline btn-sm r-unban">Unban</button>
             </div>
           </td>
         </tr>`;
@@ -421,15 +666,15 @@
         const leadSel = tr.querySelector(".r-lead");
         const teamSel = tr.querySelector(".r-team");
         const statusSel = tr.querySelector(".r-status");
-        let rv = "batsman";
-        const pr = (p.playing_role || "").toLowerCase();
-        if (pr.includes("bowl")) rv = "bowler";
-        else if (pr.includes("keep")) rv = "wicketkeeper";
-        else if (pr.includes("all")) rv = "all_rounder";
-        roleSel.value = rv;
+        roleSel.value = roleKey(p.playing_role);
         leadSel.value = p.leadership_role || "none";
         teamSel.value = p.team_id || "";
         statusSel.value = (p.status || "ACTIVE").toLowerCase();
+
+        tr.querySelector(".r-open").onclick = () => openPlayerProfile(p.profile_id, false);
+        tr.querySelector(".r-edit").onclick = () => openPlayerProfile(p.profile_id, true);
+        tr.querySelector(".r-del").onclick = () => deletePlayer(p.profile_id, p.full_name);
+
         tr.querySelector(".r-save").onclick = async () => {
           const body = {
             playing_role: roleSel.value,
@@ -474,7 +719,6 @@
         };
       });
 
-      // Discipline player dropdown
       const dSel = document.getElementById("d_player");
       if (dSel) {
         const prev = dSel.value;
@@ -484,6 +728,86 @@
         if (prev) dSel.value = prev;
       }
     }
+
+    document.getElementById("pm_close").onclick = closeProfileModal;
+    document.getElementById("pm_cancel").onclick = () => setEditMode(false);
+    document.getElementById("pm_mode_view").onclick = () => setEditMode(false);
+    document.getElementById("pm_mode_edit").onclick = () => {
+      if (currentProfile) fillProfileForm(currentProfile);
+      setEditMode(true);
+    };
+    document.getElementById("pm_delete").onclick = () => {
+      if (!currentProfile) return;
+      deletePlayer(currentProfile.profile_id, currentProfile.full_name);
+    };
+    document.getElementById("profile_modal").addEventListener("click", (e) => {
+      if (e.target.id === "profile_modal") closeProfileModal();
+    });
+
+    document.getElementById("pm_photo_btn").onclick = () => document.getElementById("pm_photo").click();
+    document.getElementById("pm_photo_clear").onclick = () => {
+      pendingPhoto = null;
+      document.getElementById("pm_avatar").src = MCC_LOGO;
+      show(document.getElementById("pm_msg"), "Photo remove hogi Save ke baad");
+    };
+    document.getElementById("pm_photo").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file || !window.openMccPhotoCrop) return;
+      const dataUrl = await openMccPhotoCrop(file);
+      if (!dataUrl) return;
+      pendingPhoto = dataUrl;
+      document.getElementById("pm_avatar").src = dataUrl;
+      show(document.getElementById("pm_msg"), "Photo set — Save dabao");
+    });
+
+    document.getElementById("pm_form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentProfile) return;
+      const msg = document.getElementById("pm_msg");
+      const body = {
+        full_name: document.getElementById("pm_full_name").value.trim(),
+        phone: document.getElementById("pm_phone").value.trim(),
+        address: document.getElementById("pm_address").value.trim(),
+        emergency_contact: document.getElementById("pm_emergency").value.trim(),
+        date_of_birth: document.getElementById("pm_dob").value.trim(),
+        playing_role: document.getElementById("pm_role").value,
+        leadership_role: document.getElementById("pm_lead").value,
+        team_id: document.getElementById("pm_team").value || null,
+        remove_from_team: !document.getElementById("pm_team").value,
+        jersey_number: document.getElementById("pm_jersey").value
+          ? Number(document.getElementById("pm_jersey").value) : null,
+        status: document.getElementById("pm_status").value,
+        batting_style: document.getElementById("pm_bat").value.trim(),
+        bowling_style: document.getElementById("pm_bowl").value.trim(),
+      };
+      if (pendingPhoto !== undefined) {
+        body.profile_picture = pendingPhoto === null ? "" : pendingPhoto;
+      }
+      show(msg, "Saving…");
+      const res = await api("/api/admin/players/" + currentProfile.profile_id + "/profile", {
+        method: "PUT",
+        headers: headers(),
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        show(msg, typeof data.detail === "string" ? data.detail : "Save failed", true);
+        return;
+      }
+      currentProfile = data;
+      pendingPhoto = undefined;
+      document.getElementById("pm_title").textContent = data.full_name || "Player";
+      document.getElementById("pm_avatar").src =
+        (data.profile_picture && String(data.profile_picture).startsWith("data:image/"))
+          ? data.profile_picture : MCC_LOGO;
+      renderProfileView(data);
+      fillProfileForm(data);
+      setEditMode(false);
+      show(msg, "Profile saved");
+      show(document.getElementById("p_msg"), data.full_name + " profile updated");
+      await loadPlayers();
+    });
 
     document.getElementById("m_category").onchange = () => {
       fillTeams();
@@ -573,7 +897,8 @@
       if (!u) return;
       document.getElementById("admin-root").hidden = false;
       document.getElementById("sub").textContent =
-        u.full_name + " · " + (u.primary_role || "").replaceAll("_", " ") + " · full match & squad control";
+        u.full_name + " · " + (u.primary_role || "").replaceAll("_", " ") +
+        " · Open / Edit / Delete players · match & squad control";
       try {
         await loadTeams();
         await loadPlayers();
