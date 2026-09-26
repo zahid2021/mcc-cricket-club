@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "username": "player1790398001",
+    "email": "player1790398001@gmail.com",
+    "full_name": "Demo Player",
+    "phone": null,
+    "password_hash": "$2b$12$waHLcKwf0L2iyw008X/Gr.rCjdIpOBFFkrJdKn7YB/e8ofrnnsxHa",
+    "player_code": "MCC-P-0002"
+  }
+]
