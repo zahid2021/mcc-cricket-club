@@ -115,7 +115,15 @@ def health():
 def _page(name: str):
     path = STATIC_DIR / name
     if path.exists():
-        return FileResponse(path)
+        # Avoid stale homepage/HTML after deploys
+        return FileResponse(
+            path,
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
     return {"error": "page not found"}
 
 

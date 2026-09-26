@@ -219,18 +219,6 @@
     </div>
   </section>
 
-  <!-- Tournament policy banner — sab se neeche (footer se pehle) -->
-  <section class="section" id="policy" style="padding-bottom:2.5rem">
-    <h2>TOURNAMENT POLICY</h2>
-    <p class="muted">ٹورنامنٹ میں شرکت کی پالیسی — English &amp; اردو · Every player must read and follow</p>
-    <div style="margin-top:1.25rem;border:1px solid rgba(245,197,24,.3);border-radius:4px;overflow:hidden;background:#0a1f10">
-      <a href="/policy">
-        <img src="/static/images/mcc-tournament-policy.png" alt="MCC Tournament Process Flow Chart" style="width:100%;height:auto;display:block" />
-      </a>
-    </div>
-    <p style="margin-top:1rem">
-      <a class="btn" href="/policy">Read Full Policy (English + اردو)</a>
-    </p>
   </section>
 
   <footer class="footer">
@@ -238,6 +226,20 @@
     <div>Mustafa Cricket Club · © 2026 · <a href="/login?next=/portal/admin" style="color:#F5C518">Admin Dashboard</a></div>
     <div class="motto">We Play for the Badge, Not for the Applause.</div>
   </footer>
+
+  <!-- LAST on homepage: tournament process banner -->
+  <section id="policy" style="width:100%;background:#06140a;border-top:1px solid rgba(245,197,24,.35);padding:0;margin:0">
+    <div style="max-width:72rem;margin:0 auto;padding:1.5rem 1rem 2rem">
+      <h2 style="font-family:Bebas Neue,sans-serif;font-size:1.8rem;color:#F5C518;letter-spacing:.06em;margin:0 0 .35rem">TOURNAMENT POLICY</h2>
+      <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin:0 0 1rem">ٹورنامنٹ میں شرکت کی پالیسی — English &amp; اردو</p>
+      <a href="/policy" style="display:block;border:1px solid rgba(245,197,24,.35);border-radius:4px;overflow:hidden">
+        <img src="/static/images/mcc-tournament-policy-v2.jpg?v=3" alt="MCC Tournament Process Flow Chart" width="1024" height="935" style="width:100%;height:auto;display:block;vertical-align:bottom" />
+      </a>
+      <p style="margin-top:1rem">
+        <a class="btn" href="/policy">Read Full Policy (English + اردو)</a>
+      </p>
+    </div>
+  </section>
 
   <script>
     fetch('/health').then(r => r.json()).then(j => {
