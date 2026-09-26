@@ -6,7 +6,7 @@
     "phone": null,
     "password_hash": "$2b$12$waHLcKwf0L2iyw008X/Gr.rCjdIpOBFFkrJdKn7YB/e8ofrnnsxHa",
     "player_code": "MCC-P-0002",
-    "user_id": "27698f83-8aea-4f44-8d04-735358e67537"
+    "user_id": "446071eb-8ef3-4f86-b29a-920953e54607"
   },
   {
     "username": "usert",
@@ -15,7 +15,7 @@
     "phone": "301-7941843",
     "password_hash": "$2b$12$K/drMbWONzW7J9zdr7dI5Ovk8Cvrgw7w8rnJBlFfcjnxpgXoxCiyS",
     "player_code": "MCC-P-0003",
-    "user_id": "cc76faae-fda4-47f7-9d14-654fc9f99e50"
+    "user_id": "70877f66-a9f8-4bf6-be0d-bf57eb258558"
   },
   {
     "username": "raees",
@@ -29,7 +29,7 @@
     "team_slug": "senior-1st-xi",
     "playing_role": "batsman",
     "jersey_number": null,
-    "user_id": "908d097b-4dbd-45c3-95a7-7150bf2ac5ba"
+    "user_id": "29f48063-1b99-434d-82be-98f2ddf86a65"
   },
   {
     "username": "abdullahumer007",
@@ -43,6 +43,6 @@
     "team_slug": "u19",
     "playing_role": "batsman",
     "jersey_number": 3,
-    "user_id": "d6c58099-0213-45d8-9353-cd004cb4794a"
+    "user_id": "92d138b5-fd22-4513-8a9e-2c9d2c3a6176"
   }
 ]
