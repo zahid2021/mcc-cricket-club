@@ -12,5 +12,19 @@
     "team_slug": "senior-1st-xi",
     "playing_role": "batsman",
     "jersey_number": null
+  },
+  {
+    "user_id": "698baad7-6832-459b-8572-31d3a441b141",
+    "username": "tayyab",
+    "email": "tayyab@gmail.com",
+    "full_name": "Tayyab shah",
+    "phone": "03003754649",
+    "address": "Basti Shah wali",
+    "password_hash": "$2b$12$mzrHqIacW7wOndvtgkDXu.J5D4FXvzZFe.kYGUAalB9FsNWzE8S3G",
+    "player_code": "MCC-P-0002",
+    "category": "junior",
+    "team_slug": "u19",
+    "playing_role": "batsman",
+    "jersey_number": null
   }
 ]
